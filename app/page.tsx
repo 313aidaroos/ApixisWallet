@@ -1,17 +1,18 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { ArrowDownLeft, ArrowUpRight, Coins, LayoutGrid, List, TrendingUp, WalletCards } from "lucide-react";
+import { ArrowDownLeft, ArrowUpRight, Coins, LayoutGrid, List, Megaphone, TrendingUp, WalletCards } from "lucide-react";
 import { pointPacks, redeemCatalog } from "@/lib/catalog";
 import { last24h, productTape, xpTape } from "@/lib/market";
+import { bulletins, ticker } from "@/lib/news";
 import { Tape } from "@/components/Tape";
 
-type Tab = "home" | "buy" | "redeem" | "market" | "activity";
+type Tab = "home" | "buy" | "redeem" | "market" | "news" | "activity";
 
 const seed = [
-  { title: "Renoxis Agent Office", meta: "Redeem", xp: -15000 },
-  { title: "Office coins", meta: "Purchase", xp: 36000 },
-  { title: "Renovation concept", meta: "Redeem", xp: -500 },
+  { title: "Renoxis Agent Office", meta: "Redeem", xp: -30000 },
+  { title: "Studio coins", meta: "Purchase", xp: 50000 },
+  { title: "Image meter", meta: "Meter", xp: -150 },
 ];
 
 const usd = (n: number) =>
@@ -20,7 +21,7 @@ const usd = (n: number) =>
 export default function Home() {
   const [tab, setTab] = useState<Tab>("home");
   const [paid, setPaid] = useState(40350);
-  const [bonus, setBonus] = useState(2500);
+  const [bonus, setBonus] = useState(0);
   const [reserved] = useState(0);
   const [notice, setNotice] = useState("");
   const [log, setLog] = useState(seed);
@@ -39,7 +40,7 @@ export default function Home() {
       const data = await response.json();
       if (data.url) window.location.assign(data.url);
     } catch {
-      setNotice("Stripe is not connected. Coin checkout is the only card flow.");
+      setNotice("Stripe dark. Coin checkout is the only card flow.");
     }
   };
 
@@ -49,10 +50,7 @@ export default function Home() {
       setTab("buy");
       return;
     }
-    const fromBonus = Math.min(bonus, xp);
-    const fromPaid = xp - fromBonus;
-    setBonus((b) => b - fromBonus);
-    setPaid((p) => p - fromPaid);
+    setPaid((p) => p - xp);
     setLog((rows) => [{ title: name, meta: "Redeem", xp: -xp }, ...rows]);
     setNotice(`${name} · ${xp.toLocaleString()} XP`);
     void fetch("/api/v1/quotes", {
@@ -63,7 +61,7 @@ export default function Home() {
   };
 
   const title = useMemo(
-    () => ({ home: "Balance", buy: "Buy coins", redeem: "Redeem", market: "Market", activity: "Activity" })[tab],
+    () => ({ home: "HQ", buy: "BUY", redeem: "REDEEM", market: "TAPE", news: "NEWS", activity: "LOG" })[tab],
     [tab],
   );
 
@@ -74,24 +72,26 @@ export default function Home() {
           <div className="mark">A</div>
           <div>
             <strong>APIXIS</strong>
-            <span>WALLET</span>
+            <span>FAMILY // WALLET</span>
           </div>
         </div>
         <nav>
-          <button className={tab === "home" ? "active" : ""} onClick={() => setTab("home")}><LayoutGrid />Home</button>
+          <button className={tab === "home" ? "active" : ""} onClick={() => setTab("home")}><LayoutGrid />HQ</button>
           <button className={tab === "buy" ? "active" : ""} onClick={() => setTab("buy")}><WalletCards />Buy</button>
           <button className={tab === "redeem" ? "active" : ""} onClick={() => setTab("redeem")}><Coins />Redeem</button>
-          <button className={tab === "market" ? "active" : ""} onClick={() => setTab("market")}><TrendingUp />Market</button>
-          <button className={tab === "activity" ? "active" : ""} onClick={() => setTab("activity")}><List />Activity</button>
+          <button className={tab === "market" ? "active" : ""} onClick={() => setTab("market")}><TrendingUp />Tape</button>
+          <button className={tab === "news" ? "active" : ""} onClick={() => setTab("news")}><Megaphone />News</button>
+          <button className={tab === "activity" ? "active" : ""} onClick={() => setTab("activity")}><List />Log</button>
         </nav>
       </aside>
       <section className="shell">
+        <div className="ticker"><i>{ticker}    ///    {ticker}</i></div>
         <header>
           <div>
-            <p>100 XP = $1</p>
+            <p>100 XP = $1 <span className="live">● LIVE</span></p>
             <h1>{title}</h1>
           </div>
-          <p style={{ color: "#8e99a5", fontSize: 13 }}>{available.toLocaleString()} XP</p>
+          <p>{available.toLocaleString()} XP</p>
         </header>
         {notice && (
           <div className="notice" onClick={() => setNotice("")}>
@@ -100,7 +100,7 @@ export default function Home() {
         )}
 
         {tab === "home" && (
-          <>
+          <div className="dash">
             <article className="balance-card">
               <div className="eyebrow"><span>AVAILABLE</span></div>
               <h2>{available.toLocaleString()} <small>XP</small></h2>
@@ -114,9 +114,28 @@ export default function Home() {
                 <span><b>{bonus.toLocaleString()} XP</b>Bonus</span>
                 <span><b>{reserved.toLocaleString()} XP</b>Held</span>
               </div>
+              <div style={{ marginTop: 16 }}>
+                <Tape values={xpTape.map((d) => d.circulating)} bars={xpTape.map((d) => d.buyXp + d.redeemXp)} height={120} />
+              </div>
             </article>
-            <footer>One checkout. Coins only. Products redeem XP.</footer>
-          </>
+            <div>
+              <article className="transactions">
+                {log.slice(0, 4).map((t, i) => (
+                  <div className="tx" key={`${t.title}-${i}`}>
+                    <span className={t.xp > 0 ? "in" : "out"}>{t.xp > 0 ? <ArrowDownLeft /> : <ArrowUpRight />}</span>
+                    <div><b>{t.title}</b><p>{t.meta}</p></div>
+                    <strong className={t.xp > 0 ? "green" : ""}>{t.xp > 0 ? "+" : ""}{t.xp.toLocaleString()}</strong>
+                  </div>
+                ))}
+              </article>
+              <article className="news-card" style={{ marginTop: 14 }}>
+                <em>{bulletins[0].tag} · {bulletins[0].source}</em>
+                <h3>{bulletins[0].title}</h3>
+                <p>{bulletins[0].body}</p>
+                <button className="secondary" onClick={() => setTab("news")} style={{ marginTop: 10, background: "transparent", color: "#9dff4a", border: "1px solid #1f3a24", padding: "8px 10px" }}>All news</button>
+              </article>
+            </div>
+          </div>
         )}
 
         {tab === "buy" && (
@@ -125,7 +144,7 @@ export default function Home() {
               <article key={p.id}>
                 <p>{p.name}</p>
                 <h3>{p.xp.toLocaleString()} <small>XP</small></h3>
-                <span>${p.price}{p.bonus > 0 ? ` + ${p.bonus.toLocaleString()} bonus` : ""}</span>
+                <span>${p.price}</span>
                 <button onClick={() => buy(p.id)}>Buy</button>
               </article>
             ))}
@@ -149,36 +168,18 @@ export default function Home() {
         {tab === "market" && (
           <>
             <article className="balance-card">
-              <div className="eyebrow">
-                <span>XP / USD</span>
-                <span className="live">PEG $0.01</span>
-              </div>
-              <h2>$0.01 <small>fixed</small></h2>
-              <p>Not a floating ticker. Cap = circulating XP × peg.</p>
+              <div className="eyebrow"><span>XP / USD</span><span className="live">PEG $0.01</span></div>
+              <h2>$0.01 <small>FIXED</small></h2>
               <div className="split">
                 <span><b>{tape.circulating.toLocaleString()}</b>Circulating</span>
-                <span><b>{usd(tape.capUsd)}</b>Liability cap</span>
-                <span><b>{usd(tape.volumeUsd)}</b>24h volume</span>
+                <span><b>{usd(tape.capUsd)}</b>Cap</span>
+                <span><b>{usd(tape.volumeUsd)}</b>24h vol</span>
               </div>
               <div style={{ marginTop: 18 }}>
-                <Tape
-                  values={xpTape.map((d) => d.circulating)}
-                  bars={xpTape.map((d) => d.buyXp + d.redeemXp)}
-                  height={160}
-                />
+                <Tape values={xpTape.map((d) => d.circulating)} bars={xpTape.map((d) => d.buyXp + d.redeemXp)} height={160} />
               </div>
-              <p style={{ marginTop: 10, fontSize: 11, color: "#8e99a5" }}>
-                Line = circulating supply. Bars = buy + redeem volume. Demo tape until the ledger is live.
-              </p>
             </article>
-
-            <div className="section-title" style={{ marginTop: 28 }}>
-              <div>
-                <p>PRODUCTS</p>
-                <h2>Redeem volume</h2>
-              </div>
-            </div>
-            <div className="products">
+            <div className="products" style={{ marginTop: 14 }}>
               {productTape.map((p) => (
                 <article key={p.key} style={{ ["--accent"]: p.color } as React.CSSProperties}>
                   <p>{p.symbol}</p>
@@ -189,6 +190,18 @@ export default function Home() {
               ))}
             </div>
           </>
+        )}
+
+        {tab === "news" && (
+          <div>
+            {bulletins.map((b) => (
+              <article className="news-card" key={b.id}>
+                <em>{b.tag} · {b.source} · {b.at}</em>
+                <h3>{b.title}</h3>
+                <p>{b.body}</p>
+              </article>
+            ))}
+          </div>
         )}
 
         {tab === "activity" && (
@@ -202,6 +215,7 @@ export default function Home() {
             ))}
           </article>
         )}
+        <footer>APIXIS FAMILY CO. · coins only · peg 100 XP = $1</footer>
       </section>
     </main>
   );
