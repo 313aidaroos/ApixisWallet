@@ -14,7 +14,15 @@ export async function POST(request: Request) {
     if (!price) return NextResponse.json({ error: "Stripe price is not configured" }, { status: 503 });
     const origin = process.env.NEXT_PUBLIC_APP_URL ?? new URL(request.url).origin;
     const stripe = getStripe();
-    const session = await stripe.checkout.sessions.create({ mode: "payment", line_items: [{ price, quantity: 1 }], success_url: `${origin}/?checkout=success`, cancel_url: `${origin}/?checkout=cancelled`, client_reference_id: "replace-with-auth-user-id", metadata: { pack_id: packId, xp: String(pack.xp) }, integration_identifier: "apixis_wallet_qmtzpkra" });
+    const session = await stripe.checkout.sessions.create({
+      mode: "payment",
+      line_items: [{ price, quantity: 1 }],
+      success_url: `${origin}/?checkout=success`,
+      cancel_url: `${origin}/?checkout=cancelled`,
+      client_reference_id: "replace-with-auth-user-id",
+      metadata: { pack_id: packId, xp: String(pack.xp), sku_type: "xp_pack" },
+      integration_identifier: "apixis_wallet_qmtzpkra",
+    });
     return NextResponse.json({ url: session.url });
   } catch { return NextResponse.json({ error: "Invalid checkout request" }, { status: 400 }); }
 }
