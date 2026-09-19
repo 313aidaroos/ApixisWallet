@@ -1,16 +1,21 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { ArrowDownLeft, ArrowUpRight, Coins, LayoutGrid, List, WalletCards } from "lucide-react";
+import { ArrowDownLeft, ArrowUpRight, Coins, LayoutGrid, List, TrendingUp, WalletCards } from "lucide-react";
 import { pointPacks, redeemCatalog } from "@/lib/catalog";
+import { last24h, productTape, xpTape } from "@/lib/market";
+import { Tape } from "@/components/Tape";
 
-type Tab = "home" | "buy" | "redeem" | "activity";
+type Tab = "home" | "buy" | "redeem" | "market" | "activity";
 
 const seed = [
   { title: "Renoxis Agent Office", meta: "Redeem", xp: -15000 },
   { title: "Office coins", meta: "Purchase", xp: 36000 },
   { title: "Renovation concept", meta: "Redeem", xp: -500 },
 ];
+
+const usd = (n: number) =>
+  n.toLocaleString(undefined, { style: "currency", currency: "USD", maximumFractionDigits: 0 });
 
 export default function Home() {
   const [tab, setTab] = useState<Tab>("home");
@@ -20,6 +25,7 @@ export default function Home() {
   const [notice, setNotice] = useState("");
   const [log, setLog] = useState(seed);
   const available = paid + bonus;
+  const tape = last24h(xpTape);
 
   const buy = async (id: string) => {
     setNotice("Opening coin checkout…");
@@ -57,7 +63,7 @@ export default function Home() {
   };
 
   const title = useMemo(
-    () => ({ home: "Balance", buy: "Buy coins", redeem: "Redeem", activity: "Activity" })[tab],
+    () => ({ home: "Balance", buy: "Buy coins", redeem: "Redeem", market: "Market", activity: "Activity" })[tab],
     [tab],
   );
 
@@ -75,6 +81,7 @@ export default function Home() {
           <button className={tab === "home" ? "active" : ""} onClick={() => setTab("home")}><LayoutGrid />Home</button>
           <button className={tab === "buy" ? "active" : ""} onClick={() => setTab("buy")}><WalletCards />Buy</button>
           <button className={tab === "redeem" ? "active" : ""} onClick={() => setTab("redeem")}><Coins />Redeem</button>
+          <button className={tab === "market" ? "active" : ""} onClick={() => setTab("market")}><TrendingUp />Market</button>
           <button className={tab === "activity" ? "active" : ""} onClick={() => setTab("activity")}><List />Activity</button>
         </nav>
       </aside>
@@ -137,6 +144,51 @@ export default function Home() {
               </article>
             ))}
           </div>
+        )}
+
+        {tab === "market" && (
+          <>
+            <article className="balance-card">
+              <div className="eyebrow">
+                <span>XP / USD</span>
+                <span className="live">PEG $0.01</span>
+              </div>
+              <h2>$0.01 <small>fixed</small></h2>
+              <p>Not a floating ticker. Cap = circulating XP × peg.</p>
+              <div className="split">
+                <span><b>{tape.circulating.toLocaleString()}</b>Circulating</span>
+                <span><b>{usd(tape.capUsd)}</b>Liability cap</span>
+                <span><b>{usd(tape.volumeUsd)}</b>24h volume</span>
+              </div>
+              <div style={{ marginTop: 18 }}>
+                <Tape
+                  values={xpTape.map((d) => d.circulating)}
+                  bars={xpTape.map((d) => d.buyXp + d.redeemXp)}
+                  height={160}
+                />
+              </div>
+              <p style={{ marginTop: 10, fontSize: 11, color: "#8e99a5" }}>
+                Line = circulating supply. Bars = buy + redeem volume. Demo tape until the ledger is live.
+              </p>
+            </article>
+
+            <div className="section-title" style={{ marginTop: 28 }}>
+              <div>
+                <p>PRODUCTS</p>
+                <h2>Redeem volume</h2>
+              </div>
+            </div>
+            <div className="products">
+              {productTape.map((p) => (
+                <article key={p.key} style={{ ["--accent"]: p.color } as React.CSSProperties}>
+                  <p>{p.symbol}</p>
+                  <h3>{p.name}</h3>
+                  <b>{p.volume30.toLocaleString()} XP / 30d</b>
+                  <Tape values={p.redeemXp} color={p.color} height={72} />
+                </article>
+              ))}
+            </div>
+          </>
         )}
 
         {tab === "activity" && (
