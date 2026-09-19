@@ -3,8 +3,12 @@ import { z } from "zod";
 import { pointPacks } from "@/lib/catalog";
 import { getStripe } from "@/lib/stripe";
 
-const bodySchema = z.object({ packId: z.enum(["agent", "office", "power", "business"]) });
-const priceEnv: Record<string, string | undefined> = { agent: process.env.STRIPE_XP_AGENT_PRICE_ID, office: process.env.STRIPE_XP_OFFICE_PRICE_ID, power: process.env.STRIPE_XP_POWER_PRICE_ID, business: process.env.STRIPE_XP_BUSINESS_PRICE_ID };
+const bodySchema = z.object({ packId: z.enum(["agent", "office", "business"]) });
+const priceEnv: Record<string, string | undefined> = {
+  agent: process.env.STRIPE_XP_AGENT_PRICE_ID,
+  office: process.env.STRIPE_XP_OFFICE_PRICE_ID,
+  business: process.env.STRIPE_XP_BUSINESS_PRICE_ID,
+};
 
 export async function POST(request: Request) {
   try {
@@ -24,5 +28,7 @@ export async function POST(request: Request) {
       integration_identifier: "apixis_wallet_qmtzpkra",
     });
     return NextResponse.json({ url: session.url });
-  } catch { return NextResponse.json({ error: "Invalid checkout request" }, { status: 400 }); }
+  } catch {
+    return NextResponse.json({ error: "Invalid checkout request" }, { status: 400 });
+  }
 }
