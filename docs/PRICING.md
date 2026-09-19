@@ -1,45 +1,54 @@
-# Pricing — cost first
+# Pricing — cost + profit
 
-XP is sold at **100 XP = $1**. Every redeem must clear model, render, storage, and support cost.
+Coins sell at par: **$1 → 100 XP**. That dollar is a deposit.
 
-## Why the old list was wrong
+You profit when they **redeem** more XP than the job costs you.
 
-- Bonus XP on packs created liability you were not paid for.
-- Flat $80–$200 seats with unlimited AI would lose money on images and video.
-- Four overlapping packs added checkout noise.
+Target: **~70% gross** on meters. Seats are mostly margin after a small included bucket.
 
-## Sell (dollars)
+## Packs (no profit here)
 
-| Pack | Pay | Get |
-|---|---|---|
-| Starter | $100 | 10,000 XP |
-| Studio | $500 | 50,000 XP |
-| Empire | $1,500 | 150,000 XP |
-
-No bonus. No fourth pack.
-
-## Redeem (XP)
-
-Monthly **includes a cap**. After the cap, burn meter SKUs.
-
-| Product | XP / mo | $ | Included |
+| Pack | Customer pays | XP issued | Your cash |
 |---|---|---|---|
-| Renoxis Agent Office | 25,000 | $250 | seat + 80 AI jobs |
-| Socixis Autopilot | 35,000 | $350 | 30 posts + 30 images |
-| Recovra | 18,000 | $180 | seat + 200 extracts |
-| Deduxis | 12,000 | $120 | seat + 300 receipts |
+| Starter | $100 | 10,000 | $100 held as liability |
+| Studio | $500 | 50,000 | $500 |
+| Empire | $1,500 | 150,000 | $1,500 |
 
-## Meter (variable cost)
+Do not add bonus XP. Bonus is a gift of your margin.
 
-| Action | XP | $ |
-|---|---|---|
-| Text job | 25 | $0.25 |
-| Image | 80 | $0.80 |
-| Video clip | 400 | $4.00 |
-| Ad set | 200 | $2.00 |
+## Seats
 
-Floors assume paid APIs plus retries. If a vendor jumps, raise the meter, not the peg.
+| Product | Charge | $ | Include | Why |
+|---|---|---|---|---|
+| Renoxis | 30,000 XP | $300 | 40 jobs | Office value, tight AI cap |
+| Socixis | 45,000 XP | $450 | 20 posts + 20 images | Ads/images are expensive |
+| Recovra | 22,000 XP | $220 | 120 extracts | Text-heavy, cheaper |
+| Deduxis | 15,000 XP | $150 | 200 receipts | Cheap OCR-class work |
 
-## Rule
+After the include, every extra job hits the meter.
 
-If a feature uses a model, an image, or an ad slot, it is either inside a capped seat or it burns meter XP. Nothing is unlimited.
+## Meter (this is the profit engine)
+
+| Action | Charge | Est. vendor cost | Gross |
+|---|---|---|---|
+| Text | 40 XP ($0.40) | ~10 XP | ~75% |
+| Image | 150 XP ($1.50) | ~40 XP | ~73% |
+| Video | 800 XP ($8.00) | ~250 XP | ~69% |
+| Ad set | 400 XP ($4.00) | ~120 XP | ~70% |
+
+If a vendor bill goes up, raise charge XP. Never drop the peg.
+
+## Worked example
+
+Customer buys Studio ($500 → 50,000 XP).
+Redeems Socixis 45,000 + 10 extra images (1,500 XP).
+You keep $500 cash. Your cost is ~20 images×$0.40 + copy + host ≈ $20–40.
+Rest is profit + unused XP still on the book.
+
+## Hard rules
+
+1. No unlimited AI.
+2. No bonus coins.
+3. No second checkout.
+4. Included buckets stay small so power users pay meter.
+5. Watch actual vendor invoices monthly and move meter XP, not pack prices.
