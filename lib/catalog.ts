@@ -1,5 +1,6 @@
 /** 100 XP = $1. Same SKU prices on every apple. */
 export const pointPacks = [
+  { id: "spark", name: "Spark", price: 10, xp: 1000, bonus: 0 },
   { id: "agent", name: "Starter", price: 100, xp: 10000, bonus: 0 },
   { id: "office", name: "Studio", price: 500, xp: 50000, bonus: 0 },
   { id: "business", name: "Empire", price: 1500, xp: 150000, bonus: 0 },
@@ -13,6 +14,13 @@ export const redeemCatalog = [
   { key: "socixis.autopilot.monthly", app: "Socixis", name: "Social Autopilot", xp: 45000, color: "#ff6bce", includes: "20 posts + 20 images" },
   { key: "recovra.intel.monthly", app: "Recovra", name: "Recovery Intelligence", xp: 22000, color: "#58c8ff", includes: "Seat + 120 extracts" },
   { key: "deduxis.receipts.monthly", app: "Deduxis", name: "Receipt Intelligence", xp: 15000, color: "#ffbd59", includes: "Seat + 200 receipts" },
+
+  { key: "apixis.activate", app: "Apixis.dev", name: "Citizen activation", xp: 2000, color: "#46e6ff", includes: "One-time door. Was $20 card." },
+  { key: "apixis.citizen.monthly", app: "Apixis.dev", name: "Citizen seat", xp: 2000, color: "#46e6ff", includes: "Month + 2,000 in-world Ixis" },
+  { key: "apixis.founder.monthly", app: "Apixis.dev", name: "Founder seat", xp: 10000, color: "#b14bff", includes: "Month + 12,000 in-world Ixis" },
+  { key: "apixis.ixis.pack", app: "Apixis.dev", name: "Ixis top-up", xp: UNIT_XP, color: "#46e6ff", includes: "1,000 Ixis in-world. Bought with XP." },
+  { key: "contraxis.seat.starter", app: "Contraxis", name: "Pro Starter", xp: 9900, color: "#22d3ee", includes: "Was $99/mo card. Now XP." },
+  { key: "contraxis.seat.pro", app: "Contraxis", name: "Pro Professional", xp: 39900, color: "#22d3ee", includes: "Was $399/mo card. Now XP." },
 
   { key: "apixis.file.unit", app: "Family", name: "Any file / template / skin", xp: UNIT_XP, color: "#9dff4a", includes: "$10 unit · same on every site" },
   { key: "socixis.avatar.base", app: "Socixis", name: "Avatar base", xp: UNIT_XP, color: "#ff8a3d", includes: "Photo → real me + 1 restyle" },

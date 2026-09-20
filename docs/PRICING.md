@@ -8,42 +8,32 @@ Target: **~70% gross** on meters. Seats are mostly margin after a small included
 
 ## Packs (no profit here)
 
-| Pack | Customer pays | XP issued | Your cash |
-|---|---|---|---|
-| Starter | $100 | 10,000 | $100 held as liability |
-| Studio | $500 | 50,000 | $500 |
-| Empire | $1,500 | 150,000 | $1,500 |
+| Pack | Customer pays | XP issued |
+|---|---|---|
+| Spark | $10 | 1,000 |
+| Starter | $100 | 10,000 |
+| Studio | $500 | 50,000 |
+| Empire | $1,500 | 150,000 |
 
 Do not add bonus XP. Bonus is a gift of your margin.
 
-## Seats
+## Apixis.dev (no more card on that site)
 
-| Product | Charge | $ | Include | Why |
-|---|---|---|---|---|
-| Renoxis | 30,000 XP | $300 | 40 jobs | Office value, tight AI cap |
-| Socixis | 45,000 XP | $450 | 20 posts + 20 images | Ads/images are expensive |
-| Recovra | 22,000 XP | $220 | 120 extracts | Text-heavy, cheaper |
-| Deduxis | 15,000 XP | $150 | 200 receipts | Cheap OCR-class work |
+| Product | XP | Was |
+|---|---|---|
+| Activation | 2,000 | $20 card |
+| Citizen month | 2,000 | $20/mo |
+| Founder month | 10,000 | $100/mo |
+| Ixis top-up | 1,000 | Ixis pack on card |
 
-After the include, every extra job hits the meter.
+In-world Ixis is a chip. XP buys the chip. Card only hits Wallet.
 
-## Meter (this is the profit engine)
+## Contraxis
 
-| Action | Charge | Est. vendor cost | Gross |
-|---|---|---|---|
-| Text | 40 XP ($0.40) | ~10 XP | ~75% |
-| Image | 150 XP ($1.50) | ~40 XP | ~73% |
-| Video | 800 XP ($8.00) | ~250 XP | ~69% |
-| Ad set | 400 XP ($4.00) | ~120 XP | ~70% |
-
-If a vendor bill goes up, raise charge XP. Never drop the peg.
-
-## Worked example
-
-Customer buys Studio ($500 → 50,000 XP).
-Redeems Socixis 45,000 + 10 extra images (1,500 XP).
-You keep $500 cash. Your cost is ~20 images×$0.40 + copy + host ≈ $20–40.
-Rest is profit + unused XP still on the book.
+| Product | XP | Was |
+|---|---|---|
+| Pro Starter | 9,900 | $99/mo |
+| Pro Professional | 39,900 | $399/mo |
 
 ## Hard rules
 
