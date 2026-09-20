@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 export async function GET() {
   return NextResponse.json({
-    currency: "XP",
+    currency: "Ixis",
     available: null,
     paid: null,
     bonus: null,

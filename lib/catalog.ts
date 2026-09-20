@@ -1,4 +1,4 @@
-/** 100 XP = $1. Same SKU prices on every apple. */
+/** 100 Ixis = $1. Same SKU prices on every apple. */
 export const pointPacks = [
   { id: "spark", name: "Spark", price: 10, xp: 1000, bonus: 0 },
   { id: "agent", name: "Starter", price: 100, xp: 10000, bonus: 0 },

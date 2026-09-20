@@ -46,13 +46,13 @@ export default function Home() {
 
   const redeem = async (key: string, name: string, xp: number) => {
     if (available < xp) {
-      setNotice(`Need ${(xp - available).toLocaleString()} more XP.`);
+      setNotice(`Need ${(xp - available).toLocaleString()} more Ixis.`);
       setTab("buy");
       return;
     }
     setPaid((p) => p - xp);
     setLog((rows) => [{ title: name, meta: "Redeem", xp: -xp }, ...rows]);
-    setNotice(`${name} · ${xp.toLocaleString()} XP`);
+    setNotice(`${name} · ${xp.toLocaleString()} Ixis`);
     void fetch("/api/v1/quotes", {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -88,10 +88,10 @@ export default function Home() {
         <div className="ticker"><i>{ticker}    {/* ///    {ticker} */}</i></div>
         <header>
           <div>
-            <p>100 XP = $1 <span className="live">● LIVE</span></p>
+            <p>100 Ixis = $1 <span className="live">● LIVE</span></p>
             <h1>{title}</h1>
           </div>
-          <p>{available.toLocaleString()} XP</p>
+          <p>{available.toLocaleString()} Ixis</p>
         </header>
         {notice && (
           <div className="notice" onClick={() => setNotice("")}>
@@ -103,16 +103,16 @@ export default function Home() {
           <div className="dash">
             <article className="balance-card">
               <div className="eyebrow"><span>AVAILABLE</span></div>
-              <h2>{available.toLocaleString()} <small>XP</small></h2>
+              <h2>{available.toLocaleString()} <small>Ixis</small></h2>
               <p>${(available / 100).toFixed(2)}</p>
               <div className="balance-actions">
                 <button onClick={() => setTab("buy")}>Buy coins</button>
                 <button className="secondary" onClick={() => setTab("redeem")}>Redeem</button>
               </div>
               <div className="split">
-                <span><b>{paid.toLocaleString()} XP</b>Paid</span>
-                <span><b>{bonus.toLocaleString()} XP</b>Bonus</span>
-                <span><b>{reserved.toLocaleString()} XP</b>Held</span>
+                <span><b>{paid.toLocaleString()} Ixis</b>Paid</span>
+                <span><b>{bonus.toLocaleString()} Ixis</b>Bonus</span>
+                <span><b>{reserved.toLocaleString()} Ixis</b>Held</span>
               </div>
               <div style={{ marginTop: 16 }}>
                 <Tape values={xpTape.map((d) => d.circulating)} bars={xpTape.map((d) => d.buyXp + d.redeemXp)} height={120} />
@@ -143,7 +143,7 @@ export default function Home() {
             {pointPacks.map((p) => (
               <article key={p.id}>
                 <p>{p.name}</p>
-                <h3>{p.xp.toLocaleString()} <small>XP</small></h3>
+                <h3>{p.xp.toLocaleString()} <small>Ixis</small></h3>
                 <span>${p.price}</span>
                 <button onClick={() => buy(p.id)}>Buy</button>
               </article>
@@ -158,7 +158,7 @@ export default function Home() {
                 <span>{p.app.slice(0, 1)}</span>
                 <p>{p.app}</p>
                 <h3>{p.name}</h3>
-                <b>{p.xp.toLocaleString()} XP</b>
+                <b>{p.xp.toLocaleString()} Ixis</b>
                 <button onClick={() => redeem(p.key, p.name, p.xp)}>Redeem</button>
               </article>
             ))}
@@ -168,7 +168,7 @@ export default function Home() {
         {tab === "market" && (
           <>
             <article className="balance-card">
-              <div className="eyebrow"><span>XP / USD</span><span className="live">PEG $0.01</span></div>
+              <div className="eyebrow"><span>Ixis / USD</span><span className="live">PEG $0.01</span></div>
               <h2>$0.01 <small>FIXED</small></h2>
               <div className="split">
                 <span><b>{tape.circulating.toLocaleString()}</b>Circulating</span>
@@ -184,7 +184,7 @@ export default function Home() {
                 <article key={p.key} style={{ ["--accent"]: p.color } as React.CSSProperties}>
                   <p>{p.symbol}</p>
                   <h3>{p.name}</h3>
-                  <b>{p.volume30.toLocaleString()} XP / 30d</b>
+                  <b>{p.volume30.toLocaleString()} Ixis / 30d</b>
                   <Tape values={p.redeemXp} color={p.color} height={72} />
                 </article>
               ))}
@@ -210,12 +210,12 @@ export default function Home() {
               <div className="tx" key={`${t.title}-${i}`}>
                 <span className={t.xp > 0 ? "in" : "out"}>{t.xp > 0 ? <ArrowDownLeft /> : <ArrowUpRight />}</span>
                 <div><b>{t.title}</b><p>{t.meta}</p></div>
-                <strong className={t.xp > 0 ? "green" : ""}>{t.xp > 0 ? "+" : ""}{t.xp.toLocaleString()} XP</strong>
+                <strong className={t.xp > 0 ? "green" : ""}>{t.xp > 0 ? "+" : ""}{t.xp.toLocaleString()} Ixis</strong>
               </div>
             ))}
           </article>
         )}
-        <footer>APIXIS FAMILY CO. · coins only · peg 100 XP = $1</footer>
+        <footer>APIXIS FAMILY CO. · coins only · peg 100 Ixis = $1</footer>
       </section>
     </main>
   );
