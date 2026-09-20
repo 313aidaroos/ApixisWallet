@@ -2,42 +2,23 @@
 
 ## North star
 
-> Apixis is the operating system. Apixis ID is the identity. Cixy is the intelligence. Xis Points are the internal economy. APX eventually becomes the blockchain layer.
-
-Every customer eventually receives a private Apixis Command Center. They activate Apixis businesses as rooms inside that command center and use the same login, Cixy assistant, wallet and permissions everywhere. The owner receives a master command center across the entire ecosystem.
+> Apixis is the operating system. Apixis ID is the identity. Cixy is the intelligence. **Ixis is the native unit everywhere.** A chain token with the same name is Phase 5, after counsel.
 
 ## MVP economy
 
-- **100 XP = $1** of purchasing power.
-- Purchased XP works across Apixis-owned products and does not expire.
-- Bonus XP is separately identified and may be app-specific.
-- XP cannot be withdrawn, traded publicly or marketed as an investment.
-- Customers can set approval rules, auto-refill thresholds and spending limits.
-- Teams receive a master wallet, allocations and controlled allowances.
+- **100 Ixis = $1** of purchasing power.
+- Bought Ixis works across Apixis-owned products and does not expire.
+- Ixis cannot be withdrawn or marketed as an investment tonight.
+- In-world balances on Apixis.dev are the same unit, not a second chip.
 
-## First connected platform: Renoxis
+## Future chain
 
-Renoxis is an AI-powered real-estate office. Its base plan costs 15,000 XP/month. Its Social Media Autopilot costs 20,000 XP/month. The same wallet later pays for voice minutes, renovation concepts, data records, themes, outfits and client portals.
-
-## Shared platform services
-
-1. Apixis ID — identity, organizations, roles and permissions.
-2. Wallet — immutable double-entry XP ledger.
-3. Billing — point packs, subscriptions, renewals, refunds and taxes.
-4. Entitlements — which products and usage allowances a user owns.
-5. Marketplace — Apixis services, themes, voices and automations.
-6. Cixy — one assistant with scoped memory and app-specific expertise.
-7. SDK — a standard way for every Apixis app to quote, reserve and spend XP.
-8. Owner console — liability, sales, usage costs, fraud and revenue by app.
-
-## Future APX
-
-The interface may show an inactive APX area, but APX must remain legally and technically separate. No promises of appreciation, conversion, yield, staking or profit share. Launch only after U.S. digital-asset counsel, payments counsel, tax review and qualified Sharia review.
+Do not ship a convert button. Do not promise price. When counsel, payments, tax, and Sharia review are done, the chain product maps 1:1 to the ledger name **Ixis**. Until then the book is closed-loop credits.
 
 ## Product phases
 
-- Phase 1: wallet UI, Apixis ID, XP purchase, ledger and Renoxis entitlements.
-- Phase 2: renewals, auto-refill, refunds, teams, admin console and SDK.
-- Phase 3: connect Socixis, Recovra, Deduxis, Lyrixis and Command Center.
-- Phase 4: controlled marketplace and third-party integrations.
-- Phase 5: separately reviewed APX blockchain capability.
+- Phase 1: wallet, Ixis purchase, ledger, redeem.
+- Phase 2: renewals, teams, admin.
+- Phase 3: every sister app redeems Ixis only.
+- Phase 4: marketplace.
+- Phase 5: separately reviewed Ixis-on-chain.

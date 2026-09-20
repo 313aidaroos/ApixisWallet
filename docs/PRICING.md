@@ -1,44 +1,28 @@
-# Pricing — cost + profit
+# Pricing — Ixis
 
-Coins sell at par: **$1 → 100 XP**. That dollar is a deposit.
+**$1 → 100 Ixis.** One name on every site.
 
-You profit when they **redeem** more XP than the job costs you.
+## Packs
 
-Target: **~70% gross** on meters. Seats are mostly margin after a small included bucket.
-
-## Packs (no profit here)
-
-| Pack | Customer pays | XP issued |
+| Pack | Pay | Ixis |
 |---|---|---|
 | Spark | $10 | 1,000 |
 | Starter | $100 | 10,000 |
 | Studio | $500 | 50,000 |
 | Empire | $1,500 | 150,000 |
 
-Do not add bonus XP. Bonus is a gift of your margin.
+## Seats (redeem Ixis, no card on the sister site)
 
-## Apixis.dev (no more card on that site)
+| Product | Ixis |
+|---|---|
+| Apixis activation | 2,000 |
+| Citizen month | 2,000 |
+| Founder month | 10,000 |
+| Contraxis Starter | 9,900 |
+| Contraxis Pro | 39,900 |
+| Renoxis office | 30,000 |
+| Socixis Autopilot | 45,000 |
 
-| Product | XP | Was |
-|---|---|---|
-| Activation | 2,000 | $20 card |
-| Citizen month | 2,000 | $20/mo |
-| Founder month | 10,000 | $100/mo |
-| Ixis top-up | 1,000 | Ixis pack on card |
+File / skin / template unit = 1,000 Ixis ($10).
 
-In-world Ixis is a chip. XP buys the chip. Card only hits Wallet.
-
-## Contraxis
-
-| Product | XP | Was |
-|---|---|---|
-| Pro Starter | 9,900 | $99/mo |
-| Pro Professional | 39,900 | $399/mo |
-
-## Hard rules
-
-1. No unlimited AI.
-2. No bonus coins.
-3. No second checkout.
-4. Included buckets stay small so power users pay meter.
-5. Watch actual vendor invoices monthly and move meter XP, not pack prices.
+No second currency. XP is retired as a customer word. Chain Ixis is not live.
