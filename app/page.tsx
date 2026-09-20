@@ -21,7 +21,7 @@ const usd = (n: number) =>
 export default function Home() {
   const [tab, setTab] = useState<Tab>("home");
   const [paid, setPaid] = useState(40350);
-  const [bonus, setBonus] = useState(0);
+  const [bonus] = useState(0);
   const [reserved] = useState(0);
   const [notice, setNotice] = useState("");
   const [log, setLog] = useState(seed);
@@ -85,7 +85,7 @@ export default function Home() {
         </nav>
       </aside>
       <section className="shell">
-        <div className="ticker"><i>{ticker}    ///    {ticker}</i></div>
+        <div className="ticker"><i>{ticker}    {/* ///    {ticker} */}</i></div>
         <header>
           <div>
             <p>100 XP = $1 <span className="live">● LIVE</span></p>
