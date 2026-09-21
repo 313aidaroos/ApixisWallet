@@ -14,6 +14,7 @@ export const redeemCatalog = [
   { key: "socixis.autopilot.monthly", app: "Socixis", name: "Social Autopilot", xp: 45000, color: "#ff6bce", includes: "20 posts + 20 images" },
   { key: "recovra.intel.monthly", app: "Recovra", name: "Recovery Intelligence", xp: 22000, color: "#58c8ff", includes: "Seat + 120 extracts" },
   { key: "deduxis.receipts.monthly", app: "Deduxis", name: "Receipt Intelligence", xp: 15000, color: "#ffbd59", includes: "Seat + 200 receipts" },
+  { key: "contentbot.creator.monthly", app: "PersonalContentBot", name: "Creator Seat", xp: 20000, color: "#a855f7", includes: "Unlimited 60s videos · 30 days" },
 
   { key: "apixis.activate", app: "Apixis.dev", name: "Citizen activation", xp: 2000, color: "#46e6ff", includes: "One-time door. Was $20 card." },
   { key: "apixis.citizen.monthly", app: "Apixis.dev", name: "Citizen seat", xp: 2000, color: "#46e6ff", includes: "Month + 2,000 in-world Ixis" },
@@ -38,6 +39,10 @@ export const redeemCatalog = [
   { key: "socixis.site.agency", app: "Socixis", name: "Site pack: Agency", xp: UNIT_XP, color: "#2563eb", includes: "Case-study pack" },
   { key: "renoxis.file.listing", app: "Renoxis", name: "Listing file", xp: UNIT_XP, color: "#c8ff63", includes: "One listing template" },
   { key: "renoxis.file.offer", app: "Renoxis", name: "Offer file", xp: UNIT_XP, color: "#c8ff63", includes: "One offer template" },
+  { key: "contentbot.clip", app: "PersonalContentBot", name: "60s Video Clip", xp: 800, color: "#a855f7", includes: "Script + storyboard + render (9:16 or 16:9)" },
+  { key: "contentbot.text", app: "PersonalContentBot", name: "AI Text Job", xp: 40, color: "#a855f7", includes: "Script generation only" },
+  { key: "contentbot.image", app: "PersonalContentBot", name: "AI Image", xp: 150, color: "#a855f7", includes: "Generated image for visuals" },
+  { key: "contentbot.adset", app: "PersonalContentBot", name: "Ad Set", xp: 400, color: "#a855f7", includes: "Multiple variations for A/B testing" },
 ] as const;
 
 export const meterCatalog = [
