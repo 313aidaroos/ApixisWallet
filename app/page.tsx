@@ -33,12 +33,16 @@ export default function Home() {
     try {
       const response = await fetch("/api/checkout", {
         method: "POST",
+        credentials: "same-origin",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ packId: id }),
       });
-      if (!response.ok) throw new Error();
-      const data = await response.json();
-      if (data.url) window.location.assign(data.url);
+      const data = await response.json().catch(() => null);
+      if (!response.ok) {
+        setNotice(typeof data?.error === "string" ? data.error : "Stripe dark. Coin checkout is the only card flow.");
+        return;
+      }
+      if (data?.url) window.location.assign(data.url);
     } catch {
       setNotice("Stripe dark. Coin checkout is the only card flow.");
     }
