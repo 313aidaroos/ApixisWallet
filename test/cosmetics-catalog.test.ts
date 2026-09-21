@@ -1,12 +1,15 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
+import { GET as entitlements } from "../app/api/v1/entitlements/route";
 import { POST as quote } from "../app/api/v1/quotes/route";
 import { POST as reserve } from "../app/api/v1/reservations/route";
 import {
   cosmeticsCatalog,
   findCatalogProduct,
   isComingSoonCatalogItem,
+  isWardrobeEssential,
   shopCatalog,
+  WARDROBE_ESSENTIAL_UNLOCK_IDS,
 } from "../lib/catalog";
 
 const EXPECTED = [
@@ -54,6 +57,15 @@ describe("cosmetics catalog", () => {
     assert.equal(keys.some((key) => key.startsWith("cixy.cosmetic.anim.")), false);
   });
 
+  it("keeps starter, paper, and desk as always-owned essentials with null prices", () => {
+    assert.deepEqual(WARDROBE_ESSENTIAL_UNLOCK_IDS, ["outfit.starter", "theme.paper", "office.desk"]);
+    const essentials = cosmeticsCatalog.filter((item) => isWardrobeEssential(item));
+    assert.deepEqual(essentials.map((item) => item.unlockAssetId), ["outfit.starter", "theme.paper", "office.desk"]);
+    for (const item of essentials) assert.equal(item.xp, null);
+    assert.equal(isWardrobeEssential(cosmeticsCatalog.find((item) => item.unlockAssetId === "template.brief") ?? {}), false);
+    assert.equal(isWardrobeEssential(shopCatalog[0]), false);
+  });
+
   it("keeps legacy voice, skin, and persona as priced shop packs", () => {
     for (const key of ["shop.cixy.voice", "shop.cixy.skin", "shop.cixy.persona"] as const) {
       const item = shopCatalog.find((row) => row.key === key);
@@ -68,17 +80,41 @@ describe("cosmetics catalog", () => {
 });
 
 describe("coming soon quotes and reserves", () => {
-  it("rejects a null-xp cosmetic without echoing a price", async () => {
+  it("rejects a null-xp premium cosmetic without echoing a price", async () => {
+    const response = await postJson(quote, "/api/v1/quotes", {
+      productKey: "cixy.cosmetic.outfit.executive",
+    });
+    assert.equal(response.status, 400);
+    const body = await response.json();
+    assert.deepEqual(body, {
+      error: "Coming soon",
+      productKey: "cixy.cosmetic.outfit.executive",
+      status: "coming_soon",
+    });
+  });
+
+  it("refuses to sell an essential wardrobe piece", async () => {
     const response = await postJson(quote, "/api/v1/quotes", {
       productKey: "cixy.cosmetic.outfit.starter",
     });
     assert.equal(response.status, 400);
     const body = await response.json();
     assert.deepEqual(body, {
-      error: "Coming soon",
+      error: "Included",
       productKey: "cixy.cosmetic.outfit.starter",
-      status: "coming_soon",
+      status: "owned",
+      kind: "wardrobe",
+      unlockAssetId: "outfit.starter",
     });
+    const held = await postJson(reserve, "/api/v1/reservations", {
+      productKey: "cixy.cosmetic.theme.paper",
+      idempotencyKey: "paper-included-1",
+    });
+    assert.equal(held.status, 400);
+    const reserved = await held.json();
+    assert.equal(reserved.error, "Included");
+    assert.equal(reserved.unlockAssetId, "theme.paper");
+    assert.equal("xp" in reserved, false);
   });
 
   it("still quotes a priced SKU at the 100 Ixis = $1 peg", async () => {
@@ -107,5 +143,36 @@ describe("coming soon quotes and reserves", () => {
     assert.equal(body.error, "Coming soon");
     assert.equal(body.status, "coming_soon");
     assert.equal("xp" in body, false);
+  });
+});
+
+describe("cixy wardrobe entitlements", () => {
+  it("lists only the always-owned essentials for app=cixy", async () => {
+    const response = await entitlements(new Request("http://localhost/api/v1/entitlements?app=cixy"));
+    assert.equal(response.status, 200);
+    const body = await response.json();
+    assert.equal(body.app, "cixy");
+    assert.deepEqual(
+      body.entitlements.map((item: { unlockAssetId: string; kind: string; xpPrice: number; status: string }) => ({
+        unlockAssetId: item.unlockAssetId,
+        kind: item.kind,
+        xpPrice: item.xpPrice,
+        status: item.status,
+      })),
+      [
+        { unlockAssetId: "outfit.starter", kind: "wardrobe", xpPrice: 0, status: "active" },
+        { unlockAssetId: "theme.paper", kind: "wardrobe", xpPrice: 0, status: "active" },
+        { unlockAssetId: "office.desk", kind: "wardrobe", xpPrice: 0, status: "active" },
+      ],
+    );
+    assert.equal(body.entitlements.some((item: { unlockAssetId: string }) => item.unlockAssetId === "outfit.executive"), false);
+  });
+
+  it("leaves other apps on the empty entitlements stub", async () => {
+    const response = await entitlements(new Request("http://localhost/api/v1/entitlements?app=socixis"));
+    assert.equal(response.status, 200);
+    const body = await response.json();
+    assert.deepEqual(body.items, []);
+    assert.equal("entitlements" in body, false);
   });
 });

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { findCatalogProduct, isComingSoonCatalogItem } from "@/lib/catalog";
+import { findCatalogProduct, includedWardrobeDenial, isComingSoonCatalogItem, isWardrobeEssential, wardrobeUnlockId } from "@/lib/catalog";
 
 const bodySchema = z.object({
   productKey: z.string().min(1).max(80),
@@ -13,6 +13,10 @@ export async function POST(request: Request) {
   if (!parsed.success) return NextResponse.json({ error: "Invalid reservation" }, { status: 400 });
   const product = findCatalogProduct(parsed.data.productKey);
   if (!product) return NextResponse.json({ error: "Unknown redeem SKU" }, { status: 404 });
+  const unlockAssetId = wardrobeUnlockId(product);
+  if (unlockAssetId && isWardrobeEssential(product)) {
+    return NextResponse.json(includedWardrobeDenial({ key: product.key, unlockAssetId }), { status: 400 });
+  }
   if (product.xp == null || isComingSoonCatalogItem(product)) {
     return NextResponse.json(
       { error: "Coming soon", productKey: product.key, status: "coming_soon" },

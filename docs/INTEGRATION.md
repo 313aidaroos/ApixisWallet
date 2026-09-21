@@ -91,7 +91,8 @@ curl -X POST https://apixis-wallet.vercel.app/api/v1/quotes \
 ```
 
 **Errors:**
-- `400` — `Coming soon`. The SKU is in the catalog with `xp: null` or `status: "coming_soon"`. The body has no `xp`. Do not invent a price. Cixy cosmetics use this until Awad locks integers. See [docs/CIXY_COSMETICS.md](CIXY_COSMETICS.md).
+- `400` — `Coming soon`. The SKU is in the catalog with `xp: null` or `status: "coming_soon"`, and it is not a wardrobe essential. The body has no `xp`. Do not invent a price. Premium Cixy cosmetics use this until Awad locks integers. See [docs/CIXY_COSMETICS.md](CIXY_COSMETICS.md).
+- `400` — `Included`. The SKU is an always-owned wardrobe essential (`outfit.starter`, `theme.paper`, `office.desk`). The body has no `xp`. Do not reserve it.
 - `404` — Unknown SKU (contact @apixiswallet to add it to the catalog).
 
 ---
@@ -132,7 +133,7 @@ curl -X POST https://apixis-wallet.vercel.app/api/v1/reservations \
 ```
 
 **Errors:**
-- `400` — Missing or invalid request, or `Coming soon` for a catalog SKU with no Ixis integer yet.
+- `400` — Missing or invalid request, `Coming soon` for an unpriced premium SKU, or `Included` for a wardrobe essential.
 - `402` — Insufficient Ixis balance.
 - `404` — Unknown product.
 
@@ -240,6 +241,16 @@ curl "https://apixis-wallet.vercel.app/api/v1/entitlements?app=socixis" \
 ```
 
 Returns active subscriptions/entitlements for the signed-in user. Use this to check what they already own before showing a purchase screen.
+
+### Cixy wardrobe
+
+**GET** `/api/v1/entitlements?app=cixy`
+
+Cosmetics ownership is this list, not a second API. Each wardrobe row uses the same entitlement fields plus `kind: "wardrobe"` and `unlockAssetId` from `cosmeticsCatalog`. `xpPrice` is `0` for an essential and, once a purchase is stored, the catalog integer recorded at grant. Reading the list does not spend Ixis. Equip and unequip do not either. They are not consume-on-apply.
+
+The live route returns the always-owned essentials only (`outfit.starter`, `theme.paper`, `office.desk`). Purchased rows are not stored yet, so the response does not invent them. Flow and the response body: [docs/CIXY_COSMETICS.md](CIXY_COSMETICS.md).
+
+A product customize UI treats `status: "active"` ids as selectable on the one shared Cixy. A premium `unlockAssetId` missing from the list stays locked, with a Buy on Wallet link.
 
 ---
 

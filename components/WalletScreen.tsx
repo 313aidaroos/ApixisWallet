@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { ArrowDownLeft, ArrowUpRight, Coins, LayoutGrid, List, Megaphone, ShoppingBag, TrendingUp, WalletCards } from "lucide-react";
-import { cosmeticsCatalog, cosmeticGroups, pointPacks, redeemCatalog, shopCatalog, shopCategories, type ShopCategory } from "@/lib/catalog";
+import { cosmeticsCatalog, cosmeticGroups, isWardrobeEssential, pointPacks, redeemCatalog, shopCatalog, shopCategories, type ShopCategory } from "@/lib/catalog";
 import { appSlug, resolveDestination } from "@/lib/checkout/destinations";
 import { returnHost } from "@/lib/checkout/return-url";
 import { last24h, productTape, xpTape } from "@/lib/market";
@@ -121,6 +121,7 @@ export function WalletScreen({ lockTab, unitLabel = "Ixis" }: { lockTab?: Tab; u
       blurb: item.blurb,
       xp: item.xp,
       merch: item.category === "merch",
+      essential: false,
     })),
     ...cosmeticShop.map((item) => ({
       key: item.key,
@@ -130,6 +131,7 @@ export function WalletScreen({ lockTab, unitLabel = "Ixis" }: { lockTab?: Tab; u
       blurb: item.blurb,
       xp: item.xp,
       merch: false,
+      essential: isWardrobeEssential(item),
     })),
   ];
 
@@ -281,18 +283,20 @@ export function WalletScreen({ lockTab, unitLabel = "Ixis" }: { lockTab?: Tab; u
             </div>
             {shopFilter === "cosmetics" && (
               <p style={{ color: "var(--muted)", marginTop: 0 }}>
-                Shared Cixy assets. Coming soon until Awad locks the Ixis price. The Wallet catalog is the price.
+                Shared Cixy wardrobe. Starter suit, Paper, and Desk are included. Other pieces stay Coming soon until Awad locks the Ixis price.
               </p>
             )}
             <div className="products">
               {shopItems.map((p) => {
-                const comingSoon = p.xp == null;
+                const locked = p.essential || p.xp == null;
                 return (
                   <article key={p.key} style={{ ["--accent"]: p.color } as React.CSSProperties}>
                     <span>{p.label.slice(0, 1)}</span>
                     <p>{p.label}</p>
                     <h3>{p.name}</h3>
-                    {comingSoon ? (
+                    {p.essential ? (
+                      <b style={{ color: "var(--lime)" }}>Included</b>
+                    ) : p.xp == null ? (
                       <b style={{ color: "var(--amber)" }}>Coming soon</b>
                     ) : (
                       <>
@@ -303,9 +307,9 @@ export function WalletScreen({ lockTab, unitLabel = "Ixis" }: { lockTab?: Tab; u
                     <p>{p.blurb}</p>
                     <button
                       type="button"
-                      disabled={comingSoon}
+                      disabled={locked}
                       onClick={() => {
-                        if (p.xp == null) return;
+                        if (p.essential || p.xp == null) return;
                         redeem(
                           p.key,
                           p.name,
@@ -315,7 +319,7 @@ export function WalletScreen({ lockTab, unitLabel = "Ixis" }: { lockTab?: Tab; u
                         );
                       }}
                     >
-                      {comingSoon ? "Coming soon" : `Buy with ${unit}`}
+                      {p.essential ? "Owned" : p.xp == null ? "Coming soon" : `Buy with ${unit}`}
                     </button>
                   </article>
                 );
