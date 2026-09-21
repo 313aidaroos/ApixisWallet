@@ -18,6 +18,45 @@ Never run your own Stripe Checkout for plans. Ixis-only redemptions keep the fam
 
 ---
 
+## Cash buy and return
+
+Sister apps do not charge a card for plans. Send the signed-in customer to Wallet to buy an Ixis pack. Production host: `https://apixis-wallet.vercel.app` (custom domain later).
+
+```
+https://apixis-wallet.vercel.app/buy?return_url=https%3A%2F%2Fsocixis.vercel.app%2Fbilling&product=socixis
+```
+
+`POST /api/checkout` accepts the same fields in the JSON body or as query parameters, next to `packId` (`spark`, `agent`, `office`, `business`).
+
+| Param | Required | Meaning |
+| --- | --- | --- |
+| `return_url` | no | Absolute URL opened after the pack is credited. The host must be allowlisted. |
+| `product`, `app`, or `destination` | no | Sister app slug: `socixis`, `renoxis`, `recovra`, `deduxis`, `contraxis`, `contentbot`, `apixis`, `family`, `cixy`, or `wallet`. |
+
+Allowlist (`lib/checkout/return-url.ts`):
+
+- `apixis.dev` and any subdomain (`https` only)
+- Exact production hosts such as `apixis-wallet.vercel.app` and `socixis.vercel.app`. A lookalike like `socixis-git-main.vercel.app` is rejected, because prefix matching would trust another Vercel project.
+- Extra exact hostnames in `CHECKOUT_RETURN_HOSTS` (comma-separated, no wildcards). Put preview URLs here.
+
+Anything else is a 400 `return_url is not an allowlisted Apixis host`. An unknown `product` is a 400. Checkout stores the canonical `return_url` and `destination_app` on the Stripe Checkout Session metadata (and on the PaymentIntent metadata). `client_reference_id` stays the Supabase user id. `success_url` is `/buy/success?session_id={CHECKOUT_SESSION_ID}`.
+
+The success page polls `GET /api/checkout/status?session_id=cs_...` until a paid ledger row exists. Credit still happens only in the Stripe webhook via `credit_xp` with `p_external_id` = `event.id` and `p_bucket` = `paid`. The browser cannot invent a balance.
+
+- When the session has an allowlisted `return_url`, Wallet redirects there after the credit (`GET /api/checkout/return`). That route ignores any `return_url` query param.
+- Otherwise the customer chooses Apixis Wallet or a sister app and confirms. There is no transfer into a product balance. The Ixis stays in the Wallet paid balance. The page links to Redeem for that app's catalog SKUs.
+
+100 Ixis = $1. This flow does not cash out.
+
+```bash
+curl -X POST https://apixis-wallet.vercel.app/api/checkout \
+  -H "Content-Type: application/json" \
+  -H "Cookie: <supabase-auth-cookie>" \
+  -d '{"packId":"spark","return_url":"https://socixis.vercel.app/billing","product":"socixis"}'
+```
+
+---
+
 ## 1. Quote a product
 
 **POST** `/api/v1/quotes`
