@@ -91,22 +91,6 @@ header h1 { margin: 6px 0 0; font-family: "Press Start 2P", monospace; font-size
   padding: 16px; border: 1px solid var(--line); background: #07110a;
 }
 .products article { border-top: 2px solid var(--accent, var(--lime)); }
-.shop-lead { color: var(--muted); font-size: 12px; margin: 0 0 12px; }
-.filters { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
-.filters button {
-  border: 1px solid var(--line); background: transparent; color: var(--muted);
-  padding: 8px 12px;
-}
-.filters button.active, .filters button:hover {
-  border-color: var(--lime); color: var(--lime); background: #102010;
-}
-.products.shop article .cat {
-  margin: 0; font-size: 10px; letter-spacing: 1px; color: var(--lime); text-transform: uppercase;
-}
-.products.shop article h3 { margin: 8px 0 0; font-size: 16px; }
-.products.shop article .blurb { color: var(--muted); font-size: 12px; line-height: 1.45; margin: 8px 0; }
-.products.shop article .eq { color: var(--amber); font-size: 11px; font-weight: 400; }
-.products.shop article button { margin-top: 12px; }
 .tx { display: flex; gap: 10px; align-items: center; border-top: 1px solid var(--line); padding: 10px 0; }
 .tx > span { width: 28px; height: 28px; display: grid; place-items: center; background: #201010; color: #ff8080; }
 .tx > span.in { background: #102010; color: var(--lime); }

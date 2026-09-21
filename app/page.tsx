@@ -172,41 +172,45 @@ export default function Home() {
 
         {tab === "shop" && (
           <>
-            <p className="shop-lead">Templates, Cixy, and merch. Spend Ixis from your balance.</p>
-            <div className="filters">
-              <button className={shopFilter === "all" ? "active" : ""} onClick={() => setShopFilter("all")}>All</button>
+            <div className="balance-actions" style={{ flexWrap: "wrap" }}>
+              <button className={shopFilter === "all" ? "" : "secondary"} onClick={() => setShopFilter("all")}>All</button>
               {shopCategories.map((category) => (
                 <button
                   key={category.id}
-                  className={shopFilter === category.id ? "active" : ""}
+                  className={shopFilter === category.id ? "" : "secondary"}
                   onClick={() => setShopFilter(category.id)}
                 >
                   {category.label}
                 </button>
               ))}
             </div>
-            <div className="products shop">
-              {shopItems.map((p) => (
-                <article key={p.key} style={{ ["--accent"]: p.color } as React.CSSProperties}>
-                  <p className="cat">{shopCategories.find((category) => category.id === p.category)?.label}</p>
-                  <h3>{p.name}</h3>
-                  <p className="blurb">{p.blurb}</p>
-                  <b>{p.xp.toLocaleString()} Ixis <span className="eq">({usd(p.xp / 100)})</span></b>
-                  <button
-                    onClick={() =>
-                      redeem(
-                        p.key,
-                        p.name,
-                        p.xp,
-                        "Shop",
-                        p.category === "merch" ? "We'll fulfill when designs land." : "",
-                      )
-                    }
-                  >
-                    Buy with Ixis
-                  </button>
-                </article>
-              ))}
+            <div className="products">
+              {shopItems.map((p) => {
+                const label = shopCategories.find((category) => category.id === p.category)?.label ?? "";
+                return (
+                  <article key={p.key} style={{ ["--accent"]: p.color } as React.CSSProperties}>
+                    <span>{label.slice(0, 1)}</span>
+                    <p>{label}</p>
+                    <h3>{p.name}</h3>
+                    <b>{p.xp.toLocaleString()} Ixis</b>
+                    <span>{usd(p.xp / 100)}</span>
+                    <p>{p.blurb}</p>
+                    <button
+                      onClick={() =>
+                        redeem(
+                          p.key,
+                          p.name,
+                          p.xp,
+                          "Shop",
+                          p.category === "merch" ? "We'll fulfill when designs land." : "",
+                        )
+                      }
+                    >
+                      Buy with Ixis
+                    </button>
+                  </article>
+                );
+              })}
             </div>
           </>
         )}
