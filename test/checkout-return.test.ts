@@ -46,6 +46,7 @@ describe("return url allowlist", () => {
       "https://apixis.dev.evil.com/",
       "https://evilapixis.dev/",
       "https://127.0.0.1.socixis.vercel.app/",
+      "https://apixis-wallet.vercel.app/buy/complete?session_id=cs_test_abc",
       "https://apixis-wallet.vercel.app/buy/success?session_id=cs_test_abc",
       "https://apixis-wallet.vercel.app/api/checkout/return?session_id=cs_test_abc",
       "http://localhost:3000/back",
@@ -89,7 +90,7 @@ describe("checkout metadata round-trip", () => {
       integrationIdentifier: "apixis_wallet_ixis_abcdefgh",
     });
     assert.equal(params.client_reference_id, owner);
-    assert.equal(params.success_url, "https://apixis-wallet.vercel.app/buy/success?session_id={CHECKOUT_SESSION_ID}");
+    assert.equal(params.success_url, "https://apixis-wallet.vercel.app/buy/complete?session_id={CHECKOUT_SESSION_ID}");
     assert.equal(params.cancel_url, "https://apixis-wallet.vercel.app/?checkout=cancelled");
     assert.equal(params.metadata.pack_id, "spark");
     assert.equal(params.metadata.ixis, "1000");

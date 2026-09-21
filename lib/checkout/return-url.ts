@@ -92,7 +92,7 @@ export function canonicalReturnUrl(raw: string, options?: AllowOptions): string 
 
   const path = url.pathname.replace(/\/$/, "") || "/";
   const walletHost = host === "apixis-wallet.vercel.app" || host === "localhost" || host === "127.0.0.1";
-  if (walletHost && (path === "/buy/success" || path === "/api/checkout/return")) return null;
+  if (walletHost && (path === "/buy/complete" || path === "/buy/success" || path === "/api/checkout/return")) return null;
 
   const local = host === "localhost" || host === "127.0.0.1";
   if (local) {

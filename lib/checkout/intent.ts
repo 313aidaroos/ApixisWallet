@@ -70,7 +70,7 @@ export function packFromMetadata(metadata: { [key: string]: string } | null | un
 export function checkoutUrls(origin: string) {
   const base = origin.replace(/\/$/, "");
   return {
-    success_url: `${base}/buy/success?session_id={CHECKOUT_SESSION_ID}`,
+    success_url: `${base}/buy/complete?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${base}/?checkout=cancelled`,
   };
 }

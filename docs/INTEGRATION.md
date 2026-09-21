@@ -5,6 +5,8 @@
 Base URL (production): `https://apixis-wallet.vercel.app`  
 Auth: Bearer token with Apixis ID (service-role key for server-to-server).
 
+Sister-site embed (deep link, balance, CTA copy): [docs/WALLET_EMBED.md](WALLET_EMBED.md).
+
 ## Flow
 
 1. **Quote** — GET the Ixis price for your SKU.
@@ -39,7 +41,7 @@ Allowlist (`lib/checkout/return-url.ts`):
 - Exact production hosts such as `apixis-wallet.vercel.app` and `socixis.vercel.app`. A lookalike like `socixis-git-main.vercel.app` is rejected, because prefix matching would trust another Vercel project.
 - Extra exact hostnames in `CHECKOUT_RETURN_HOSTS` (comma-separated, no wildcards). Put preview URLs here.
 
-Anything else is a 400 `return_url is not an allowlisted Apixis host`. An unknown `product` is a 400. Checkout stores the canonical `return_url` and `destination_app` on the Stripe Checkout Session metadata (and on the PaymentIntent metadata). `client_reference_id` stays the Supabase user id. `success_url` is `/buy/success?session_id={CHECKOUT_SESSION_ID}`.
+Anything else is a 400 `return_url is not an allowlisted Apixis host`. An unknown `product` is a 400. Checkout stores the canonical `return_url` and `destination_app` on the Stripe Checkout Session metadata (and on the PaymentIntent metadata). `client_reference_id` stays the Supabase user id. `success_url` is `/buy/complete?session_id={CHECKOUT_SESSION_ID}`. The embed contract for that handoff is [docs/WALLET_EMBED.md](WALLET_EMBED.md).
 
 The success page polls `GET /api/checkout/status?session_id=cs_...` until a paid ledger row exists. Credit still happens only in the Stripe webhook via `credit_xp` with `p_external_id` = `event.id` and `p_bucket` = `paid`. The browser cannot invent a balance.
 

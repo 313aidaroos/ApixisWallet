@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   title: "Payment received · Apixis Wallet",
 };
 
-export default function SuccessPage() {
+export default function CompletePage() {
   return (
     <Suspense fallback={<main><section className="shell solo"><p>Checking payment…</p></section></main>}>
       <CheckoutSuccess />
