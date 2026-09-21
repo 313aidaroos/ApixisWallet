@@ -241,6 +241,7 @@ Build these **now**, even while live remains off:
 | Single ledger unit name **Ixis** | Never introduce a second “points” currency code |
 | `asset_class` / metadata on ledger rows | `credit_demo` today → `ixis_coin` when flipped (or stamp on flip) |
 | Chain adapters behind an interface | Mint/burn/bridge no-ops or paper in demo; real in live |
+| `IXIS_MAX_SUPPLY = 1_000_000_000_000` | Hard mint ceiling (1 trillion Ixis = $10B at peg). Not an env knob and not a pre-mint |
 | Feature flags: withdraw, peer transfer, public price, bridge | All **off** in demo; selectively on in live per counsel |
 | Idempotent flip job | One-shot (or replay-safe) job that marks all eligible balances coin-ready and records `cleared_at` |
 
@@ -265,6 +266,17 @@ Build these **now**, even while live remains off:
 
 If counsel requires a distinct ticker, keep ledger name **Ixis** and alias on-chain — still 1:1, still one flip.
 
+### 9.5 Hard mint cap (Awad lock)
+
+`IXIS_MAX_SUPPLY = 1_000_000_000_000` Ixis (**1 trillion**).
+
+At the peg of **100 Ixis = $1**, that ceiling is **$10,000,000,000** ($10B) of in-family purchasing power. The cap is a code constant, not an environment variable, so flipping `IXIS_ASSET_MODE` cannot raise it.
+
+- **Liability-backed only.** Outstanding supply is the sum of recognized Wallet ledger liabilities (paid Ixis already owed). Every mint cites that outstanding figure. Unused headroom under the cap is not money and not inventory.
+- **No pre-mint.** Do not mint the trillion, or any part of it, ahead of a ledger liability. Do not airdrop the cap, seed a treasury with it, or treat it as circulating on flip day. Demo mode does not mint at all. Default mode stays **demo**.
+- **Hard reject.** A mint that would make `outstanding liability + amount` greater than `IXIS_MAX_SUPPLY` fails. Crossing the cap is not a warning and not a second issuance.
+- **Flip does not inflate.** Clearance does not reset balances, does not mint the unused headroom, and does not double supply. Continuity stays `sum(ledger paid) == coin liability`, and that sum must already be ≤ the cap.
+
 ---
 
 ## 10. Document control
@@ -275,6 +287,6 @@ If counsel requires a distinct ticker, keep ledger name **Ixis** and alias on-ch
 | Authoring | Developer Bot hub from Awad’s locked rules + existing `VISION.md` |
 | Canonical repo path (target) | `docs/WALLET_VISION_DETAILED.md` in `313aidaroos/ApixisWallet` |
 | Supersedes | Nothing — expands short `VISION.md` |
-| Next review | After buy-UX + embed PR merges; keep demo→live flip wiring on critical path before Phase 5 |
+| Next review | After buy-UX + embed PR merges; keep demo→live flip wiring and the 1T liability-backed mint cap on the critical path before Phase 5 |
 
 **Awad decides.** Leads paint. Hub wires. Counsel opens Phase 5 — or it stays closed-loop forever if that is safer. Either way, Phase 1–4 remain valuable commerce infrastructure on their own.
