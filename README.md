@@ -26,6 +26,8 @@ Buy Ixis on Wallet. Redeem it from Wallet. Do not add a second Stripe Checkout o
 
 The embed contract (deep link, optional balance, CTA copy) is [docs/WALLET_EMBED.md](docs/WALLET_EMBED.md). API detail is [docs/INTEGRATION.md](docs/INTEGRATION.md).
 
+Cixy cosmetics (outfits, themes, work templates, office settings) are shared Cixy assets sold only from this Wallet. Prices stay Coming soon until Awad locks Ixis integers. See [docs/CIXY_COSMETICS.md](docs/CIXY_COSMETICS.md).
+
 ## Tree placement
 
 This is one apple on the Apixis trunk:

@@ -10,6 +10,7 @@ Ixis is bought on Wallet and spent by redeeming from Wallet. 100 Ixis = $1.
 - Invent a per-product cash ledger, a "Socixis balance", or any paid bucket outside Apixis Wallet.
 - Credit Ixis in the browser, in your database, or when the user lands back on your site.
 - Offer cash-out, withdraw, or a convert-to-dollars button.
+- Sell Cixy cosmetics with a product-site Stripe price. Outfits, themes, work templates, and office settings are Wallet SKUs. See [docs/CIXY_COSMETICS.md](CIXY_COSMETICS.md).
 
 Credit stays on Wallet. The Stripe webhook calls `credit_xp` with `p_external_id` = the Stripe event id and `p_bucket` = `paid`. Your site never writes that credit.
 
@@ -34,6 +35,36 @@ https://apixis-wallet.vercel.app/buy?product=socixis&return_url=https%3A%2F%2Fso
 | `return_url` | no | Absolute `https` URL on an allowlisted host. Wallet opens it only after the webhook credit. |
 
 `return_url` must be URL-encoded. Allowed hosts are `apixis.dev` (and subdomains) and the exact production hosts in `lib/checkout/return-url.ts` (`socixis.vercel.app`, `renoxis.vercel.app`, and the other family `project.vercel.app` names). A lookalike such as `socixis-git-main.vercel.app` is rejected. Preview hosts go in `CHECKOUT_RETURN_HOSTS` as exact hostnames, not wildcards.
+
+## Customize
+
+Send someone to buy Ixis, then back to the product customize page. Same allowlist. Cosmetics stay a Wallet spend. There is still no per-product Stripe charge and no cash-out. Catalog: [docs/CIXY_COSMETICS.md](CIXY_COSMETICS.md).
+
+Socixis:
+
+```
+https://apixis-wallet.vercel.app/buy?product=socixis&return_url=https%3A%2F%2Fsocixis.vercel.app%2Fcustomize
+```
+
+Renoxis (`/customize` is the default; use that path unless the product already ships `/cixy`):
+
+```
+https://apixis-wallet.vercel.app/buy?product=renoxis&return_url=https%3A%2F%2Frenoxis.vercel.app%2Fcustomize
+```
+
+Apixis:
+
+```
+https://apixis-wallet.vercel.app/buy?product=apixis&return_url=https%3A%2F%2Fapixis.vercel.app%2Fcustomize
+```
+
+`https://apixis.dev/customize` is the same door when that is the host the product uses (`product=apixis`, `return_url` URL-encoded the same way).
+
+Generic Cixy:
+
+```
+https://apixis-wallet.vercel.app/buy?product=cixy&return_url=https%3A%2F%2Fcixy.vercel.app%2Fcustomize
+```
 
 The customer must be signed in on Wallet with the same Apixis account. Checkout without that session returns `401` `Sign in required`.
 

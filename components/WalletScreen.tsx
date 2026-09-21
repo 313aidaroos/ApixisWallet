@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { ArrowDownLeft, ArrowUpRight, Coins, LayoutGrid, List, Megaphone, ShoppingBag, TrendingUp, WalletCards } from "lucide-react";
-import { pointPacks, redeemCatalog, shopCatalog, shopCategories, type ShopCategory } from "@/lib/catalog";
+import { cosmeticsCatalog, cosmeticGroups, pointPacks, redeemCatalog, shopCatalog, shopCategories, type ShopCategory } from "@/lib/catalog";
 import { appSlug, resolveDestination } from "@/lib/checkout/destinations";
 import { returnHost } from "@/lib/checkout/return-url";
 import { last24h, productTape, xpTape } from "@/lib/market";
@@ -106,7 +106,32 @@ export function WalletScreen({ lockTab, unitLabel = "Ixis" }: { lockTab?: Tab; u
     });
   };
 
-  const shopItems = shopFilter === "all" ? shopCatalog : shopCatalog.filter((item) => item.category === shopFilter);
+  const pricedShop = shopFilter === "all"
+    ? shopCatalog
+    : shopFilter === "cosmetics"
+      ? []
+      : shopCatalog.filter((item) => item.category === shopFilter);
+  const cosmeticShop = shopFilter === "all" || shopFilter === "cosmetics" ? cosmeticsCatalog : [];
+  const shopItems = [
+    ...pricedShop.map((item) => ({
+      key: item.key,
+      label: shopCategories.find((category) => category.id === item.category)?.label ?? "",
+      name: item.name,
+      color: item.color,
+      blurb: item.blurb,
+      xp: item.xp,
+      merch: item.category === "merch",
+    })),
+    ...cosmeticShop.map((item) => ({
+      key: item.key,
+      label: cosmeticGroups.find((group) => group.id === item.group)?.label ?? "Cosmetics",
+      name: item.name,
+      color: item.color,
+      blurb: item.blurb,
+      xp: item.xp,
+      merch: false,
+    })),
+  ];
 
   const title = useMemo(
     () => ({ home: "HQ", buy: "BUY", redeem: "REDEEM", shop: "SHOP", market: "TAPE", news: "NEWS", activity: "LOG" })[tab],
@@ -254,29 +279,43 @@ export function WalletScreen({ lockTab, unitLabel = "Ixis" }: { lockTab?: Tab; u
                 </button>
               ))}
             </div>
+            {shopFilter === "cosmetics" && (
+              <p style={{ color: "var(--muted)", marginTop: 0 }}>
+                Shared Cixy assets. Coming soon until Awad locks the Ixis price. The Wallet catalog is the price.
+              </p>
+            )}
             <div className="products">
               {shopItems.map((p) => {
-                const label = shopCategories.find((category) => category.id === p.category)?.label ?? "";
+                const comingSoon = p.xp == null;
                 return (
                   <article key={p.key} style={{ ["--accent"]: p.color } as React.CSSProperties}>
-                    <span>{label.slice(0, 1)}</span>
-                    <p>{label}</p>
+                    <span>{p.label.slice(0, 1)}</span>
+                    <p>{p.label}</p>
                     <h3>{p.name}</h3>
-                    <b>{p.xp.toLocaleString()} {unit}</b>
-                    <span>{usd(p.xp / 100)}</span>
+                    {comingSoon ? (
+                      <b style={{ color: "var(--amber)" }}>Coming soon</b>
+                    ) : (
+                      <>
+                        <b>{p.xp.toLocaleString()} {unit}</b>
+                        <span>{usd(p.xp / 100)}</span>
+                      </>
+                    )}
                     <p>{p.blurb}</p>
                     <button
-                      onClick={() =>
+                      type="button"
+                      disabled={comingSoon}
+                      onClick={() => {
+                        if (p.xp == null) return;
                         redeem(
                           p.key,
                           p.name,
                           p.xp,
                           "Shop",
-                          p.category === "merch" ? "We'll fulfill when designs land." : "",
-                        )
-                      }
+                          p.merch ? "We'll fulfill when designs land." : "",
+                        );
+                      }}
                     >
-                      Buy with {unit}
+                      {comingSoon ? "Coming soon" : `Buy with ${unit}`}
                     </button>
                   </article>
                 );

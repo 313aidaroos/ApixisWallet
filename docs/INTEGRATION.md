@@ -91,6 +91,7 @@ curl -X POST https://apixis-wallet.vercel.app/api/v1/quotes \
 ```
 
 **Errors:**
+- `400` — `Coming soon`. The SKU is in the catalog with `xp: null` or `status: "coming_soon"`. The body has no `xp`. Do not invent a price. Cixy cosmetics use this until Awad locks integers. See [docs/CIXY_COSMETICS.md](CIXY_COSMETICS.md).
 - `404` — Unknown SKU (contact @apixiswallet to add it to the catalog).
 
 ---
@@ -131,7 +132,7 @@ curl -X POST https://apixis-wallet.vercel.app/api/v1/reservations \
 ```
 
 **Errors:**
-- `400` — Missing or invalid request.
+- `400` — Missing or invalid request, or `Coming soon` for a catalog SKU with no Ixis integer yet.
 - `402` — Insufficient Ixis balance.
 - `404` — Unknown product.
 
@@ -305,7 +306,7 @@ Current SKUs (as of 2026-09-20):
 
 ### Shop (`shopCatalog`)
 
-Wallet **Shop** sells templates, Cixy customizations, and merch. These SKUs live in `shopCatalog` in `lib/catalog.ts` (not in Stripe `pointPacks`). A shop purchase is a wallet → product Ixis spend: same quote → reserve → capture path as redeem. Cash packs stay on the Buy tab only.
+Wallet **Shop** sells templates, legacy Cixy packs, merch, and the Cixy cosmetics shelf. Priced rows below live in `shopCatalog` in `lib/catalog.ts` (not in Stripe `pointPacks`). A shop purchase is a wallet → product Ixis spend: same quote → reserve → capture path as redeem. Cash packs stay on the Buy tab only. Cosmetics (`cosmeticsCatalog`, `cixy.cosmetic.*`) are shared Cixy assets with `xp: null` until Awad locks integers — see [docs/CIXY_COSMETICS.md](CIXY_COSMETICS.md). Quote and reserve answer `400` `Coming soon` for those keys. `shop.cixy.voice`, `shop.cixy.skin`, and `shop.cixy.persona` stay priced legacy packs. They are not aliases of the cosmetics rows.
 
 Floor is 1,000 Ixis ($10), `UNIT_XP`. Merch keys are visual placeholders (`Design coming`). Physical fulfillment is stubbed until designs land — the Wallet shows "We'll fulfill when designs land."
 
