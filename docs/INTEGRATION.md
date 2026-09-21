@@ -33,7 +33,7 @@ https://apixis-wallet.vercel.app/buy?return_url=https%3A%2F%2Fsocixis.vercel.app
 | Param | Required | Meaning |
 | --- | --- | --- |
 | `return_url` | no | Absolute URL opened after the pack is credited. The host must be allowlisted. |
-| `product`, `app`, or `destination` | no | Sister app slug: `socixis`, `renoxis`, `recovra`, `deduxis`, `contraxis`, `contentbot`, `apixis`, `family`, `cixy`, or `wallet`. |
+| `product`, `app`, or `destination` | no | Sister app slug: `socixis`, `renoxis`, `apixis`, `rawixis`, `contraxis`, `halaxis`, `lyrixis`, `qahwahworld`, `recovra`, `launchixis`, `awadbot`, `cixy`, `deduxis`, `contentbot`, `family`, or `wallet`. |
 
 Allowlist (`lib/checkout/return-url.ts`):
 
@@ -91,6 +91,8 @@ curl -X POST https://apixis-wallet.vercel.app/api/v1/quotes \
 ```
 
 **Errors:**
+- `400` — `Coming soon`. The SKU is in the catalog with `xp: null` or `status: "coming_soon"`, and it is not a wardrobe essential. The body has no `xp`. Do not invent a price. Premium Cixy cosmetics use this until Awad locks integers. See [docs/CIXY_COSMETICS.md](CIXY_COSMETICS.md).
+- `400` — `Included`. The SKU is an always-owned wardrobe essential (`outfit.starter`, `theme.paper`, `office.desk`). The body has no `xp`. Do not reserve it.
 - `404` — Unknown SKU (contact @apixiswallet to add it to the catalog).
 
 ---
@@ -131,7 +133,7 @@ curl -X POST https://apixis-wallet.vercel.app/api/v1/reservations \
 ```
 
 **Errors:**
-- `400` — Missing or invalid request.
+- `400` — Missing or invalid request, `Coming soon` for an unpriced premium SKU, or `Included` for a wardrobe essential.
 - `402` — Insufficient Ixis balance.
 - `404` — Unknown product.
 
@@ -240,6 +242,16 @@ curl "https://apixis-wallet.vercel.app/api/v1/entitlements?app=socixis" \
 
 Returns active subscriptions/entitlements for the signed-in user. Use this to check what they already own before showing a purchase screen.
 
+### Cixy wardrobe
+
+**GET** `/api/v1/entitlements?app=cixy`
+
+Cosmetics ownership is this list, not a second API. Each wardrobe row uses the same entitlement fields plus `kind: "wardrobe"` and `unlockAssetId` from `cosmeticsCatalog`. `xpPrice` is `0` for an essential and, once a purchase is stored, the catalog integer recorded at grant. Reading the list does not spend Ixis. Equip and unequip do not either. They are not consume-on-apply.
+
+The live route returns the always-owned essentials only (`outfit.starter`, `theme.paper`, `office.desk`). Purchased rows are not stored yet, so the response does not invent them. Flow and the response body: [docs/CIXY_COSMETICS.md](CIXY_COSMETICS.md).
+
+A product customize UI treats `status: "active"` ids as selectable on the one shared Cixy. A premium `unlockAssetId` missing from the list stays locked, with a Buy on Wallet link.
+
 ---
 
 ## 7. Ledger (transaction history)
@@ -305,7 +317,7 @@ Current SKUs (as of 2026-09-20):
 
 ### Shop (`shopCatalog`)
 
-Wallet **Shop** sells templates, Cixy customizations, and merch. These SKUs live in `shopCatalog` in `lib/catalog.ts` (not in Stripe `pointPacks`). A shop purchase is a wallet → product Ixis spend: same quote → reserve → capture path as redeem. Cash packs stay on the Buy tab only.
+Wallet **Shop** sells templates, legacy Cixy packs, merch, and the Cixy cosmetics shelf. Priced rows below live in `shopCatalog` in `lib/catalog.ts` (not in Stripe `pointPacks`). A shop purchase is a wallet → product Ixis spend: same quote → reserve → capture path as redeem. Cash packs stay on the Buy tab only. Cosmetics (`cosmeticsCatalog`, `cixy.cosmetic.*`) are shared Cixy assets with `xp: null` until Awad locks integers — see [docs/CIXY_COSMETICS.md](CIXY_COSMETICS.md). Quote and reserve answer `400` `Coming soon` for those keys. `shop.cixy.voice`, `shop.cixy.skin`, and `shop.cixy.persona` stay priced legacy packs. They are not aliases of the cosmetics rows.
 
 Floor is 1,000 Ixis ($10), `UNIT_XP`. Merch keys are visual placeholders (`Design coming`). Physical fulfillment is stubbed until designs land — the Wallet shows "We'll fulfill when designs land."
 

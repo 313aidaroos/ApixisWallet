@@ -17,6 +17,12 @@ const LABELS: Record<string, string> = {
   contraxis: "Contraxis",
   family: "Family",
   cixy: "Cixy",
+  rawixis: "Rawixis",
+  halaxis: "Halaxis",
+  lyrixis: "Lyrixis",
+  qahwahworld: "Qahwahworld",
+  launchixis: "Launchixis",
+  awadbot: "AwadBot",
 };
 
 const CATALOG_APP_SLUG: Record<string, string> = {
@@ -49,6 +55,12 @@ const ALIASES: Record<string, string> = {
   apixisdev: "apixis",
   family: "family",
   cixy: "cixy",
+  rawixis: "rawixis",
+  halaxis: "halaxis",
+  lyrixis: "lyrixis",
+  qahwahworld: "qahwahworld",
+  launchixis: "launchixis",
+  awadbot: "awadbot",
 };
 
 export type Destination = { slug: string; label: string };
@@ -65,6 +77,13 @@ export function destinationChoices(): Destination[] {
     if (!slug || seen.has(slug)) continue;
     seen.add(slug);
     items.push({ slug, label: LABELS[slug] ?? item.app });
+  }
+  // Wardrobe return products are destinations even with no redeem SKU yet.
+  // command / awad-command are intentionally absent.
+  for (const slug of Object.keys(LABELS)) {
+    if (seen.has(slug)) continue;
+    seen.add(slug);
+    items.push({ slug, label: LABELS[slug] });
   }
   return items;
 }

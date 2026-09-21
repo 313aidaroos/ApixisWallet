@@ -55,6 +55,7 @@ export const redeemCatalog = [
 export const shopCategories = [
   { id: "templates", label: "Templates" },
   { id: "cixy", label: "Cixy" },
+  { id: "cosmetics", label: "Cosmetics" },
   { id: "merch", label: "Merch" },
 ] as const;
 
@@ -67,6 +68,8 @@ export const shopCatalog = [
   { key: "shop.template.listing", category: "templates", app: "Renoxis", name: "Listing file", xp: UNIT_XP, color: "#c8ff63", blurb: "One listing template." },
   { key: "shop.template.offer", category: "templates", app: "Renoxis", name: "Offer file", xp: UNIT_XP, color: "#c8ff63", blurb: "One offer template." },
 
+  // Legacy Cixy packs. Not aliases of cosmeticsCatalog — voice, skin, and persona
+  // do not map onto outfit / theme / template / office rows.
   { key: "shop.cixy.voice", category: "cixy", app: "Cixy", name: "Voice pack", xp: UNIT_XP, color: "#ff6bce", blurb: "Voice customization. Sound lands when Awad fills it." },
   { key: "shop.cixy.skin", category: "cixy", app: "Cixy", name: "Skin pack", xp: 2500, color: "#ff6bce", blurb: "Look customization. Art lands when Awad fills it." },
   { key: "shop.cixy.persona", category: "cixy", app: "Cixy", name: "Persona pack", xp: 5000, color: "#b14bff", blurb: "Tone, habits, and replies. Persona lands when Awad fills it." },
@@ -77,11 +80,110 @@ export const shopCatalog = [
   { key: "shop.merch.mug", category: "merch", app: "Apixis", name: "Mug", xp: 1500, color: "#ffbd59", blurb: "Design coming. We'll fulfill when designs land." },
 ] as const;
 
-/** Redeem seats and Shop goods. Cash packs stay in pointPacks. */
+export const cosmeticGroups = [
+  { id: "outfit", label: "Outfit" },
+  { id: "theme", label: "Theme" },
+  { id: "template", label: "Template" },
+  { id: "office", label: "Office" },
+] as const;
+
+export type CosmeticGroup = (typeof cosmeticGroups)[number]["id"];
+
+/**
+ * Authoritative Cixy cosmetics. Wallet owns this commerce.
+ * Shared Cixy assets — a product must not invent a second character.
+ * xp is null and status is "coming_soon" until Awad locks a positive integer
+ * Ixis price (100 Ixis = $1). Never accept a price from the browser.
+ *
+ * Reserved namespaces. Do not add priced SKUs yet:
+ * - cixy.cosmetic.accessory.*
+ * - cixy.cosmetic.anim.*
+ *
+ * Always-owned wardrobe essentials (not sold, equip does not spend Ixis):
+ * outfit.starter, theme.paper, office.desk.
+ * No work template is essential.
+ */
+export const cosmeticsCatalog = [
+  { key: "cixy.cosmetic.outfit.starter", group: "outfit", app: "Cixy", name: "Starter suit", xp: null, status: "coming_soon", unlockAssetId: "outfit.starter", color: "#ff6bce", blurb: "Included. Default suit on the shared Cixy." },
+  { key: "cixy.cosmetic.outfit.executive", group: "outfit", app: "Cixy", name: "Executive", xp: null, status: "coming_soon", unlockAssetId: "outfit.executive", color: "#ff6bce", blurb: "Shared Cixy outfit. Coming soon." },
+  { key: "cixy.cosmetic.outfit.street", group: "outfit", app: "Cixy", name: "Street", xp: null, status: "coming_soon", unlockAssetId: "outfit.street", color: "#ff6bce", blurb: "Shared Cixy outfit. Coming soon." },
+  { key: "cixy.cosmetic.outfit.formal", group: "outfit", app: "Cixy", name: "Formal", xp: null, status: "coming_soon", unlockAssetId: "outfit.formal", color: "#ff6bce", blurb: "Shared Cixy outfit. Coming soon." },
+
+  { key: "cixy.cosmetic.theme.midnight", group: "theme", app: "Cixy", name: "Midnight", xp: null, status: "coming_soon", unlockAssetId: "theme.midnight", color: "#b14bff", blurb: "Shared Cixy theme. Coming soon." },
+  { key: "cixy.cosmetic.theme.dawn", group: "theme", app: "Cixy", name: "Dawn", xp: null, status: "coming_soon", unlockAssetId: "theme.dawn", color: "#b14bff", blurb: "Shared Cixy theme. Coming soon." },
+  { key: "cixy.cosmetic.theme.neon", group: "theme", app: "Cixy", name: "Neon", xp: null, status: "coming_soon", unlockAssetId: "theme.neon", color: "#b14bff", blurb: "Shared Cixy theme. Coming soon." },
+  { key: "cixy.cosmetic.theme.paper", group: "theme", app: "Cixy", name: "Paper", xp: null, status: "coming_soon", unlockAssetId: "theme.paper", color: "#b14bff", blurb: "Included. Default theme on the shared Cixy." },
+
+  { key: "cixy.cosmetic.template.brief", group: "template", app: "Cixy", name: "Brief pack", xp: null, status: "coming_soon", unlockAssetId: "template.brief", color: "#46e6ff", blurb: "Cixy work template, not a site pack. Coming soon." },
+  { key: "cixy.cosmetic.template.standup", group: "template", app: "Cixy", name: "Standup pack", xp: null, status: "coming_soon", unlockAssetId: "template.standup", color: "#46e6ff", blurb: "Cixy work template, not a site pack. Coming soon." },
+  { key: "cixy.cosmetic.template.client", group: "template", app: "Cixy", name: "Client pack", xp: null, status: "coming_soon", unlockAssetId: "template.client", color: "#46e6ff", blurb: "Cixy work template, not a site pack. Coming soon." },
+  { key: "cixy.cosmetic.template.ops", group: "template", app: "Cixy", name: "Ops pack", xp: null, status: "coming_soon", unlockAssetId: "template.ops", color: "#46e6ff", blurb: "Cixy work template, not a site pack. Coming soon." },
+
+  { key: "cixy.cosmetic.office.desk", group: "office", app: "Cixy", name: "Desk", xp: null, status: "coming_soon", unlockAssetId: "office.desk", color: "#c8ff63", blurb: "Included. Default office on the shared Cixy." },
+  { key: "cixy.cosmetic.office.warroom", group: "office", app: "Cixy", name: "War room", xp: null, status: "coming_soon", unlockAssetId: "office.warroom", color: "#c8ff63", blurb: "Shared Cixy office. Coming soon." },
+  { key: "cixy.cosmetic.office.lounge", group: "office", app: "Cixy", name: "Lounge", xp: null, status: "coming_soon", unlockAssetId: "office.lounge", color: "#c8ff63", blurb: "Shared Cixy office. Coming soon." },
+  { key: "cixy.cosmetic.office.studio", group: "office", app: "Cixy", name: "Studio", xp: null, status: "coming_soon", unlockAssetId: "office.studio", color: "#c8ff63", blurb: "Shared Cixy office. Coming soon." },
+] as const;
+
+type CatalogItem = { key: string; xp: number | null; status?: string };
+
+/**
+ * Free wardrobe pieces. Every user owns these. They are not a purchase
+ * and equipping them does not burn Ixis. Premium rows stay xp: null.
+ */
+export const WARDROBE_ESSENTIAL_UNLOCK_IDS = ["outfit.starter", "theme.paper", "office.desk"] as const;
+
+const wardrobeEssentialIds: ReadonlySet<string> = new Set(WARDROBE_ESSENTIAL_UNLOCK_IDS);
+
+export function wardrobeUnlockId(product: object): string | null {
+  if (!("unlockAssetId" in product)) return null;
+  const id = product.unlockAssetId;
+  return typeof id === "string" ? id : null;
+}
+
+export function isWardrobeEssential(product: object) {
+  const id = wardrobeUnlockId(product);
+  return id != null && wardrobeEssentialIds.has(id);
+}
+
+/** Persistent owned-item rows. Essentials only, until purchased grants are stored. */
+export function wardrobeEntitlementsFromCatalog() {
+  return cosmeticsCatalog.filter((item) => isWardrobeEssential(item)).map((item) => ({
+    id: `wardrobe:${item.unlockAssetId}`,
+    app: "cixy" as const,
+    kind: "wardrobe" as const,
+    productKey: item.key,
+    unlockAssetId: item.unlockAssetId,
+    name: item.name,
+    group: item.group,
+    status: "active" as const,
+    ownership: "essential" as const,
+    renewsAt: null,
+    xpPrice: 0,
+  }));
+}
+
+export function includedWardrobeDenial(product: { key: string; unlockAssetId: string }) {
+  return {
+    error: "Included" as const,
+    productKey: product.key,
+    status: "owned" as const,
+    kind: "wardrobe" as const,
+    unlockAssetId: product.unlockAssetId,
+  };
+}
+
+/** Null xp, or an explicit coming_soon row, is not quotable. */
+export function isComingSoonCatalogItem(product: CatalogItem) {
+  return product.xp == null || product.status === "coming_soon";
+}
+
+/** Redeem seats, Shop goods, and Cixy cosmetics. Cash packs stay in pointPacks. */
 export function findCatalogProduct(productKey: string) {
   return (
     redeemCatalog.find((item) => item.key === productKey) ??
-    shopCatalog.find((item) => item.key === productKey)
+    shopCatalog.find((item) => item.key === productKey) ??
+    cosmeticsCatalog.find((item) => item.key === productKey)
   );
 }
 
