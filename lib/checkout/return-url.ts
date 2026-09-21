@@ -22,6 +22,9 @@ export const VERCEL_PRODUCT_HOSTS = [
   "lyrixis.vercel.app",
   "rawixis.vercel.app",
   "halaxis.vercel.app",
+  "qahwahworld.vercel.app",
+  "launchixis.vercel.app",
+  "awadbot.vercel.app",
 ] as const;
 
 const FAMILY_DOMAINS = ["apixis.dev"] as const;

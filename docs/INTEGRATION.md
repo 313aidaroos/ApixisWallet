@@ -33,7 +33,7 @@ https://apixis-wallet.vercel.app/buy?return_url=https%3A%2F%2Fsocixis.vercel.app
 | Param | Required | Meaning |
 | --- | --- | --- |
 | `return_url` | no | Absolute URL opened after the pack is credited. The host must be allowlisted. |
-| `product`, `app`, or `destination` | no | Sister app slug: `socixis`, `renoxis`, `recovra`, `deduxis`, `contraxis`, `contentbot`, `apixis`, `family`, `cixy`, or `wallet`. |
+| `product`, `app`, or `destination` | no | Sister app slug: `socixis`, `renoxis`, `apixis`, `rawixis`, `contraxis`, `halaxis`, `lyrixis`, `qahwahworld`, `recovra`, `launchixis`, `awadbot`, `cixy`, `deduxis`, `contentbot`, `family`, or `wallet`. |
 
 Allowlist (`lib/checkout/return-url.ts`):
 

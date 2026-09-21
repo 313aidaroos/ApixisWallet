@@ -31,40 +31,35 @@ https://apixis-wallet.vercel.app/buy?product=socixis&return_url=https%3A%2F%2Fso
 
 | Query | Required | Meaning |
 | --- | --- | --- |
-| `product` (alias `app`) | no | Origin product: `socixis`, `renoxis`, `recovra`, `deduxis`, `contraxis`, `contentbot`, `apixis`, `family`, `cixy`, or `wallet`. |
+| `product` (alias `app`) | no | Origin product: `socixis`, `renoxis`, `apixis`, `rawixis`, `contraxis`, `halaxis`, `lyrixis`, `qahwahworld`, `recovra`, `launchixis`, `awadbot`, `cixy`, `deduxis`, `contentbot`, `family`, or `wallet`. |
 | `return_url` | no | Absolute `https` URL on an allowlisted host. Wallet opens it only after the webhook credit. |
 
 `return_url` must be URL-encoded. Allowed hosts are `apixis.dev` (and subdomains) and the exact production hosts in `lib/checkout/return-url.ts` (`socixis.vercel.app`, `renoxis.vercel.app`, and the other family `project.vercel.app` names). A lookalike such as `socixis-git-main.vercel.app` is rejected. Preview hosts go in `CHECKOUT_RETURN_HOSTS` as exact hostnames, not wildcards.
 
 ## Customize
 
-Send someone to buy Ixis, then back to the product customize page. Same allowlist. Cosmetics stay a Wallet spend. There is still no per-product Stripe charge and no cash-out. Catalog: [docs/CIXY_COSMETICS.md](CIXY_COSMETICS.md).
-
-Socixis:
+Send someone to buy Ixis, then back to `/customize` on that product. Same allowlist. Cosmetics stay a Wallet spend. There is still no per-product Stripe charge and no cash-out. Catalog: [docs/CIXY_COSMETICS.md](CIXY_COSMETICS.md).
 
 ```
-https://apixis-wallet.vercel.app/buy?product=socixis&return_url=https%3A%2F%2Fsocixis.vercel.app%2Fcustomize
+https://apixis-wallet.vercel.app/buy?product=<slug>&return_url=https%3A%2F%2F<host>%2Fcustomize
 ```
 
-Renoxis (`/customize` is the default; use that path unless the product already ships `/cixy`):
+| Product | Deep link |
+| --- | --- |
+| Socixis | `https://apixis-wallet.vercel.app/buy?product=socixis&return_url=https%3A%2F%2Fsocixis.vercel.app%2Fcustomize` |
+| Renoxis | `https://apixis-wallet.vercel.app/buy?product=renoxis&return_url=https%3A%2F%2Frenoxis.vercel.app%2Fcustomize` |
+| Apixis | `https://apixis-wallet.vercel.app/buy?product=apixis&return_url=https%3A%2F%2Fapixis.vercel.app%2Fcustomize` |
+| Rawixis | `https://apixis-wallet.vercel.app/buy?product=rawixis&return_url=https%3A%2F%2Frawixis.vercel.app%2Fcustomize` |
+| Contraxis | `https://apixis-wallet.vercel.app/buy?product=contraxis&return_url=https%3A%2F%2Fcontraxis.vercel.app%2Fcustomize` |
+| Halaxis | `https://apixis-wallet.vercel.app/buy?product=halaxis&return_url=https%3A%2F%2Fhalaxis.vercel.app%2Fcustomize` |
+| Lyrixis | `https://apixis-wallet.vercel.app/buy?product=lyrixis&return_url=https%3A%2F%2Flyrixis.vercel.app%2Fcustomize` |
+| Qahwahworld | `https://apixis-wallet.vercel.app/buy?product=qahwahworld&return_url=https%3A%2F%2Fqahwahworld.vercel.app%2Fcustomize` |
+| Recovra | `https://apixis-wallet.vercel.app/buy?product=recovra&return_url=https%3A%2F%2Frecovra.vercel.app%2Fcustomize` |
+| Launchixis | `https://apixis-wallet.vercel.app/buy?product=launchixis&return_url=https%3A%2F%2Flaunchixis.vercel.app%2Fcustomize` |
+| AwadBot | `https://apixis-wallet.vercel.app/buy?product=awadbot&return_url=https%3A%2F%2Fawadbot.vercel.app%2Fcustomize` |
+| Cixy | `https://apixis-wallet.vercel.app/buy?product=cixy&return_url=https%3A%2F%2Fcixy.vercel.app%2Fcustomize` |
 
-```
-https://apixis-wallet.vercel.app/buy?product=renoxis&return_url=https%3A%2F%2Frenoxis.vercel.app%2Fcustomize
-```
-
-Apixis:
-
-```
-https://apixis-wallet.vercel.app/buy?product=apixis&return_url=https%3A%2F%2Fapixis.vercel.app%2Fcustomize
-```
-
-`https://apixis.dev/customize` is the same door when that is the host the product uses (`product=apixis`, `return_url` URL-encoded the same way).
-
-Generic Cixy:
-
-```
-https://apixis-wallet.vercel.app/buy?product=cixy&return_url=https%3A%2F%2Fcixy.vercel.app%2Fcustomize
-```
+`https://apixis.dev/customize` is the same Apixis door when that is the host the product uses (`product=apixis`, `return_url` URL-encoded the same way). Command is not a return host.
 
 The customer must be signed in on Wallet with the same Apixis account. Checkout without that session returns `401` `Sign in required`.
 

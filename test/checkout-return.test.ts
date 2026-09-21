@@ -11,6 +11,7 @@ import {
   parseCheckoutExtras,
   readPackMetadata,
 } from "../lib/checkout/intent";
+import { resolveDestination } from "../lib/checkout/destinations";
 import { VERCEL_PRODUCT_HOSTS, canonicalReturnUrl } from "../lib/checkout/return-url";
 import { buildStatusPayload, findPaidPackCredit, returnRedirectTarget, toPublicStatus } from "../lib/checkout/status";
 import { packPurchaseDescription } from "../lib/stripe/fulfillment";
@@ -29,6 +30,12 @@ describe("return url allowlist", () => {
     for (const host of VERCEL_PRODUCT_HOSTS) {
       assert.equal(canonicalReturnUrl(`https://${host}/home`, locked), `https://${host}/home`);
     }
+    for (const host of ["qahwahworld.vercel.app", "launchixis.vercel.app", "awadbot.vercel.app", "rawixis.vercel.app", "lyrixis.vercel.app", "halaxis.vercel.app"]) {
+      assert.equal(canonicalReturnUrl(`https://${host}/customize`, locked), `https://${host}/customize`);
+    }
+    const hosts = VERCEL_PRODUCT_HOSTS as readonly string[];
+    assert.equal(hosts.includes("command.vercel.app"), false);
+    assert.equal(hosts.includes("awad-command.vercel.app"), false);
   });
 
   it("rejects open redirects, lookalike vercel hosts, and non-https", () => {
@@ -37,6 +44,11 @@ describe("return url allowlist", () => {
       "https://socixis.vercel.app.evil.com/billing",
       "https://not-a-product.vercel.app/phish",
       "https://socixis-git-main-team.vercel.app/billing",
+      "https://qahwahworld-git-main.vercel.app/customize",
+      "https://launchixis.vercel.app.evil.com/customize",
+      "https://awadbot.vercel.app.evil.vercel.app/customize",
+      "https://command.vercel.app/customize",
+      "https://awad-command.vercel.app/customize",
       "https://socixis.vercel.app.evil.vercel.app/",
       "http://socixis.vercel.app/billing",
       "javascript:alert(1)",
@@ -70,6 +82,32 @@ describe("return url allowlist", () => {
       canonicalReturnUrl("https://anywhere.example/x", { extraHosts: ["*.example"], allowHttpLocalhost: false }),
       null,
     );
+  });
+});
+
+describe("wardrobe return destinations", () => {
+  it("resolves each product slug and refuses command", () => {
+    const slugs = [
+      "renoxis",
+      "apixis",
+      "socixis",
+      "rawixis",
+      "contraxis",
+      "halaxis",
+      "lyrixis",
+      "qahwahworld",
+      "recovra",
+      "launchixis",
+      "awadbot",
+      "cixy",
+    ] as const;
+    for (const slug of slugs) {
+      assert.equal(resolveDestination(slug)?.slug, slug, slug);
+    }
+    assert.equal(resolveDestination("AwadBot")?.slug, "awadbot");
+    assert.equal(resolveDestination("command"), null);
+    assert.equal(resolveDestination("awad-command"), null);
+    assert.equal(resolveDestination("awadcommand"), null);
   });
 });
 
