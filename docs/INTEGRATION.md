@@ -238,7 +238,7 @@ curl "https://apixis-wallet.vercel.app/api/v1/entitlements?app=socixis" \
 }
 ```
 
-Returns active subscriptions/entitlements for the signed-in user. Use this to check what they already own before showing a purchase screen.
+Returns stored entitlement rows for the signed-in user. Wallet does not invent a balance here. Grant rows are not persisted yet, so the list is empty until capture writes them. That empty list is not an access decision. Renoxis still calls quote → reserve → provision → capture. After a real capture, the grant shape is `renoxis.activate` (`active`, no `renewsAt`) or `renoxis.agent.monthly` (`active`, `renewsAt` about 30 days later). See [docs/RENOXIS.md](RENOXIS.md).
 
 ---
 
@@ -284,14 +284,15 @@ Optional: display this in your app's billing page so users see their full Ixis h
 
 ## Catalog
 
-Current SKUs (as of 2026-09-20):
+Current SKUs (as of 2026-09-21):
 
 | Product Key                       | App         | Name                      | Ixis    | USD      |
 |-----------------------------------|-------------|---------------------------|---------|----------|
 | `apixis.activate`                 | Apixis.dev  | Citizen activation        | 2,000   | $20      |
 | `apixis.citizen.monthly`          | Apixis.dev  | Citizen seat              | 2,000   | $20/mo   |
 | `apixis.founder.monthly`          | Apixis.dev  | Founder seat              | 10,000  | $100/mo  |
-| `renoxis.agent.monthly`           | Renoxis     | Agent Office              | 30,000  | $300/mo  |
+| `renoxis.activate`                | Renoxis     | Renoxis Activate          | 5,000   | $50      |
+| `renoxis.agent.monthly`           | Renoxis     | Renoxis Monthly           | 5,000   | $50/mo   |
 | `socixis.autopilot.monthly`       | Socixis     | Social Autopilot          | 45,000  | $450/mo  |
 | `recovra.intel.monthly`           | Recovra     | Recovery Intelligence     | 22,000  | $220/mo  |
 | `deduxis.receipts.monthly`        | Deduxis     | Receipt Intelligence      | 15,000  | $150/mo  |
@@ -302,6 +303,8 @@ Current SKUs (as of 2026-09-20):
 | `socixis.avatar.skin.*`           | Socixis     | Avatar skin (various)     | 1,000   | $10/each |
 | `socixis.site.*`                  | Socixis     | Site pack (various)       | 1,000   | $10/each |
 | `renoxis.file.*`                  | Renoxis     | Listing/offer file        | 1,000   | $10/each |
+
+`renoxis.agent.monthly` is the only Renoxis month seat. `renoxis.monthly` and `renoxis-monthly` are aliases of that key. `renoxis-activate` is an alias of `renoxis.activate`. The old 30,000 Ixis ($300) price is retired. Buy and redeem steps: [docs/RENOXIS.md](RENOXIS.md).
 
 ### Shop (`shopCatalog`)
 

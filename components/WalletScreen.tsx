@@ -34,7 +34,7 @@ function openingNotice(checkout: string | null) {
 }
 
 const seed = [
-  { title: "Renoxis Agent Office", meta: "Redeem", xp: -30000 },
+  { title: "Renoxis Monthly", meta: "Redeem", xp: -5000 },
   { title: "Studio coins", meta: "Purchase", xp: 50000 },
   { title: "Image meter", meta: "Meter", xp: -150 },
 ];
