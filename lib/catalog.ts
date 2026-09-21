@@ -10,7 +10,8 @@ export const pointPacks = [
 export const UNIT_XP = 1000;
 
 export const redeemCatalog = [
-  { key: "renoxis.agent.monthly", app: "Renoxis", name: "Agent Office", xp: 30000, color: "#c8ff63", includes: "Seat + 40 AI jobs" },
+  { key: "renoxis.activate", app: "Renoxis", name: "Renoxis Activate", xp: 5000, color: "#c8ff63", includes: "One-time activation · $50" },
+  { key: "renoxis.agent.monthly", app: "Renoxis", name: "Renoxis Monthly", xp: 5000, color: "#c8ff63", includes: "Month seat · $50/mo" },
   { key: "socixis.autopilot.monthly", app: "Socixis", name: "Social Autopilot", xp: 45000, color: "#ff6bce", includes: "20 posts + 20 images" },
   { key: "recovra.intel.monthly", app: "Recovra", name: "Recovery Intelligence", xp: 22000, color: "#58c8ff", includes: "Seat + 120 extracts" },
   { key: "deduxis.receipts.monthly", app: "Deduxis", name: "Receipt Intelligence", xp: 15000, color: "#ffbd59", includes: "Seat + 200 receipts" },
@@ -77,11 +78,23 @@ export const shopCatalog = [
   { key: "shop.merch.mug", category: "merch", app: "Apixis", name: "Mug", xp: 1500, color: "#ffbd59", blurb: "Design coming. We'll fulfill when designs land." },
 ] as const;
 
+/**
+ * Aliases resolve to one catalog row. Renoxis monthly is only
+ * `renoxis.agent.monthly` — do not add a second 5,000 Ixis month key.
+ */
+const catalogAliases: Record<string, string> = {
+  "renoxis-activate": "renoxis.activate",
+  "renoxis-monthly": "renoxis.agent.monthly",
+  "renoxis.monthly": "renoxis.agent.monthly",
+};
+
 /** Redeem seats and Shop goods. Cash packs stay in pointPacks. */
 export function findCatalogProduct(productKey: string) {
+  const requested = productKey.trim();
+  const key = catalogAliases[requested] ?? requested;
   return (
-    redeemCatalog.find((item) => item.key === productKey) ??
-    shopCatalog.find((item) => item.key === productKey)
+    redeemCatalog.find((item) => item.key === key) ??
+    shopCatalog.find((item) => item.key === key)
   );
 }
 

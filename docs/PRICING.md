@@ -20,7 +20,8 @@
 | Founder month | 10,000 |
 | Contraxis Starter | 9,900 |
 | Contraxis Pro | 39,900 |
-| Renoxis office | 30,000 |
+| Renoxis activation | 5,000 |
+| Renoxis month | 5,000 |
 | Socixis Autopilot | 45,000 |
 
 File / skin / template unit = 1,000 Ixis ($10).

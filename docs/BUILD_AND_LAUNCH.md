@@ -50,7 +50,7 @@ Renoxis never stores its own authoritative XP balance. It calls Apixis Wallet to
 6. Capture the reservation on success or release it on failure.
 7. Read the resulting entitlement and receipt.
 
-Start with `renoxis.agent.monthly` at 15,000 XP and `renoxis.social_autopilot.monthly` at 20,000 XP.
+Launch SKUs are `renoxis.activate` at 5,000 Ixis ($50, one-time) and `renoxis.agent.monthly` at 5,000 Ixis ($50/mo). There is no 30,000 Ixis Renoxis seat. See [docs/RENOXIS.md](RENOXIS.md).
 
 ## 6. Deployment checklist
 
