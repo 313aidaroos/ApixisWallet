@@ -4,6 +4,8 @@
 
 > Apixis is the operating system. Apixis ID is the identity. Cixy is the intelligence. **Ixis is the native unit everywhere.** A chain token with the same name is Phase 5, after counsel.
 
+Detailed vision, including the Phase 5 legal-gated own-chain / own-currency path: [docs/WALLET_VISION_DETAILED.md](docs/WALLET_VISION_DETAILED.md).
+
 ## MVP economy
 
 - **100 Ixis = $1** of purchasing power.
