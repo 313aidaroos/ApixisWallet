@@ -2,6 +2,8 @@
 
 **One balance across every Apixis product.**
 
+Detailed vision, including the Phase 5 legal-gated own-chain / own-currency path: [docs/WALLET_VISION_DETAILED.md](docs/WALLET_VISION_DETAILED.md).
+
 Apixis Wallet is the shared commerce layer for Renoxis, Socixis, Lyrixis, Recovra, Deduxis, Rawixis, Halaxis, Apixis Command and future Apixis products. Customers buy Xis Points (XP), keep one universal balance, and spend it on subscriptions, usage, upgrades and personalization.
 
 Source unpacked from `Apixis_Wallet_MVP_GitHub_Ready.zip` onto `main` on 2026-09-19.
@@ -17,6 +19,12 @@ Source unpacked from `Apixis_Wallet_MVP_GitHub_Ready.zip` onto `main` on 2026-09
 - Clear separation between closed-loop XP and future APX token.
 
 The dashboard runs with **demo data** immediately. Real authentication, persisted balances and actual XP fulfillment require completing `docs/BUILD_AND_LAUNCH.md`.
+
+## Sister sites
+
+Buy Ixis on Wallet. Redeem it from Wallet. Do not add a second Stripe Checkout or a per-product cash ledger.
+
+The embed contract (deep link, optional balance, CTA copy) is [docs/WALLET_EMBED.md](docs/WALLET_EMBED.md). API detail is [docs/INTEGRATION.md](docs/INTEGRATION.md).
 
 ## Tree placement
 

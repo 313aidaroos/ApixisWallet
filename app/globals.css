@@ -55,6 +55,15 @@ nav button.active, nav button:hover {
   border-color: var(--lime); color: var(--lime); background: #102010;
 }
 .shell { grid-column: 2; padding: 24px 4vw 70px; max-width: 1400px; width: 100%; }
+.shell.solo { grid-column: 1 / -1; max-width: 920px; }
+.choice-list { border: 0; margin: 16px 0; padding: 0; display: grid; gap: 8px; }
+.choice-list legend { font-size: 12px; letter-spacing: 1px; color: var(--lime); margin-bottom: 8px; }
+.choice-list label { display: flex; gap: 10px; align-items: center; border: 1px solid var(--line); padding: 10px 12px; }
+a.go {
+  display: inline-block; border: 1px solid var(--lime); background: var(--lime); color: #041;
+  padding: 10px 14px; font-weight: 700; text-decoration: none;
+}
+.products a.go { margin-top: 10px; }
 header { display: flex; justify-content: space-between; align-items: end; margin-bottom: 18px; }
 header p, .section-title p { font-size: 10px; letter-spacing: 2px; color: var(--lime); }
 header h1 { margin: 6px 0 0; font-family: "Press Start 2P", monospace; font-size: 18px; }

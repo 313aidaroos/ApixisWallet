@@ -4,11 +4,11 @@ import { ixisUnitLabel } from "@/lib/ixis-asset/mode";
 
 export const dynamic = "force-dynamic";
 
-export default function Home() {
+export default function BuyPage() {
   const unitLabel = ixisUnitLabel();
   return (
-    <Suspense fallback={<main><section className="shell solo"><p>Loading wallet…</p></section></main>}>
-      <WalletScreen unitLabel={unitLabel} />
+    <Suspense fallback={<main><section className="shell solo"><p>Opening buy…</p></section></main>}>
+      <WalletScreen lockTab="buy" unitLabel={unitLabel} />
     </Suspense>
   );
 }

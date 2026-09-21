@@ -7,6 +7,11 @@ export type PackPurchase = {
   description: string;
 };
 
+/** Ledger text for a paid pack. Status polling matches this string. */
+export function packPurchaseDescription(packName: string) {
+  return `${packName} pack`;
+}
+
 export type FulfillmentDecision =
   | { action: "credit"; purchase: PackPurchase }
   | { action: "refund"; purchase: PackPurchase; chargeId: string }
@@ -51,7 +56,7 @@ export function parsePackPurchase(
       ownerId,
       amount,
       packName: pack.name,
-      description: `${pack.name} pack`,
+      description: packPurchaseDescription(pack.name),
     },
   };
 }
