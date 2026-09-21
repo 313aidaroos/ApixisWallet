@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { redeemCatalog } from "@/lib/catalog";
+import { findCatalogProduct } from "@/lib/catalog";
 
 const bodySchema = z.object({
   productKey: z.string().min(1).max(80),
@@ -11,7 +11,7 @@ const bodySchema = z.object({
 export async function POST(request: Request) {
   const parsed = bodySchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "Invalid reservation" }, { status: 400 });
-  const product = redeemCatalog.find((item) => item.key === parsed.data.productKey);
+  const product = findCatalogProduct(parsed.data.productKey);
   if (!product) return NextResponse.json({ error: "Unknown redeem SKU" }, { status: 404 });
   return NextResponse.json({
     reservationId: crypto.randomUUID(),
