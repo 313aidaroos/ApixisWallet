@@ -45,6 +45,46 @@ export const redeemCatalog = [
   { key: "contentbot.adset", app: "PersonalContentBot", name: "Ad Set", xp: 400, color: "#a855f7", includes: "Multiple variations for A/B testing" },
 ] as const;
 
+/**
+ * Shop goods sold in the Wallet Shop tab. Ixis only (100 Ixis = $1).
+ * Floor is UNIT_XP (1,000 Ixis / $10). Spends are wallet → product, same
+ * quote path as redeemCatalog — not Stripe cash packs.
+ * Sister apps: keys below are quotable; see docs/INTEGRATION.md.
+ * Merch art is placeholder until Awad fills the designs.
+ */
+export const shopCategories = [
+  { id: "templates", label: "Templates" },
+  { id: "cixy", label: "Cixy" },
+  { id: "merch", label: "Merch" },
+] as const;
+
+export type ShopCategory = (typeof shopCategories)[number]["id"];
+
+export const shopCatalog = [
+  { key: "shop.template.file.unit", category: "templates", app: "Family", name: "File / template unit", xp: UNIT_XP, color: "#9dff4a", blurb: "Any file, template, or skin. Same $10 unit on every site." },
+  { key: "shop.template.site.saas", category: "templates", app: "Socixis", name: "Site pack: SaaS", xp: UNIT_XP, color: "#2563eb", blurb: "Animated interactive site pack." },
+  { key: "shop.template.site.shop", category: "templates", app: "Socixis", name: "Site pack: Shop lite", xp: UNIT_XP, color: "#2563eb", blurb: "Catalog pack for a small storefront." },
+  { key: "shop.template.listing", category: "templates", app: "Renoxis", name: "Listing file", xp: UNIT_XP, color: "#c8ff63", blurb: "One listing template." },
+  { key: "shop.template.offer", category: "templates", app: "Renoxis", name: "Offer file", xp: UNIT_XP, color: "#c8ff63", blurb: "One offer template." },
+
+  { key: "shop.cixy.voice", category: "cixy", app: "Cixy", name: "Voice pack", xp: UNIT_XP, color: "#ff6bce", blurb: "Voice customization. Sound lands when Awad fills it." },
+  { key: "shop.cixy.skin", category: "cixy", app: "Cixy", name: "Skin pack", xp: 2500, color: "#ff6bce", blurb: "Look customization. Art lands when Awad fills it." },
+  { key: "shop.cixy.persona", category: "cixy", app: "Cixy", name: "Persona pack", xp: 5000, color: "#b14bff", blurb: "Tone, habits, and replies. Persona lands when Awad fills it." },
+
+  { key: "shop.merch.tee", category: "merch", app: "Apixis", name: "Tee", xp: 2500, color: "#ffbd59", blurb: "Design coming. We'll fulfill when designs land." },
+  { key: "shop.merch.hoodie", category: "merch", app: "Apixis", name: "Hoodie", xp: 5000, color: "#ffbd59", blurb: "Design coming. We'll fulfill when designs land." },
+  { key: "shop.merch.sticker", category: "merch", app: "Apixis", name: "Sticker pack", xp: UNIT_XP, color: "#ffbd59", blurb: "Design coming. We'll fulfill when designs land." },
+  { key: "shop.merch.mug", category: "merch", app: "Apixis", name: "Mug", xp: 1500, color: "#ffbd59", blurb: "Design coming. We'll fulfill when designs land." },
+] as const;
+
+/** Redeem seats and Shop goods. Cash packs stay in pointPacks. */
+export function findCatalogProduct(productKey: string) {
+  return (
+    redeemCatalog.find((item) => item.key === productKey) ??
+    shopCatalog.find((item) => item.key === productKey)
+  );
+}
+
 export const meterCatalog = [
   { key: "ai.text", name: "AI text job", xp: 40, costXp: 10 },
   { key: "ai.image", name: "Image", xp: 150, costXp: 40 },

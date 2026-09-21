@@ -262,6 +262,29 @@ Current SKUs (as of 2026-09-20):
 | `socixis.site.*`                  | Socixis     | Site pack (various)       | 1,000   | $10/each |
 | `renoxis.file.*`                  | Renoxis     | Listing/offer file        | 1,000   | $10/each |
 
+### Shop (`shopCatalog`)
+
+Wallet **Shop** sells templates, Cixy customizations, and merch. These SKUs live in `shopCatalog` in `lib/catalog.ts` (not in Stripe `pointPacks`). A shop purchase is a wallet → product Ixis spend: same quote → reserve → capture path as redeem. Cash packs stay on the Buy tab only.
+
+Floor is 1,000 Ixis ($10), `UNIT_XP`. Merch keys are visual placeholders (`Design coming`). Physical fulfillment is stubbed until designs land — the Wallet shows "We'll fulfill when designs land."
+
+| Product Key                    | Category  | Name                    | Ixis   | USD   |
+|--------------------------------|-----------|-------------------------|--------|-------|
+| `shop.template.file.unit`      | Templates | File / template unit    | 1,000  | $10   |
+| `shop.template.site.saas`      | Templates | Site pack: SaaS         | 1,000  | $10   |
+| `shop.template.site.shop`      | Templates | Site pack: Shop lite    | 1,000  | $10   |
+| `shop.template.listing`        | Templates | Listing file            | 1,000  | $10   |
+| `shop.template.offer`          | Templates | Offer file              | 1,000  | $10   |
+| `shop.cixy.voice`              | Cixy      | Voice pack              | 1,000  | $10   |
+| `shop.cixy.skin`               | Cixy      | Skin pack               | 2,500  | $25   |
+| `shop.cixy.persona`            | Cixy      | Persona pack            | 5,000  | $50   |
+| `shop.merch.tee`               | Merch     | Tee                     | 2,500  | $25   |
+| `shop.merch.hoodie`            | Merch     | Hoodie                  | 5,000  | $50   |
+| `shop.merch.sticker`           | Merch     | Sticker pack            | 1,000  | $10   |
+| `shop.merch.mug`               | Merch     | Mug                     | 1,500  | $15   |
+
+Quote any of these with `POST /api/v1/quotes` and `{ "productKey": "shop.template.file.unit" }`.
+
 **Need a new SKU?** Message @apixiswallet with:
 - Product key (e.g., `yourapp.plan.monthly`)
 - Display name

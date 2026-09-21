@@ -1,13 +1,14 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { ArrowDownLeft, ArrowUpRight, Coins, LayoutGrid, List, Megaphone, TrendingUp, WalletCards } from "lucide-react";
-import { pointPacks, redeemCatalog } from "@/lib/catalog";
+import { ArrowDownLeft, ArrowUpRight, Coins, LayoutGrid, List, Megaphone, ShoppingBag, TrendingUp, WalletCards } from "lucide-react";
+import { pointPacks, redeemCatalog, shopCatalog, shopCategories, type ShopCategory } from "@/lib/catalog";
 import { last24h, productTape, xpTape } from "@/lib/market";
 import { bulletins, ticker } from "@/lib/news";
 import { Tape } from "@/components/Tape";
 
-type Tab = "home" | "buy" | "redeem" | "market" | "news" | "activity";
+type Tab = "home" | "buy" | "redeem" | "shop" | "market" | "news" | "activity";
+type ShopFilter = "all" | ShopCategory;
 
 const seed = [
   { title: "Renoxis Agent Office", meta: "Redeem", xp: -30000 },
@@ -25,6 +26,7 @@ export default function Home() {
   const [reserved] = useState(0);
   const [notice, setNotice] = useState("");
   const [log, setLog] = useState(seed);
+  const [shopFilter, setShopFilter] = useState<ShopFilter>("all");
   const available = paid + bonus;
   const tape = last24h(xpTape);
 
@@ -48,15 +50,15 @@ export default function Home() {
     }
   };
 
-  const redeem = async (key: string, name: string, xp: number) => {
+  const redeem = async (key: string, name: string, xp: number, meta = "Redeem", extra = "") => {
     if (available < xp) {
       setNotice(`Need ${(xp - available).toLocaleString()} more Ixis.`);
       setTab("buy");
       return;
     }
     setPaid((p) => p - xp);
-    setLog((rows) => [{ title: name, meta: "Redeem", xp: -xp }, ...rows]);
-    setNotice(`${name} · ${xp.toLocaleString()} Ixis`);
+    setLog((rows) => [{ title: name, meta, xp: -xp }, ...rows]);
+    setNotice(extra ? `${name} · ${xp.toLocaleString()} Ixis. ${extra}` : `${name} · ${xp.toLocaleString()} Ixis`);
     void fetch("/api/v1/quotes", {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -64,8 +66,10 @@ export default function Home() {
     });
   };
 
+  const shopItems = shopFilter === "all" ? shopCatalog : shopCatalog.filter((item) => item.category === shopFilter);
+
   const title = useMemo(
-    () => ({ home: "HQ", buy: "BUY", redeem: "REDEEM", market: "TAPE", news: "NEWS", activity: "LOG" })[tab],
+    () => ({ home: "HQ", buy: "BUY", redeem: "REDEEM", shop: "SHOP", market: "TAPE", news: "NEWS", activity: "LOG" })[tab],
     [tab],
   );
 
@@ -83,6 +87,7 @@ export default function Home() {
           <button className={tab === "home" ? "active" : ""} onClick={() => setTab("home")}><LayoutGrid />HQ</button>
           <button className={tab === "buy" ? "active" : ""} onClick={() => setTab("buy")}><WalletCards />Buy</button>
           <button className={tab === "redeem" ? "active" : ""} onClick={() => setTab("redeem")}><Coins />Redeem</button>
+          <button className={tab === "shop" ? "active" : ""} onClick={() => setTab("shop")}><ShoppingBag />Shop</button>
           <button className={tab === "market" ? "active" : ""} onClick={() => setTab("market")}><TrendingUp />Tape</button>
           <button className={tab === "news" ? "active" : ""} onClick={() => setTab("news")}><Megaphone />News</button>
           <button className={tab === "activity" ? "active" : ""} onClick={() => setTab("activity")}><List />Log</button>
@@ -167,6 +172,51 @@ export default function Home() {
               </article>
             ))}
           </div>
+        )}
+
+        {tab === "shop" && (
+          <>
+            <div className="balance-actions" style={{ flexWrap: "wrap" }}>
+              <button className={shopFilter === "all" ? "" : "secondary"} onClick={() => setShopFilter("all")}>All</button>
+              {shopCategories.map((category) => (
+                <button
+                  key={category.id}
+                  className={shopFilter === category.id ? "" : "secondary"}
+                  onClick={() => setShopFilter(category.id)}
+                >
+                  {category.label}
+                </button>
+              ))}
+            </div>
+            <div className="products">
+              {shopItems.map((p) => {
+                const label = shopCategories.find((category) => category.id === p.category)?.label ?? "";
+                return (
+                  <article key={p.key} style={{ ["--accent"]: p.color } as React.CSSProperties}>
+                    <span>{label.slice(0, 1)}</span>
+                    <p>{label}</p>
+                    <h3>{p.name}</h3>
+                    <b>{p.xp.toLocaleString()} Ixis</b>
+                    <span>{usd(p.xp / 100)}</span>
+                    <p>{p.blurb}</p>
+                    <button
+                      onClick={() =>
+                        redeem(
+                          p.key,
+                          p.name,
+                          p.xp,
+                          "Shop",
+                          p.category === "merch" ? "We'll fulfill when designs land." : "",
+                        )
+                      }
+                    >
+                      Buy with Ixis
+                    </button>
+                  </article>
+                );
+              })}
+            </div>
+          </>
         )}
 
         {tab === "market" && (
