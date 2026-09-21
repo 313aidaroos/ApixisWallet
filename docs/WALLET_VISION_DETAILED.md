@@ -216,7 +216,58 @@ Risks to watch:
 
 ---
 
-## 8. Document control
+
+---
+
+## 9. Clearance flip — “demo → live” (Awad lock 2026-09-21)
+
+**Intent:** The day counsel / Awad gives clearance, we do **not** invent a second economy. We **turn the same Ixis points into Ixis Coin** with a controlled mode switch: **demo (closed-loop credits) → live (coin / chain-backed)**.
+
+### 9.1 Product rule
+
+- Every balance already on the Wallet ledger **is** the future coin inventory (1:1).
+- Sister apps already price and redeem in **Ixis** — they keep the same numbers and SKUs.
+- Clearance is an **ops + flag flip**, not a rewrite of catalogs, CTAs, or redeem flows.
+- Until clearance: mode stays **demo** (closed-loop; no withdraw; no public coin marketing).
+- After clearance: mode **live** — same balances are Ixis Coin under the legal product we are allowed to offer.
+
+### 9.2 Engineering shape (wire it ready now)
+
+Build these **now**, even while live remains off:
+
+| Control | Purpose |
+|---------|---------|
+| `IXIS_ASSET_MODE=demo\|live` (or equivalent) | Global flip; default `demo` |
+| Single ledger unit name **Ixis** | Never introduce a second “points” currency code |
+| `asset_class` / metadata on ledger rows | `credit_demo` today → `ixis_coin` when flipped (or stamp on flip) |
+| Chain adapters behind an interface | Mint/burn/bridge no-ops or paper in demo; real in live |
+| Feature flags: withdraw, peer transfer, public price, bridge | All **off** in demo; selectively on in live per counsel |
+| Idempotent flip job | One-shot (or replay-safe) job that marks all eligible balances coin-ready and records `cleared_at` |
+
+**Demo:** Stripe → ledger credit; redeem burns ledger; chain adapter is stub/paper.  
+**Live:** Same Stripe→ledger path (or counsel-approved rails); ledger liabilities mint/burn against chain per policy; UI may show “Ixis Coin” where counsel allows.
+
+### 9.3 Flip day runbook (high level)
+
+1. Awad + counsel sign written clearance (scope: jurisdictions, features allowed).
+2. Hub sets secrets / chain endpoints / custody keys (Awad-only where required).
+3. Flip `IXIS_ASSET_MODE=live` on Wallet (and propagate read-only mode to sister embeds if needed).
+4. Run the **balance continuity** check: sum(ledger paid) == expected coin supply liability.
+5. Enable only the live features counsel listed (nothing else).
+6. Announce in-product: points were always Ixis; they are now Ixis Coin under the cleared rules — **no user balance reset**.
+
+### 9.4 Non-goals on flip day
+
+- No re-pricing SKUs.
+- No forcing users to claim a new token from zero.
+- No renaming every product SKU.
+- No “airdrop theater” that doubles supply.
+
+If counsel requires a distinct ticker, keep ledger name **Ixis** and alias on-chain — still 1:1, still one flip.
+
+---
+
+## 10. Document control
 
 | Field | Value |
 |-------|--------|
@@ -224,6 +275,6 @@ Risks to watch:
 | Authoring | Developer Bot hub from Awad’s locked rules + existing `VISION.md` |
 | Canonical repo path (target) | `docs/WALLET_VISION_DETAILED.md` in `313aidaroos/ApixisWallet` |
 | Supersedes | Nothing — expands short `VISION.md` |
-| Next review | After buy-UX + embed PR merges; again before any Phase 5 engineering spike |
+| Next review | After buy-UX + embed PR merges; keep demo→live flip wiring on critical path before Phase 5 |
 
 **Awad decides.** Leads paint. Hub wires. Counsel opens Phase 5 — or it stays closed-loop forever if that is safer. Either way, Phase 1–4 remain valuable commerce infrastructure on their own.

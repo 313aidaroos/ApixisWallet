@@ -22,7 +22,8 @@ const choices = destinationChoices();
 const dollars = (ixis: number) =>
   (ixis / 100).toLocaleString(undefined, { style: "currency", currency: "USD" });
 
-export function CheckoutSuccess() {
+export function CheckoutSuccess({ unitLabel = "Ixis" }: { unitLabel?: string }) {
+  const unit = unitLabel === "Ixis Coin" ? "Ixis Coin" : "Ixis";
   const params = useSearchParams();
   const sessionId = params.get("session_id")?.trim() ?? "";
   const [phase, setPhase] = useState<Phase>({ kind: "loading" });
@@ -92,7 +93,7 @@ export function CheckoutSuccess() {
       <section className="shell solo">
         <header>
           <div>
-            <p>100 Ixis = $1</p>
+            <p>100 {unit} = $1</p>
             <h1>AFTER PAY</h1>
           </div>
         </header>
@@ -140,8 +141,8 @@ export function CheckoutSuccess() {
             {phase.status.pack ? (
               <>
                 <div className="eyebrow"><span>{phase.status.pack.name.toUpperCase()}</span></div>
-                <h2>{phase.status.pack.ixis.toLocaleString()} <small>Ixis</small></h2>
-                <p>{dollars(phase.status.pack.ixis)} · 100 Ixis = $1</p>
+                <h2>{phase.status.pack.ixis.toLocaleString()} <small>{unit}</small></h2>
+                <p>{dollars(phase.status.pack.ixis)} · 100 {unit} = $1</p>
               </>
             ) : (
               <h2>Checkout</h2>
@@ -228,7 +229,7 @@ export function CheckoutSuccess() {
               <article key={item.key} style={{ ["--accent"]: item.color } as React.CSSProperties}>
                 <p>{item.app}</p>
                 <h3>{item.name}</h3>
-                <b>{item.xp.toLocaleString()} Ixis</b>
+                <b>{item.xp.toLocaleString()} {unit}</b>
                 <span>{dollars(item.xp)}</span>
                 <Link className="go" href={`/?tab=redeem&product=${encodeURIComponent(confirmed ?? "")}`}>Redeem</Link>
               </article>
@@ -236,7 +237,7 @@ export function CheckoutSuccess() {
           </div>
         ) : null}
 
-        <footer>APIXIS FAMILY CO. · coins only · peg 100 Ixis = $1</footer>
+        <footer>APIXIS FAMILY CO. · coins only · peg 100 {unit} = $1</footer>
       </section>
     </main>
   );

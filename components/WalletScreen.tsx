@@ -42,7 +42,8 @@ const seed = [
 const usd = (n: number) =>
   n.toLocaleString(undefined, { style: "currency", currency: "USD", maximumFractionDigits: 0 });
 
-export function WalletScreen({ lockTab }: { lockTab?: Tab }) {
+export function WalletScreen({ lockTab, unitLabel = "Ixis" }: { lockTab?: Tab; unitLabel?: string }) {
+  const unit = unitLabel === "Ixis Coin" ? "Ixis Coin" : "Ixis";
   const params = useSearchParams();
   const returnUrl = params.get("return_url") ?? params.get("returnUrl") ?? "";
   const product = params.get("product") ?? params.get("app") ?? params.get("destination") ?? "";
@@ -91,13 +92,13 @@ export function WalletScreen({ lockTab }: { lockTab?: Tab }) {
 
   const redeem = async (key: string, name: string, xp: number, meta = "Redeem", extra = "") => {
     if (available < xp) {
-      setNotice(`Need ${(xp - available).toLocaleString()} more Ixis.`);
+      setNotice(`Need ${(xp - available).toLocaleString()} more ${unit}.`);
       setTab("buy");
       return;
     }
     setPaid((p) => p - xp);
     setLog((rows) => [{ title: name, meta, xp: -xp }, ...rows]);
-    setNotice(extra ? `${name} · ${xp.toLocaleString()} Ixis. ${extra}` : `${name} · ${xp.toLocaleString()} Ixis`);
+    setNotice(extra ? `${name} · ${xp.toLocaleString()} ${unit}. ${extra}` : `${name} · ${xp.toLocaleString()} ${unit}`);
     void fetch("/api/v1/quotes", {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -136,10 +137,10 @@ export function WalletScreen({ lockTab }: { lockTab?: Tab }) {
         <div className="ticker"><i>{ticker}    {/* ///    {ticker} */}</i></div>
         <header>
           <div>
-            <p>100 Ixis = $1 <span className="live">● LIVE</span></p>
+            <p>100 {unit} = $1 <span className="live">● LIVE</span></p>
             <h1>{title}</h1>
           </div>
-          <p>{available.toLocaleString()} Ixis</p>
+          <p>{available.toLocaleString()} {unit}</p>
         </header>
         {notice && (
           <div className="notice" onClick={() => setNotice("")}>
@@ -151,16 +152,16 @@ export function WalletScreen({ lockTab }: { lockTab?: Tab }) {
           <div className="dash">
             <article className="balance-card">
               <div className="eyebrow"><span>AVAILABLE</span></div>
-              <h2>{available.toLocaleString()} <small>Ixis</small></h2>
+              <h2>{available.toLocaleString()} <small>{unit}</small></h2>
               <p>${(available / 100).toFixed(2)}</p>
               <div className="balance-actions">
                 <button onClick={() => setTab("buy")}>Buy coins</button>
                 <button className="secondary" onClick={() => setTab("redeem")}>Redeem</button>
               </div>
               <div className="split">
-                <span><b>{paid.toLocaleString()} Ixis</b>Paid</span>
-                <span><b>{bonus.toLocaleString()} Ixis</b>Bonus</span>
-                <span><b>{reserved.toLocaleString()} Ixis</b>Held</span>
+                <span><b>{paid.toLocaleString()} {unit}</b>Paid</span>
+                <span><b>{bonus.toLocaleString()} {unit}</b>Bonus</span>
+                <span><b>{reserved.toLocaleString()} {unit}</b>Held</span>
               </div>
               <div style={{ marginTop: 16 }}>
                 <Tape values={xpTape.map((d) => d.circulating)} bars={xpTape.map((d) => d.buyXp + d.redeemXp)} height={120} />
@@ -208,7 +209,7 @@ export function WalletScreen({ lockTab }: { lockTab?: Tab }) {
             {pointPacks.map((p) => (
               <article key={p.id}>
                 <p>{p.name}</p>
-                <h3>{p.xp.toLocaleString()} <small>Ixis</small></h3>
+                <h3>{p.xp.toLocaleString()} <small>{unit}</small></h3>
                 <span>${p.price}</span>
                 <button onClick={() => buy(p.id)}>Buy</button>
               </article>
@@ -221,7 +222,7 @@ export function WalletScreen({ lockTab }: { lockTab?: Tab }) {
           <div className="products">
             {destination && destination.slug !== "wallet" && (
               <div style={{ gridColumn: "1 / -1", color: "var(--muted)", margin: 0 }}>
-                {destination.label} SKUs. Ixis stays in this Wallet until you redeem.
+                {destination.label} SKUs. {unit} stays in this Wallet until you redeem.
                 <button type="button" style={{ marginLeft: 10, background: "transparent", color: "#9dff4a", border: "1px solid #1f3a24", padding: "8px 10px" }} onClick={() => setShowAllRedeem((value) => !value)}>
                   {showAllRedeem ? destination.label : "All products"}
                 </button>
@@ -232,7 +233,7 @@ export function WalletScreen({ lockTab }: { lockTab?: Tab }) {
                 <span>{p.app.slice(0, 1)}</span>
                 <p>{p.app}</p>
                 <h3>{p.name}</h3>
-                <b>{p.xp.toLocaleString()} Ixis</b>
+                <b>{p.xp.toLocaleString()} {unit}</b>
                 <button onClick={() => redeem(p.key, p.name, p.xp)}>Redeem</button>
               </article>
             ))}
@@ -261,7 +262,7 @@ export function WalletScreen({ lockTab }: { lockTab?: Tab }) {
                     <span>{label.slice(0, 1)}</span>
                     <p>{label}</p>
                     <h3>{p.name}</h3>
-                    <b>{p.xp.toLocaleString()} Ixis</b>
+                    <b>{p.xp.toLocaleString()} {unit}</b>
                     <span>{usd(p.xp / 100)}</span>
                     <p>{p.blurb}</p>
                     <button
@@ -275,7 +276,7 @@ export function WalletScreen({ lockTab }: { lockTab?: Tab }) {
                         )
                       }
                     >
-                      Buy with Ixis
+                      Buy with {unit}
                     </button>
                   </article>
                 );
@@ -287,7 +288,7 @@ export function WalletScreen({ lockTab }: { lockTab?: Tab }) {
         {tab === "market" && (
           <>
             <article className="balance-card">
-              <div className="eyebrow"><span>Ixis / USD</span><span className="live">PEG $0.01</span></div>
+              <div className="eyebrow"><span>{unit} / USD</span><span className="live">PEG $0.01</span></div>
               <h2>$0.01 <small>FIXED</small></h2>
               <div className="split">
                 <span><b>{tape.circulating.toLocaleString()}</b>Circulating</span>
@@ -303,7 +304,7 @@ export function WalletScreen({ lockTab }: { lockTab?: Tab }) {
                 <article key={p.key} style={{ ["--accent"]: p.color } as React.CSSProperties}>
                   <p>{p.symbol}</p>
                   <h3>{p.name}</h3>
-                  <b>{p.volume30.toLocaleString()} Ixis / 30d</b>
+                  <b>{p.volume30.toLocaleString()} {unit} / 30d</b>
                   <Tape values={p.redeemXp} color={p.color} height={72} />
                 </article>
               ))}
@@ -329,12 +330,12 @@ export function WalletScreen({ lockTab }: { lockTab?: Tab }) {
               <div className="tx" key={`${t.title}-${i}`}>
                 <span className={t.xp > 0 ? "in" : "out"}>{t.xp > 0 ? <ArrowDownLeft /> : <ArrowUpRight />}</span>
                 <div><b>{t.title}</b><p>{t.meta}</p></div>
-                <strong className={t.xp > 0 ? "green" : ""}>{t.xp > 0 ? "+" : ""}{t.xp.toLocaleString()} Ixis</strong>
+                <strong className={t.xp > 0 ? "green" : ""}>{t.xp > 0 ? "+" : ""}{t.xp.toLocaleString()} {unit}</strong>
               </div>
             ))}
           </article>
         )}
-        <footer>APIXIS FAMILY CO. · coins only · peg 100 Ixis = $1</footer>
+        <footer>APIXIS FAMILY CO. · coins only · peg 100 {unit} = $1</footer>
       </section>
     </main>
   );
