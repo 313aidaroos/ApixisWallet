@@ -23,7 +23,7 @@
 const BASE = (process.env.APIXIS_WALLET_API_URL ?? "https://apixis-wallet.vercel.app").replace(/\/$/, "");
 const KEY = process.env.WALLET_API_KEY ?? process.env.APIXIS_WALLET_API_KEY ?? "";
 
-export type Quote = { productKey: string; app: string; name: string; ixis: number; usd: number };
+export type Quote = { quoteId: string; productKey: string; app: string; name: string; xp: number; usdEquivalent: number; expiresAt: string };
 export type Reservation = { reservationId: string; status: "held"; productKey: string; ixis: number };
 export type Entitlement = {
   id: string;
@@ -131,7 +131,7 @@ export async function redeem<T>(opts: {
   } catch (e) {
     if (e instanceof WalletError && e.insufficient) {
       const q = await quote(opts.productKey).catch(() => null);
-      return { ok: false, insufficient: true, needed: q?.ixis ?? 0, message: e.message };
+      return { ok: false, insufficient: true, needed: q?.xp ?? 0, message: e.message };
     }
     throw e;
   }
