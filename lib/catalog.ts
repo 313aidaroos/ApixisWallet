@@ -16,6 +16,10 @@ export const redeemCatalog = [
   { key: "recovra.intel.monthly", app: "Recovra", name: "Recovery Intelligence", xp: 22000, color: "#58c8ff", includes: "Seat + 120 extracts" },
   { key: "deduxis.receipts.monthly", app: "Deduxis", name: "Receipt Intelligence", xp: 15000, color: "#ffbd59", includes: "Seat + 200 receipts" },
   { key: "contentbot.creator.monthly", app: "PersonalContentBot", name: "Creator Seat", xp: 20000, color: "#a855f7", includes: "Unlimited 60s videos · 30 days" },
+  { key: "rawixis.buyer.seat.base", app: "Rawixis", name: "Buyer seat (Base)", xp: 15000, color: "#d4af37", includes: "10 RFQs · basic verification · 30 days" },
+  { key: "rawixis.buyer.seat.pro", app: "Rawixis", name: "Buyer seat (Pro)", xp: 35000, color: "#d4af37", includes: "Unlimited RFQs · tier 2-3 suppliers · 30 days" },
+  { key: "rawixis.supplier.seat.base", app: "Rawixis", name: "Supplier seat (Base)", xp: 20000, color: "#d4af37", includes: "20 quote responses · tier 1 · 30 days" },
+  { key: "rawixis.supplier.seat.verified", app: "Rawixis", name: "Supplier seat (Verified)", xp: 45000, color: "#d4af37", includes: "Unlimited responses · tier 2-3 · 30 days" },
 
   { key: "apixis.activate", app: "Apixis.dev", name: "Citizen activation", xp: 2000, color: "#46e6ff", includes: "One-time door. Was $20 card." },
   { key: "apixis.citizen.monthly", app: "Apixis.dev", name: "Citizen seat", xp: 2000, color: "#46e6ff", includes: "Month + 2,000 in-world Ixis" },
@@ -44,6 +48,10 @@ export const redeemCatalog = [
   { key: "contentbot.text", app: "PersonalContentBot", name: "AI Text Job", xp: 40, color: "#a855f7", includes: "Script generation only" },
   { key: "contentbot.image", app: "PersonalContentBot", name: "AI Image", xp: 150, color: "#a855f7", includes: "Generated image for visuals" },
   { key: "contentbot.adset", app: "PersonalContentBot", name: "Ad Set", xp: 400, color: "#a855f7", includes: "Multiple variations for A/B testing" },
+  { key: "rawixis.featured.listing", app: "Rawixis", name: "Featured listing", xp: 3000, color: "#d4af37", includes: "30 days top placement" },
+  { key: "rawixis.rfq.pack.5", app: "Rawixis", name: "RFQ pack (5)", xp: 2000, color: "#d4af37", includes: "5 additional RFQs" },
+  { key: "rawixis.rfq.pack.20", app: "Rawixis", name: "RFQ pack (20)", xp: 7000, color: "#d4af37", includes: "20 additional RFQs" },
+  { key: "rawixis.logistics.quote", app: "Rawixis", name: "Logistics quote", xp: 1500, color: "#d4af37", includes: "Freight + duty + landed cost calc" },
 ] as const;
 
 /**
