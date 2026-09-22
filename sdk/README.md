@@ -9,7 +9,7 @@ import { redeem, hasEntitlement, buyIxisUrl } from "@/lib/apixis-wallet";
 const r = await redeem({
   ownerEmail: user.email!,   // email is the family identity; uids differ per site
   productKey: "renoxis.activate",
-  idempotencyKey: `renoxis-activate-${user.id}-${attemptId}`,
+  idempotencyKey (8–80 chars — the Wallet rejects longer with 400 "Invalid reservation"): `renoxis-activate-${user.id}-${attemptId}`,
   provision: async () => grantSeat(user.id),     // your side effect; runs while Ixis are held
 });
 if (!r.ok) return NextResponse.json({ error: r.message, buy: buyIxisUrl("renoxis", returnUrl) }, { status: 402 });
