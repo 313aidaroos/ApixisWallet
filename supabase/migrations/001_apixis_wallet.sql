@@ -47,7 +47,7 @@ alter table public.entitlements enable row level security;
 
 create policy "owners read wallets" on public.wallets for select to authenticated using ((select auth.uid()) = owner_id);
 create policy "owners read entries" on public.ledger_entries for select to authenticated using (exists (select 1 from public.wallets w where w.id = wallet_id and w.owner_id = (select auth.uid())));
-create policy "owners read transactions" on public.ledger_transactions for select to authenticated using (exists (select 1 from public.ledger_entries e join public.wallets w on w.id=e.wallet_id where e.transaction_id=id and w.owner_id=(select auth.uid())));
+create policy "owners read transactions" on public.ledger_transactions for select to authenticated using (exists (select 1 from public.ledger_entries e join public.wallets w on w.id=e.wallet_id where e.transaction_id=ledger_transactions.id and w.owner_id=(select auth.uid())));
 create policy "owners read entitlements" on public.entitlements for select to authenticated using ((select auth.uid()) = owner_id);
 
 create view public.wallet_balances with (security_invoker = true) as
