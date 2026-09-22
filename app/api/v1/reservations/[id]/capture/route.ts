@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
 import { createServiceSupabase } from "@/lib/supabase/service";
+import { requireServiceBearer } from "@/lib/api/service-auth";
 
-export async function POST(_: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const denied = requireServiceBearer(request);
+  if (denied) return denied;
+
   const { id } = await params;
 
   const supabase = createServiceSupabase();

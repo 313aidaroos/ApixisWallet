@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { findCatalogProduct } from "@/lib/catalog";
 import { createServiceSupabase } from "@/lib/supabase/service";
+import { requireServiceBearer } from "@/lib/api/service-auth";
 
 const bodySchema = z.object({
   productKey: z.string().min(1).max(80),
@@ -11,24 +12,15 @@ const bodySchema = z.object({
 });
 
 export async function POST(request: Request) {
+  const denied = requireServiceBearer(request);
+  if (denied) return denied;
+
   const parsed = bodySchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "Invalid reservation" }, { status: 400 });
 
   const product = findCatalogProduct(parsed.data.productKey);
   if (!product) return NextResponse.json({ error: "Unknown redeem SKU" }, { status: 404 });
 
-  // Validate Bearer token is service_role
-  const authHeader = request.headers.get("authorization");
-  const serviceKey = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
-  
-  if (!authHeader || !serviceKey) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const token = authHeader.replace(/^Bearer\s+/i, "");
-  if (token !== serviceKey) {
-    return NextResponse.json({ error: "Invalid service key" }, { status: 401 });
-  }
 
   const ownerId = parsed.data.owner_id;
 
