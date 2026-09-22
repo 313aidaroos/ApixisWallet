@@ -37,8 +37,14 @@ export type Entitlement = {
 };
 
 export class WalletError extends Error {
-  constructor(public status: number, message: string, public body?: unknown) {
+  status: number;
+  body?: unknown;
+  // No parameter properties: sister sites run tests with node --experimental-strip-types,
+  // which rejects that shorthand. Keep this file erasable-syntax only.
+  constructor(status: number, message: string, body?: unknown) {
     super(message);
+    this.status = status;
+    this.body = body;
   }
   /** Customer has fewer Ixis than the product costs. Show "Buy Ixis". */
   get insufficient() { return this.status === 402; }
