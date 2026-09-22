@@ -12,7 +12,7 @@
 alter table public.ledger_transactions
   add column if not exists product_key text;
 
--- ---- reserve_xp: record the product on the hold ----------------------------
+-- ---- reserve_xp: identical to 002, plus a trailing p_product_key recorded on the hold ----
 drop function if exists public.reserve_xp(uuid,bigint,text,text,text);
 create or replace function public.reserve_xp(
   p_owner_id uuid,
@@ -21,26 +21,69 @@ create or replace function public.reserve_xp(
   p_external_id text,
   p_app_slug text default null,
   p_product_key text default null
-) returns uuid
-language plpgsql security definer set search_path to 'public'
+)
+returns uuid
+language plpgsql
+security definer
+set search_path = public
 as $$
-declare v_wallet_id uuid; v_available bigint; v_tx_id uuid;
+declare
+  v_wallet_id uuid;
+  v_tx_id uuid;
+  v_available bigint;
 begin
-  if p_amount <= 0 then raise exception 'Amount must be positive'; end if;
-  v_wallet_id := get_or_create_wallet(p_owner_id);
-  -- idempotent on external_id
-  select id into v_tx_id from ledger_transactions where external_id = p_external_id and kind = 'reserve';
-  if v_tx_id is not null then return v_tx_id; end if;
-  select coalesce(available, 0) into v_available from wallet_balances where wallet_id = v_wallet_id;
-  if coalesce(v_available, 0) < p_amount then
-    raise exception 'Insufficient balance: available % Ixis, need %', coalesce(v_available, 0), p_amount;
+  if p_amount <= 0 then
+    raise exception 'Reserve amount must be positive';
   end if;
-  insert into ledger_transactions (kind, description, app_slug, external_id, product_key)
-  values ('reserve', p_description, p_app_slug, p_external_id, p_product_key) returning id into v_tx_id;
-  insert into ledger_entries (transaction_id, wallet_id, bucket, amount) values (v_tx_id, v_wallet_id, 'paid', -p_amount);
-  insert into ledger_entries (transaction_id, wallet_id, bucket, amount) values (v_tx_id, v_wallet_id, 'reserved', p_amount);
+  if p_external_id is null then
+    raise exception 'Reserve requires an external_id (idempotency key)';
+  end if;
+  
+  -- Check idempotency
+  select id into v_tx_id from ledger_transactions where external_id = p_external_id;
+  if v_tx_id is not null then
+    return v_tx_id; -- already reserved
+  end if;
+
+  v_wallet_id := get_or_create_wallet(p_owner_id);
+
+  -- Check available balance (paid + bonus - reserved)
+  select available_xp into v_available from wallet_balances where wallet_id = v_wallet_id;
+  if v_available < p_amount then
+    raise exception 'Insufficient balance: % available, % requested', v_available, p_amount;
+  end if;
+
+  insert into ledger_transactions (external_id, kind, description, app_slug, product_key)
+  values (p_external_id, 'reserve', p_description, p_app_slug, p_product_key)
+  returning id into v_tx_id;
+
+  -- Move from paid/bonus to reserved (spend bonus first if available, then paid)
+  declare
+    v_bonus bigint;
+    v_remaining bigint := p_amount;
+  begin
+    select coalesce(sum(amount),0) into v_bonus from ledger_entries where wallet_id = v_wallet_id and bucket = 'bonus';
+    if v_bonus > 0 then
+      if v_bonus >= v_remaining then
+        insert into ledger_entries (transaction_id, wallet_id, bucket, amount) values (v_tx_id, v_wallet_id, 'bonus', -v_remaining);
+        insert into ledger_entries (transaction_id, wallet_id, bucket, amount) values (v_tx_id, v_wallet_id, 'reserved', v_remaining);
+        v_remaining := 0;
+      else
+        insert into ledger_entries (transaction_id, wallet_id, bucket, amount) values (v_tx_id, v_wallet_id, 'bonus', -v_bonus);
+        insert into ledger_entries (transaction_id, wallet_id, bucket, amount) values (v_tx_id, v_wallet_id, 'reserved', v_bonus);
+        v_remaining := v_remaining - v_bonus;
+      end if;
+    end if;
+
+    if v_remaining > 0 then
+      insert into ledger_entries (transaction_id, wallet_id, bucket, amount) values (v_tx_id, v_wallet_id, 'paid', -v_remaining);
+      insert into ledger_entries (transaction_id, wallet_id, bucket, amount) values (v_tx_id, v_wallet_id, 'reserved', v_remaining);
+    end if;
+  end;
+
   return v_tx_id;
-end; $$;
+end;
+$$;
 
 -- ---- capture_xp: settle AND grant ------------------------------------------
 create or replace function public.capture_xp(p_reservation_id uuid, p_description text default 'Redemption captured')
