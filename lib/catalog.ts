@@ -52,6 +52,25 @@ export const redeemCatalog = [
   { key: "rawixis.rfq.pack.5", app: "Rawixis", name: "RFQ pack (5)", xp: 2000, color: "#d4af37", includes: "5 additional RFQs" },
   { key: "rawixis.rfq.pack.20", app: "Rawixis", name: "RFQ pack (20)", xp: 7000, color: "#d4af37", includes: "20 additional RFQs" },
   { key: "rawixis.logistics.quote", app: "Rawixis", name: "Logistics quote", xp: 1500, color: "#d4af37", includes: "Freight + duty + landed cost calc" },
+  // Lyrixis
+  { key: "lyrixis.track.unlock", app: "Lyrixis", name: "Unlock 1 track export", xp: 300, color: "#22d3ee", includes: "Metered per-track unlock · $3 (per-use, floor-exempt)" },
+  // Qahwahworld — key must match what the site sends (roaster_seat_monthly)
+  { key: "roaster_seat_monthly", app: "Qahwahworld", name: "Roaster seat", xp: 10000, color: "#a0522d", includes: "Monthly roaster seat · $100/mo" },
+  { key: "seller_seat_monthly", app: "Qahwahworld", name: "Seller seat", xp: 20000, color: "#a0522d", includes: "Monthly seller seat · $200/mo" },
+  { key: "featured_listing", app: "Qahwahworld", name: "Featured lot listing", xp: 1000, color: "#a0522d", includes: "One-off featured placement · $10" },
+  // Nursery Toons — keys match api/redeem.js
+  { key: "nurserytoons-family-monthly", app: "Nursery Toons", name: "Family Plan", xp: 5000, color: "#ffb703", includes: "Monthly family plan · $50/mo" },
+  { key: "nurserytoons-printables", app: "Nursery Toons", name: "Printables Pack", xp: 1000, color: "#ffb703", includes: "One-off printables · $10 (family floor)" },
+  // Geoxis — keys match pricing.html data-product
+  { key: "geoxis.tracking.small", app: "Geoxis", name: "Tracking · Small fleet", xp: 10000, color: "#10b981", includes: "Up to 10 assets · 30 days · $100/mo" },
+  { key: "geoxis.tracking.medium", app: "Geoxis", name: "Tracking · Medium fleet", xp: 25000, color: "#10b981", includes: "Up to 50 assets · 30 days · $250/mo" },
+  { key: "geoxis.tracking.large", app: "Geoxis", name: "Tracking · Large fleet", xp: 45000, color: "#10b981", includes: "Up to 200 assets · 30 days · $450/mo" },
+  { key: "geoxis.export.report", app: "Geoxis", name: "Export report", xp: 1000, color: "#10b981", includes: "One-off report export · $10" },
+  // Launchixis — pricing page tiers
+  { key: "launchixis.template.checklist", app: "Launchixis", name: "Launch Checklist Template", xp: 1000, color: "#7c3aed", includes: "One-off template · $10" },
+  { key: "launchixis.brandkit", app: "Launchixis", name: "Brand Kit One-off", xp: 1000, color: "#7c3aed", includes: "One-off brand kit · $10" },
+  { key: "launchixis.seat.monthly", app: "Launchixis", name: "Launch Ops Seat", xp: 10000, color: "#7c3aed", includes: "Monthly operator seat · $100/mo" },
+  { key: "launchixis.suite.monthly", app: "Launchixis", name: "Enterprise Launch Suite", xp: 30000, color: "#7c3aed", includes: "Monthly enterprise suite · $300/mo" },
 ] as const;
 
 /**
