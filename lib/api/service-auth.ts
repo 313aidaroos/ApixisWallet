@@ -24,3 +24,7 @@ export function requireServiceBearer(request: Request): NextResponse | null {
   }
   return null;
 }
+/** True only when the request carries the exact service key (constant-time). */
+export function hasServiceAuth(request: Request): boolean {
+  return requireServiceBearer(request) === null && !!(request.headers.get("authorization") ?? "").replace(/^Bearer\s+/i, "");
+}

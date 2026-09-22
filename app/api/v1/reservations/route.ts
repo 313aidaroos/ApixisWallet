@@ -36,6 +36,7 @@ export async function POST(request: Request) {
     p_description: `${product.name} (${product.app})`,
     p_external_id: parsed.data.idempotencyKey,
     p_app_slug: product.app.toLowerCase().replace(/\s+/g, ""),
+    p_product_key: product.key,
   });
 
   if (error) {
