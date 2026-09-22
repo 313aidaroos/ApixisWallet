@@ -22,8 +22,6 @@ export async function POST(_: Request, { params }: { params: Promise<{ id: strin
     return NextResponse.json({ error: "Capture failed" }, { status: 500 });
   }
 
-  // TODO: if product is monthly, insert entitlement row
-
   return NextResponse.json({
     reservationId: id,
     status: "captured",
