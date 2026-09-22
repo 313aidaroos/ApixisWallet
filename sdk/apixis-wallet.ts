@@ -14,6 +14,7 @@
  *     from here; never author your own authoritative balance or ownership.
  *   - Every redeem = quote → reserve → (you provision) → capture, or release on ANY
  *     failure. `redeem()` does that dance for you and never leaves a hold dangling.
+ *   - Identity is the verified EMAIL, not the uid (uids differ per Supabase project).
  *   - Idempotency keys are stable per attempt: retrying the same attempt is safe.
  *   - 402 is a normal outcome ("not enough Ixis"), not an error. Show a Buy Ixis link.
  *   - Never fake success. If the Wallet is unreachable, say so.
@@ -74,9 +75,14 @@ export async function quote(productKey: string): Promise<Quote> {
   return res.json();
 }
 
-/** Put a hold on the customer's Ixis. `ownerId` = their Supabase auth user id (from YOUR session, never from the request body). */
-export async function reserve(ownerId: string, productKey: string, idempotencyKey: string): Promise<Reservation> {
-  return call("POST", "/api/v1/reservations", { productKey, idempotencyKey, owner_id: ownerId });
+/**
+ * Put a hold on the customer's Ixis.
+ * `ownerEmail` = the signed-in user's VERIFIED email from YOUR Supabase session (user.email),
+ * never from the request body. Email is the family-wide identity: every site has its own
+ * Supabase project, so uids differ per site and mean nothing to the Wallet.
+ */
+export async function reserve(ownerEmail: string, productKey: string, idempotencyKey: string): Promise<Reservation> {
+  return call("POST", "/api/v1/reservations", { productKey, idempotencyKey, owner_email: ownerEmail });
 }
 
 export async function capture(reservationId: string) {
@@ -88,13 +94,13 @@ export async function release(reservationId: string) {
 }
 
 /** What this user owns on your app. Wallet writes these on capture; you only read. */
-export async function entitlements(ownerId: string, app: string): Promise<Entitlement[]> {
-  const r = await call<{ entitlements: Entitlement[] }>("GET", `/api/v1/entitlements?app=${encodeURIComponent(app)}&owner_id=${encodeURIComponent(ownerId)}`);
+export async function entitlements(ownerEmail: string, app: string): Promise<Entitlement[]> {
+  const r = await call<{ entitlements: Entitlement[] }>("GET", `/api/v1/entitlements?app=${encodeURIComponent(app)}&owner_email=${encodeURIComponent(ownerEmail)}`);
   return r.entitlements ?? [];
 }
 
-export async function hasEntitlement(ownerId: string, app: string, productKey: string): Promise<boolean> {
-  const list = await entitlements(ownerId, app);
+export async function hasEntitlement(ownerEmail: string, app: string, productKey: string): Promise<boolean> {
+  const list = await entitlements(ownerEmail, app);
   return list.some((e) => e.product_key === productKey && e.status === "active");
 }
 
@@ -107,14 +113,15 @@ export async function hasEntitlement(ownerId: string, app: string, productKey: s
  * Returns { ok:true, receiptId } or { ok:false, insufficient:true } for the 402 case.
  */
 export async function redeem<T>(opts: {
-  ownerId: string;
+  /** user.email from YOUR Supabase session — the family-wide identity. */
+  ownerEmail: string;
   productKey: string;
   idempotencyKey: string;
   provision: (reservation: Reservation) => Promise<T>;
 }): Promise<{ ok: true; receiptId: string; result: T } | { ok: false; insufficient: true; needed: number; message: string }> {
   let held: Reservation;
   try {
-    held = await reserve(opts.ownerId, opts.productKey, opts.idempotencyKey);
+    held = await reserve(opts.ownerEmail, opts.productKey, opts.idempotencyKey);
   } catch (e) {
     if (e instanceof WalletError && e.insufficient) {
       const q = await quote(opts.productKey).catch(() => null);

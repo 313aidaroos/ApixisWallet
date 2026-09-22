@@ -7,7 +7,7 @@ import { redeem, hasEntitlement, buyIxisUrl } from "@/lib/apixis-wallet";
 
 // in a Route Handler, after you have the signed-in user from YOUR Supabase session:
 const r = await redeem({
-  ownerId: user.id,
+  ownerEmail: user.email!,   // email is the family identity; uids differ per site
   productKey: "renoxis.activate",
   idempotencyKey: `renoxis-activate-${user.id}-${attemptId}`,
   provision: async () => grantSeat(user.id),     // your side effect; runs while Ixis are held
@@ -15,7 +15,7 @@ const r = await redeem({
 if (!r.ok) return NextResponse.json({ error: r.message, buy: buyIxisUrl("renoxis", returnUrl) }, { status: 402 });
 
 // gating a feature:
-if (!(await hasEntitlement(user.id, "renoxis", "renoxis.activate"))) redirect("/pricing");
+if (!(await hasEntitlement(user.email!, "renoxis", "renoxis.activate"))) redirect("/pricing");
 ```
 
 Rules baked in: Wallet owns entitlements (you read, never write) · reserve→provision→capture,

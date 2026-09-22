@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getAuthenticatedUserId } from "@/lib/supabase/server";
 import { createServiceSupabase } from "@/lib/supabase/service";
 import { hasServiceAuth } from "@/lib/api/service-auth";
+import { resolveOwnerByEmail } from "@/lib/api/owner";
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
@@ -12,11 +13,19 @@ export async function GET(request: Request) {
   // Never let a browser pick an arbitrary owner_id.
   let userId: string | null = null;
   if (hasServiceAuth(request)) {
+    const email = url.searchParams.get("owner_email");
     const requested = url.searchParams.get("owner_id");
-    if (!requested || !/^[0-9a-f-]{36}$/i.test(requested)) {
-      return NextResponse.json({ error: "owner_id required for service calls" }, { status: 400 });
+    if (email) {
+      const svc = createServiceSupabase();
+      if (!svc) return NextResponse.json({ error: "Service configuration missing" }, { status: 503 });
+      const r = await resolveOwnerByEmail(svc, email);
+      if ("error" in r) return NextResponse.json({ error: r.error }, { status: 400 });
+      userId = r.ownerId;
+    } else if (requested && /^[0-9a-f-]{36}$/i.test(requested)) {
+      userId = requested;
+    } else {
+      return NextResponse.json({ error: "owner_email (or Wallet owner_id) required for service calls" }, { status: 400 });
     }
-    userId = requested;
   } else {
     userId = await getAuthenticatedUserId();
   }
