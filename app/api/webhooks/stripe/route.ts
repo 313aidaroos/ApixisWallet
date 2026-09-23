@@ -2,9 +2,10 @@ import { NextResponse } from "next/server";
 import type Stripe from "stripe";
 import { pointPacks } from "@/lib/catalog";
 import { getStripe } from "@/lib/stripe";
-import { decideChargeRefund, decideCheckoutCredit } from "@/lib/stripe/fulfillment";
+import { decideChargeRefund, decideCheckoutCredit, decideDisputeReversal, type FulfillmentDecision } from "@/lib/stripe/fulfillment";
 import { creditPaidPack, findRefundForCharge, refundPaidPack } from "@/lib/stripe/ledger";
 import { createServiceSupabase } from "@/lib/supabase/service";
+import { recordAudit, type AuditEvent } from "@/lib/audit";
 
 export const runtime = "nodejs";
 
@@ -23,7 +24,23 @@ async function ownerExists(supabase: NonNullable<ReturnType<typeof createService
   return Boolean(data.user);
 }
 
-async function creditFromSession(eventId: string, session: Stripe.Checkout.Session) {
+/** Charge id + Stripe receipt URL for a payment. Best effort: the credit never waits on this. */
+async function chargeDetails(stripe: Stripe, paymentIntentId: string | null) {
+  if (!paymentIntentId) return { chargeId: null, receiptUrl: null };
+  try {
+    const intent = await stripe.paymentIntents.retrieve(paymentIntentId, { expand: ["latest_charge"] });
+    const charge = typeof intent.latest_charge === "object" && intent.latest_charge ? intent.latest_charge : null;
+    return { chargeId: charge?.id ?? (typeof intent.latest_charge === "string" ? intent.latest_charge : null), receiptUrl: charge?.receipt_url ?? null };
+  } catch {
+    return { chargeId: null, receiptUrl: null };
+  }
+}
+
+function idOf(value: string | { id: string } | null | undefined) {
+  return typeof value === "string" ? value : value?.id ?? null;
+}
+
+async function creditFromSession(stripe: Stripe, eventId: string, session: Stripe.Checkout.Session) {
   const decision = decideCheckoutCredit(session, pointPacks);
   if (decision.action === "ignore") {
     return NextResponse.json({ received: true, credited: false, reason: decision.reason });
@@ -44,34 +61,73 @@ async function creditFromSession(eventId: string, session: Stripe.Checkout.Sessi
   }
 
   const transactionId = await creditPaidPack(supabase, eventId, decision.purchase);
-  return NextResponse.json({ received: true, credited: true, transactionId });
+
+  // Legal record. Required: if it fails the webhook returns 500 and Stripe retries; the credit above
+  // is idempotent on the event id and the audit row on its dedupe key, so a retry fixes it safely.
+  const paymentIntentId = idOf(session.payment_intent);
+  const charge = await chargeDetails(stripe, paymentIntentId);
+  const reference = await recordAudit(
+    supabase,
+    {
+      event_type: "purchase",
+      dedupe_key: `purchase:${eventId}`,
+      actor: "stripe",
+      app_slug: session.metadata?.destination_app ?? "wallet",
+      owner_id: decision.purchase.ownerId,
+      owner_email: session.customer_details?.email ?? session.customer_email ?? null,
+      ledger_transaction_id: typeof transactionId === "string" ? transactionId : null,
+      product_key: `pack.${session.metadata?.pack_id ?? ""}`,
+      amount_ixis: decision.purchase.amount,
+      amount_cents: session.amount_total ?? null,
+      currency: session.currency ?? null,
+      stripe_event_id: eventId,
+      stripe_checkout_session_id: session.id,
+      stripe_payment_intent_id: paymentIntentId,
+      stripe_charge_id: charge.chargeId,
+      stripe_invoice_id: idOf(session.invoice),
+      stripe_receipt_url: charge.receiptUrl,
+      terms_version: session.metadata?.terms_version ?? null,
+      details: {
+        pack: decision.purchase.packName,
+        amount_subtotal_cents: session.amount_subtotal ?? null,
+        tax_cents: session.total_details?.amount_tax ?? null,
+        customer_country: session.customer_details?.address?.country ?? null,
+        livemode: session.livemode,
+      },
+    },
+    { required: true },
+  );
+  return NextResponse.json({ received: true, credited: true, transactionId, reference });
 }
 
-async function refundFromCharge(stripe: Stripe, eventId: string, charge: Stripe.Charge) {
-  const paymentIntentId = typeof charge.payment_intent === "string" ? charge.payment_intent : charge.payment_intent?.id ?? null;
-  if (!charge.refunded || charge.amount_refunded !== charge.amount || !paymentIntentId) {
-    // TODO: Partial refunds are not prorated. Only a fully refunded charge reverses the pack.
-    return NextResponse.json({ received: true, refunded: false, reason: "partial_refund_not_applied" });
-  }
-
+async function packSessionForPaymentIntent(stripe: Stripe, paymentIntentId: string | null) {
+  if (!paymentIntentId) return null;
   const listed = await stripe.checkout.sessions.list({ payment_intent: paymentIntentId, limit: 10 });
-  const session = listed.data.find((item) => item.metadata?.sku_type === "ixis_pack") ?? null;
-  const decision = decideChargeRefund(charge, session, pointPacks);
+  return listed.data.find((item) => item.metadata?.sku_type === "ixis_pack") ?? null;
+}
+
+/** Shared by full refunds and lost disputes: one reversal per charge, keyed by the Stripe event id. */
+async function applyReversal(
+  eventId: string,
+  decision: FulfillmentDecision,
+  label: string,
+  audit: Pick<AuditEvent, "event_type" | "amount_cents" | "currency" | "stripe_payment_intent_id" | "stripe_checkout_session_id" | "details">,
+) {
   if (decision.action === "ignore") {
     return NextResponse.json({ received: true, refunded: false, reason: decision.reason });
   }
   if (decision.action === "reject") {
-    console.error("stripe refund rejected", { eventId, error: decision.error });
+    console.error(`stripe ${label} rejected`, { eventId, error: decision.error });
     return NextResponse.json({ error: decision.error }, { status: 400 });
   }
   if (decision.action !== "refund") {
-    return NextResponse.json({ error: "Charge cannot be refunded" }, { status: 400 });
+    return NextResponse.json({ error: "Charge cannot be reversed" }, { status: 400 });
   }
 
   const { supabase, response } = serviceOr503();
   if (!supabase) return response;
   if (!(await ownerExists(supabase, decision.purchase.ownerId))) {
-    console.error("stripe refund owner missing", { eventId });
+    console.error(`stripe ${label} owner missing`, { eventId });
     return NextResponse.json({ error: "Checkout owner is not a valid user" }, { status: 400 });
   }
 
@@ -79,7 +135,55 @@ async function refundFromCharge(stripe: Stripe, eventId: string, charge: Stripe.
   if (existing) return NextResponse.json({ received: true, refunded: true, transactionId: existing, duplicate: true });
 
   const transactionId = await refundPaidPack(supabase, eventId, decision.purchase);
-  return NextResponse.json({ received: true, refunded: true, transactionId });
+  const reference = await recordAudit(
+    supabase,
+    {
+      ...audit,
+      dedupe_key: `${audit.event_type}:${eventId}`,
+      actor: "stripe",
+      owner_id: decision.purchase.ownerId,
+      ledger_transaction_id: typeof transactionId === "string" ? transactionId : null,
+      amount_ixis: -decision.purchase.amount,
+      stripe_event_id: eventId,
+      stripe_charge_id: decision.chargeId,
+      details: { ...(audit.details ?? {}), pack: decision.purchase.packName, description: decision.purchase.description },
+    },
+    { required: true },
+  );
+  return NextResponse.json({ received: true, refunded: true, transactionId, reference });
+}
+
+async function refundFromCharge(stripe: Stripe, eventId: string, charge: Stripe.Charge) {
+  const paymentIntentId = typeof charge.payment_intent === "string" ? charge.payment_intent : charge.payment_intent?.id ?? null;
+  if (!charge.refunded || charge.amount_refunded !== charge.amount || !paymentIntentId) {
+    // Partial refunds are not prorated. Only a fully refunded charge reverses the pack.
+    console.warn("stripe partial refund not applied to ledger", { eventId, charge: charge.id });
+    return NextResponse.json({ received: true, refunded: false, reason: "partial_refund_not_applied" });
+  }
+  const session = await packSessionForPaymentIntent(stripe, paymentIntentId);
+  return applyReversal(eventId, decideChargeRefund(charge, session, pointPacks), "refund", {
+    event_type: "refund",
+    amount_cents: charge.amount_refunded,
+    currency: charge.currency,
+    stripe_payment_intent_id: paymentIntentId,
+    stripe_checkout_session_id: session?.id ?? null,
+    details: { refunds: charge.refunds?.data?.map((refund) => ({ id: refund.id, reason: refund.reason, amount: refund.amount })) ?? [] },
+  });
+}
+
+async function reverseLostDispute(stripe: Stripe, eventId: string, dispute: Stripe.Dispute) {
+  const chargeId = typeof dispute.charge === "string" ? dispute.charge : dispute.charge?.id ?? null;
+  const paymentIntentId =
+    typeof dispute.payment_intent === "string" ? dispute.payment_intent : dispute.payment_intent?.id ?? null;
+  const session = dispute.status === "lost" ? await packSessionForPaymentIntent(stripe, paymentIntentId) : null;
+  return applyReversal(eventId, decideDisputeReversal({ id: dispute.id, status: dispute.status, chargeId }, session, pointPacks), "dispute", {
+    event_type: "dispute_lost",
+    amount_cents: dispute.amount,
+    currency: dispute.currency,
+    stripe_payment_intent_id: paymentIntentId,
+    stripe_checkout_session_id: session?.id ?? null,
+    details: { dispute_id: dispute.id, reason: dispute.reason, status: dispute.status },
+  });
 }
 
 export async function POST(request: Request) {
@@ -103,15 +207,17 @@ export async function POST(request: Request) {
 
   try {
     if (event.type === "checkout.session.completed" || event.type === "checkout.session.async_payment_succeeded") {
-      return await creditFromSession(event.id, event.data.object);
+      return await creditFromSession(stripe, event.id, event.data.object);
     }
     if (event.type === "charge.refunded") {
       return await refundFromCharge(stripe, event.id, event.data.object);
     }
+    if (event.type === "charge.dispute.closed") {
+      return await reverseLostDispute(stripe, event.id, event.data.object);
+    }
     if (event.type.startsWith("charge.dispute.")) {
-      // TODO: Claw back with refund_xp only when charge.dispute.closed has status "lost".
-      // A won dispute must not debit paid Ixis, and the ledger has no dispute-hold bucket.
-      return NextResponse.json({ received: true, applied: false, reason: "dispute_not_applied" });
+      // Opened / updated disputes change nothing until they close; a lost one reverses the pack above.
+      return NextResponse.json({ received: true, applied: false, reason: "dispute_not_closed" });
     }
     return NextResponse.json({ received: true });
   } catch (error) {

@@ -1,5 +1,7 @@
 # Build and Launch Directions
 
+> **Superseded in part — read [AGENTS.md](../AGENTS.md) first.** It is the current source of truth for ownership, APIs, the ledger and the launch checklist.
+
 ## 1. Create services
 
 Create separate development and production projects. Use Supabase for authentication/Postgres and Stripe Checkout for point-pack purchases. Deploy the Next.js app on Vercel. Never commit secrets.

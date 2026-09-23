@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
-import { getAuthenticatedUserId } from "@/lib/supabase/server";
+import { getAuthenticatedUser } from "@/lib/supabase/server";
 
-export async function checkoutViewer(): Promise<{ userId: string } | { response: NextResponse }> {
+export async function checkoutViewer(): Promise<{ userId: string; email: string | null } | { response: NextResponse }> {
   try {
-    const userId = await getAuthenticatedUserId();
-    if (!userId) return { response: NextResponse.json({ error: "Sign in required" }, { status: 401 }) };
-    return { userId };
+    const user = await getAuthenticatedUser();
+    if (!user) return { response: NextResponse.json({ error: "Sign in required" }, { status: 401 }) };
+    return { userId: user.id, email: user.email };
   } catch {
     return { response: NextResponse.json({ error: "Supabase auth is not configured" }, { status: 503 }) };
   }

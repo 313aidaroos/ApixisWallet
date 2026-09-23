@@ -3,7 +3,8 @@
 **Apixis Wallet is the one checkout for the whole Apixis family.** Customers buy Ixis here and redeem it inside your product.
 
 Base URL (production): `https://apixis-wallet.vercel.app`  
-Auth: Bearer token with Apixis ID (service-role key for server-to-server).
+Auth: your site's own Wallet API key (`apx_live_…`) for server-to-server calls; the Wallet user's session for balance/history. See [Auth](#auth).  
+Server code: copy [`sdk/apixis-wallet.ts`](../sdk/apixis-wallet.ts) (SDK v2) — it implements everything below correctly. Backend overview for bots: [AGENTS.md](../AGENTS.md).
 
 Sister-site embed (deep link, balance, CTA copy): [docs/WALLET_EMBED.md](WALLET_EMBED.md).
 
@@ -97,7 +98,7 @@ curl -X POST https://apixis-wallet.vercel.app/api/v1/quotes \
 
 ## 2. Reserve Ixis
 
-**POST** `/api/v1/reservations`
+**POST** `/api/v1/reservations` — server only.
 
 ```bash
 curl -X POST https://apixis-wallet.vercel.app/api/v1/reservations \
@@ -105,20 +106,14 @@ curl -X POST https://apixis-wallet.vercel.app/api/v1/reservations \
   -H "Authorization: Bearer <WALLET_API_KEY>" \
   -d '{
     "productKey": "socixis.autopilot.monthly",
-    "idempotencyKey": "socixis-sub-abc123-2026-09"
+    "idempotencyKey": "socixis-sub-abc123-2026-09",
+    "owner_email": "customer@example.com"
   }'
 ```
 
-**Request:**
-```json
-{
-  "productKey": "socixis.autopilot.monthly",
-  "quoteId": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-  "idempotencyKey": "socixis-sub-abc123-2026-09"
-}
-```
-
-`idempotencyKey` must be unique per redemption attempt (e.g., `{yourApp}-{userId}-{subscriptionId}-{month}`). Retries with the same key return the same reservation.
+- `owner_email` — the signed-in user's **verified** email from YOUR auth session. Email is the family identity (uids differ per Supabase project). Never take it from the request body your browser sent.
+- `idempotencyKey` — 8–80 printable characters, no spaces, unique per redemption attempt (e.g. `{app}-{userId}-{subscriptionId}-{month}`). Retrying the same attempt with the same key returns the same reservation. Reusing a key for a different user, product or amount is a `409`. Keys are namespaced by app on the ledger, so they never collide with another site.
+- `quoteId` is accepted and ignored: the price is always the Wallet catalog price at reserve time.
 
 **Response (201):**
 ```json
@@ -126,16 +121,15 @@ curl -X POST https://apixis-wallet.vercel.app/api/v1/reservations \
   "reservationId": "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
   "status": "held",
   "productKey": "socixis.autopilot.monthly",
+  "app": "socixis",
+  "ixis": 45000,
   "xp": 45000
 }
 ```
 
-**Errors:**
-- `400` — Missing or invalid request.
-- `402` — Insufficient Ixis balance.
-- `404` — Unknown product.
+**Errors:** `400` invalid body · `401` bad key · `402` insufficient Ixis (show Buy Ixis) · `403` your key is not allowed to redeem this app's SKUs · `404` unknown SKU · `409` idempotency key already used for a different request.
 
-The Ixis is now **reserved** (deducted from available but not yet spent). You have 10 minutes to capture or release before auto-release.
+The Ixis is now **held** (removed from available, not yet spent). The hold expires after **30 minutes**; an expired hold is released automatically. Capture or release before then.
 
 ---
 
@@ -153,14 +147,13 @@ curl -X POST https://apixis-wallet.vercel.app/api/v1/reservations/9b1deb4d-3b7d-
 {
   "reservationId": "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
   "status": "captured",
-  "receiptId": "tx_abc123"
+  "receiptId": "5f0c9f52-8a8e-4c1e-9d07-2b7a1f3e8c11"
 }
 ```
 
-Call this **after** you've successfully provisioned the service (created the subscription row, granted the entitlement, etc.). The spend is final.
+Call this **after** you've provisioned. The spend is final and the Wallet writes the entitlement row. Capturing again returns the same receipt (safe to retry).
 
-**Errors:**
-- `404` — Reservation not found or already captured/released.
+**Errors:** `404` not found (or not your app) · `409` `code: "already_released"` — the hold was released or expired; the customer was **not** charged, so remove the access you provisioned.
 
 ---
 
@@ -173,29 +166,21 @@ curl -X POST https://apixis-wallet.vercel.app/api/v1/reservations/9b1deb4d-3b7d-
   -H "Authorization: Bearer <WALLET_API_KEY>"
 ```
 
-**Response (200):**
-```json
-{
-  "reservationId": "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
-  "status": "released"
-}
-```
+**Response (200):** `{ "reservationId": "…", "status": "released" }`. Releasing again is safe.
 
-Call this if your provision step **failed** or if the user canceled before you provisioned. The Ixis returns to their available balance.
+Call this if provisioning **failed** or the user cancelled. The Ixis returns to the bucket it came from.
 
-**Errors:**
-- `404` — Reservation not found or already captured/released.
+**Errors:** `404` not found · `409` `code: "already_captured"` — the customer **was** charged. Keep their access. (This is how you recover when a capture response was lost.)
+
+### 4b. Reservation status
+
+**GET** `/api/v1/reservations/{reservationId}` → `{ status: "held" | "expired" | "captured" | "released", receiptId, holdExpiresAt, … }`. Use it to reconcile after a crash or timeout.
 
 ---
 
 ## 5. Check wallet balance
 
-**GET** `/api/v1/wallet`
-
-```bash
-curl https://apixis-wallet.vercel.app/api/v1/wallet \
-  -H "Authorization: Bearer <USER_SESSION_TOKEN>"
-```
+**GET** `/api/v1/wallet` — the Wallet user's own balance. Auth: the Wallet session cookie, or `Authorization: Bearer <Wallet Supabase access token>`. A sister site's own Supabase token does **not** work here (different project); sister sites should show a "Buy Ixis / open Wallet" link instead of a balance.
 
 **Response (200):**
 ```json
@@ -205,21 +190,20 @@ curl https://apixis-wallet.vercel.app/api/v1/wallet \
   "paid": 50000,
   "bonus": 2000,
   "reserved": 0,
-  "rate": { "xpPerDollar": 100 }
+  "usd": 520,
+  "rate": { "ixisPerDollar": 100, "xpPerDollar": 100 }
 }
 ```
-
-Use this to show the user's balance before redemption or to check eligibility.
 
 ---
 
 ## 6. List entitlements
 
-**GET** `/api/v1/entitlements?app=socixis`
+**GET** `/api/v1/entitlements?app=socixis&owner_email=customer@example.com` — server-to-server with your API key (a per-site key only sees its own apps). The Wallet user can also call it with their session (no `owner_email`).
 
 ```bash
-curl "https://apixis-wallet.vercel.app/api/v1/entitlements?app=socixis" \
-  -H "Authorization: Bearer <USER_...KEN>"
+curl "https://apixis-wallet.vercel.app/api/v1/entitlements?app=socixis&owner_email=customer%40example.com" \
+  -H "Authorization: Bearer <WALLET_API_KEY>"
 ```
 
 **Response (200):**
@@ -227,60 +211,50 @@ curl "https://apixis-wallet.vercel.app/api/v1/entitlements?app=socixis" \
 {
   "entitlements": [
     {
-      "id": "ent_xyz",
-      "app": "socixis",
-      "productKey": "socixis.autopilot.monthly",
+      "id": "0d4c…",
+      "owner_id": "a1b2…",
+      "app_slug": "socixis",
+      "product_key": "socixis.autopilot.monthly",
       "status": "active",
-      "renewsAt": "2026-10-20T00:00:00Z",
-      "xpPrice": 45000
+      "renews_at": "2026-10-23T12:00:00Z",
+      "xp_price": 45000,
+      "created_at": "2026-09-23T12:00:00Z",
+      "updated_at": "2026-09-23T12:00:00Z"
     }
-  ]
+  ],
+  "persisted": true,
+  "app": "socixis"
 }
 ```
 
-**Wallet entitlements prove a purchase happened; expiry is the site's job.** The Wallet writes an entitlement row on `capture_xp()` but does NOT set `renews_at` — sister sites own their seat dates (e.g., Renoxis stores `seat_period_end` in its own `renoxis_entitlements` table). Check expiry on YOUR server before granting access. The Wallet's entitlement is proof of purchase, not the clock.
+Only **active** rows are returned: `status = active` and `renews_at` is null or in the future.
 
-Returns stored entitlement rows for the signed-in user. Wallet does not invent a balance here. Grant rows are not persisted yet, so the list is empty until capture writes them. That empty list is not an access decision. Renoxis still calls quote → reserve → provision → capture. After a real capture, the grant shape is `renoxis.activate` (`active`, no `renewsAt`) or `renoxis.agent.monthly` (`active`, `renewsAt` about 30 days later). See [docs/RENOXIS.md](RENOXIS.md).
+- **Time-limited SKUs** (monthly seats, 30-day listings — `days: 30` in `lib/catalog.ts`): capture sets `renews_at` = capture time + 30 days. Redeeming again while active **stacks** another 30 days. After `renews_at` passes, the row stops being returned — the customer must redeem again.
+- **One-time unlocks** (activation, files, skins): `renews_at = null`, never expires.
+- **Consumables** (clips, RFQ packs, exports): use the capture `receiptId` as proof; the entitlement row is not a counter.
+
+You may still keep your own seat dates (e.g. Renoxis `seat_period_end`), but the Wallet row is now authoritative for "is this paid for right now". An unknown email returns an empty list (it does not create a user).
 
 ---
 
 ## 7. Ledger (transaction history)
 
-**GET** `/api/v1/ledger?limit=50&offset=0`
+**GET** `/api/v1/ledger?limit=50&offset=0` — the Wallet user's own receipts (cookie or Wallet access token), one row per transaction, newest first.
 
-```bash
-curl "https://apixis-wallet.vercel.app/api/v1/ledger?limit=50&offset=0" \
-  -H "Authorization: Bearer <USER_SESSION_TOKEN>"
-```
-
-**Response (200):**
 ```json
 {
   "transactions": [
-    {
-      "id": "tx_abc123",
-      "kind": "spend",
-      "description": "Socixis Autopilot · September 2026",
-      "app": "socixis",
-      "amount": -45000,
-      "createdAt": "2026-09-20T12:30:00Z"
-    },
-    {
-      "id": "tx_def456",
-      "kind": "purchase",
-      "description": "Studio coins",
-      "app": null,
-      "amount": 50000,
-      "createdAt": "2026-09-19T10:15:00Z"
-    }
+    { "id": "…", "kind": "spend",    "description": "Social Autopilot (Socixis)", "app": "socixis", "productKey": "socixis.autopilot.monthly", "amount": 0,      "held": -45000, "createdAt": "…" },
+    { "id": "…", "kind": "reserve",  "description": "Social Autopilot (Socixis)", "app": "socixis", "productKey": "socixis.autopilot.monthly", "amount": -45000, "held": 45000,  "createdAt": "…" },
+    { "id": "…", "kind": "purchase", "description": "Studio pack",                "app": null,      "productKey": null,                        "amount": 50000,  "held": 0,      "createdAt": "…" }
   ],
-  "total": 127,
+  "total": 3,
   "limit": 50,
   "offset": 0
 }
 ```
 
-Optional: display this in your app's billing page so users see their full Ixis history across the family.
+`amount` = change to spendable Ixis, `held` = change to held Ixis. Kinds: `purchase`, `bonus`, `reserve`, `spend`, `release`, `refund`.
 
 ---
 
@@ -310,10 +284,9 @@ Current SKUs (as of 2026-09-21):
 
 ### Shop (`shopCatalog`)
 
-Wallet **Shop** sells templates, Cixy customizations, and merch. These SKUs live in `shopCatalog` in `lib/catalog.ts` (not in Stripe `pointPacks`). A shop purchase is a wallet → product Ixis spend: same quote → reserve → capture path as redeem. Cash packs stay on the Buy tab only.
+Wallet **Shop** sells templates (Cixy packs and merch are hidden until designs exist). These SKUs live in `shopCatalog` in `lib/catalog.ts` (not in Stripe `pointPacks`). A shop purchase is a wallet → product Ixis spend: same quote → reserve → capture path as redeem. Cash packs stay on the Buy tab only.
 
-Floor is 1,000 Ixis ($10), `UNIT_XP`. Merch keys are visual placeholders (`Design coming`). Physical fulfillment is stubbed until designs land — the Wallet shows "We'll fulfill when designs land."
-
+Floor is 1,000 Ixis ($10), `UNIT_XP`. 
 | Product Key                    | Category  | Name                    | Ixis   | USD   |
 |--------------------------------|-----------|-------------------------|--------|-------|
 | `shop.template.file.unit`      | Templates | File / template unit    | 1,000  | $10   |
@@ -321,13 +294,6 @@ Floor is 1,000 Ixis ($10), `UNIT_XP`. Merch keys are visual placeholders (`Desig
 | `shop.template.site.shop`      | Templates | Site pack: Shop lite    | 1,000  | $10   |
 | `shop.template.listing`        | Templates | Listing file            | 1,000  | $10   |
 | `shop.template.offer`          | Templates | Offer file              | 1,000  | $10   |
-| `shop.cixy.voice`              | Cixy      | Voice pack              | 1,000  | $10   |
-| `shop.cixy.skin`               | Cixy      | Skin pack               | 2,500  | $25   |
-| `shop.cixy.persona`            | Cixy      | Persona pack            | 5,000  | $50   |
-| `shop.merch.tee`               | Merch     | Tee                     | 2,500  | $25   |
-| `shop.merch.hoodie`            | Merch     | Hoodie                  | 5,000  | $50   |
-| `shop.merch.sticker`           | Merch     | Sticker pack            | 1,000  | $10   |
-| `shop.merch.mug`               | Merch     | Mug                     | 1,500  | $15   |
 
 Quote any of these with `POST /api/v1/quotes` and `{ "productKey": "shop.template.file.unit" }`.
 
@@ -343,23 +309,26 @@ The catalog lives in `lib/catalog.ts` in the Wallet repo. Only the Wallet lead a
 
 ## Auth
 
-- **User-scoped calls** (wallet balance, entitlements, ledger): pass the user's Supabase session JWT as `Authorization: Bearer <token>`.
-- **Server-scoped calls** (reserve, capture, release on behalf of a user): use a Wallet API key (Supabase service_role). Contact @hermes for provisioning.
+- **Server-to-server** (reserve, capture, release, reservation status, entitlements by email): `Authorization: Bearer <WALLET_API_KEY>`.
+  - Each site gets **its own key** (`apx_live_…`), scoped to its app(s). Ask the Wallet lead; it is minted with `npm run api-key -- --name <site> --apps <app>` and revoked in one SQL line.
+  - Legacy: the Wallet Supabase service key still works as the bearer until the Wallet sets `WALLET_ALLOW_LEGACY_SERVICE_KEY=false`. Move to your own key now.
+- **User-scoped** (`/api/v1/wallet`, `/api/v1/ledger`, `/api/v1/redeem`): the Wallet session cookie, or a Wallet-issued Supabase access token as a bearer.
 
-Keep the service key server-only. Never send it to the browser.
+Keep keys server-only. Never send them to a browser, never log them.
 
 ---
 
 ## Error Codes
 
-| Code | Meaning                                  |
-|------|------------------------------------------|
-| 400  | Invalid request (missing field, bad format) |
-| 401  | Missing or invalid auth token            |
-| 402  | Insufficient Ixis balance                |
-| 404  | Resource not found (reservation, product)|
-| 409  | Conflict (already captured/released)     |
-| 503  | Service unavailable (Stripe/Supabase down) |
+| Code | Meaning |
+|------|---------|
+| 400 | Invalid request (missing field, bad format) |
+| 401 | Missing or invalid key / session |
+| 402 | Insufficient Ixis balance (`code: "insufficient_balance"`) |
+| 403 | Your key is not allowed for this app |
+| 404 | Unknown product or reservation |
+| 409 | `already_captured` (keep access) · `already_released` (remove access) · `conflict` (idempotency key reused differently) |
+| 503 | Wallet not configured / dependency down |
 
 ---
 
@@ -378,8 +347,8 @@ Do not round Ixis to dollars in a way that changes the peg. If your internal log
 ## Rollout Checklist
 
 1. Remove your own Stripe Checkout for plans (if any).
-2. Implement quote → reserve → provision → capture/release.
-3. Test in Wallet TEST mode (contact @apixiswallet for test keys).
+2. Copy `sdk/apixis-wallet.ts` (SDK v2) and use `redeem()`; it does quote → reserve → provision → capture/release correctly.
+3. Get your own `apx_` key from the Wallet lead and set it as `WALLET_API_KEY`. Test in Wallet TEST mode.
 4. Update your pricing page to show Ixis with $ equivalent.
 5. Deploy and verify one redemption end-to-end.
 6. Notify @apixiswallet that you're live.

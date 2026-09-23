@@ -52,7 +52,8 @@ curl -X POST https://apixis-wallet.vercel.app/api/v1/reservations \
   -H "Authorization: Bearer <WALLET_API_KEY>" \
   -d '{
     "productKey": "renoxis.agent.monthly",
-    "idempotencyKey": "renoxis-USER_ID-seat-2026-09"
+    "idempotencyKey": "renoxis-USER_ID-seat-2026-09",
+    "owner_email": "customer@example.com"
   }'
 ```
 
@@ -65,15 +66,13 @@ curl -X POST https://apixis-wallet.vercel.app/api/v1/reservations/RESERVATION_ID
 
 On failure, `POST /api/v1/reservations/RESERVATION_ID/release`.
 
-Reserve and capture still return contract stubs until the Supabase ledger functions are applied. The catalog price on quote is live. Do not treat a stub capture as a stored spend.
+Reserve, capture and release are live on the ledger. Use SDK v2 `redeem()` (`sdk/apixis-wallet.ts`); it handles retries and never removes access from a charged customer. A release answered with `409 already_captured` means the customer was charged — keep the seat.
 
 ## Entitlements
 
-`GET /api/v1/entitlements?app=renoxis` does not invent a balance. Rows are not persisted yet, so the list is empty. An empty list is not an access grant.
+`GET /api/v1/entitlements?app=renoxis&owner_email=<verified email>` with the Renoxis API key returns the customer's active Renoxis rows. Capture writes them:
 
-After a real capture, the grant Renoxis should treat as the contract is:
+- `renoxis.activate` — `status: active`, `renews_at: null` (one-time, never expires)
+- `renoxis.agent.monthly` — `status: active`, `renews_at` = capture + 30 days. Redeeming the next month while active stacks another 30 days. After `renews_at` the row is no longer returned.
 
-- `renoxis.activate` — `status: active`, no `renewsAt` (one-time)
-- `renoxis.agent.monthly` — `status: active`, `renewsAt` about 30 days after capture
-
-`productKey` is always the canonical key, even if the quote used an alias.
+`productKey` is always the canonical key, even if the quote used an alias. Renoxis may keep `seat_period_end` too; the Wallet row is authoritative for "paid right now". Full backend overview: [AGENTS.md](../AGENTS.md).

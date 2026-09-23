@@ -57,6 +57,17 @@ export function appSlug(app: string) {
   return CATALOG_APP_SLUG[app] ?? app.trim().toLowerCase().replace(/[^a-z0-9]+/g, "");
 }
 
+/**
+ * The one app slug the ledger and entitlements use. Accepts catalog names ("PersonalContentBot"),
+ * aliases ("personal-content-bot", "apixis.dev") and plain slugs ("qahwahworld").
+ */
+export function canonicalAppSlug(raw: string): string {
+  const trimmed = raw.trim();
+  const key = trimmed.toLowerCase();
+  const compact = key.replace(/[\s_-]+/g, "");
+  return ALIASES[key] ?? ALIASES[compact] ?? CATALOG_APP_SLUG[trimmed] ?? compact.replace(/[^a-z0-9]/g, "");
+}
+
 export function destinationChoices(): Destination[] {
   const seen = new Set<string>(["wallet"]);
   const items: Destination[] = [{ slug: "wallet", label: LABELS.wallet }];

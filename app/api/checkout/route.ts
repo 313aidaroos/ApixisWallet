@@ -4,6 +4,9 @@ import { pointPacks } from "@/lib/catalog";
 import { buildCheckoutSessionParams, integrationIdentifier, parseCheckoutExtras } from "@/lib/checkout/intent";
 import { checkoutViewer } from "@/lib/checkout/viewer";
 import { getStripe } from "@/lib/stripe";
+import { checkoutPolicyParams } from "@/lib/checkout/policy";
+import { recordAudit, requestContext, termsVersion } from "@/lib/audit";
+import { createServiceSupabase } from "@/lib/supabase/service";
 
 const bodySchema = z.object({
   packId: z.enum(["spark", "agent", "office", "business"]),
@@ -51,16 +54,42 @@ export async function POST(request: Request) {
   try {
     const origin = process.env.NEXT_PUBLIC_APP_URL ?? url.origin;
     const stripe = getStripe();
+    const base = buildCheckoutSessionParams({
+      origin,
+      userId: viewer.userId,
+      pack,
+      intent: extras.intent,
+      integrationIdentifier: integrationIdentifier(),
+    });
+    const terms = termsVersion();
     const session = await stripe.checkout.sessions.create({
-      ...buildCheckoutSessionParams({
-        origin,
-        userId: viewer.userId,
-        pack,
-        intent: extras.intent,
-        integrationIdentifier: integrationIdentifier(),
-      }),
+      ...base,
+      ...checkoutPolicyParams(pack),
+      metadata: { ...base.metadata, terms_version: terms },
+      payment_intent_data: { metadata: { ...base.payment_intent_data.metadata, terms_version: terms } },
+      ...(viewer.email ? { customer_email: viewer.email } : {}),
       line_items: [{ price, quantity: 1 }],
     });
+
+    const supabase = createServiceSupabase();
+    if (supabase) {
+      await recordAudit(supabase, {
+        event_type: "checkout_started",
+        dedupe_key: `checkout_started:${session.id}`,
+        actor: "wallet-ui",
+        app_slug: extras.intent.destinationApp ?? "wallet",
+        owner_id: viewer.userId,
+        owner_email: viewer.email,
+        product_key: `pack.${pack.id}`,
+        amount_ixis: pack.xp,
+        amount_cents: typeof session.amount_total === "number" ? session.amount_total : pack.price * 100,
+        currency: session.currency ?? "usd",
+        stripe_checkout_session_id: session.id,
+        terms_version: terms,
+        ...requestContext(request),
+        details: { pack: pack.name, list_price_usd: pack.price, return_url: extras.intent.returnUrl },
+      });
+    }
     return NextResponse.json({ url: session.url });
   } catch (error) {
     const message = error instanceof Error ? error.message : "";

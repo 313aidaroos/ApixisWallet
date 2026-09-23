@@ -95,3 +95,28 @@ export function decideChargeRefund(
     },
   };
 }
+
+/**
+ * A dispute that closed LOST means the bank took the cash back: reverse the pack exactly like a
+ * full refund. Won / warning / pending disputes change nothing. Dedup is by charge id, so a charge
+ * that was refunded and then disputed is only reversed once.
+ */
+export function decideDisputeReversal(
+  dispute: { id: string; status: string; chargeId: string | null },
+  session: SessionFields | null,
+  packs: readonly PackRef[],
+): FulfillmentDecision {
+  if (dispute.status !== "lost") return { action: "ignore", reason: `dispute_${dispute.status || "open"}` };
+  if (!dispute.chargeId) return { action: "ignore", reason: "dispute_without_charge" };
+  if (!session) return { action: "ignore", reason: "not_an_ixis_checkout" };
+  const parsed = parsePackPurchase(session.client_reference_id, session.metadata, packs);
+  if (!parsed.ok) return { action: "reject", error: parsed.error };
+  return {
+    action: "refund",
+    chargeId: dispute.chargeId,
+    purchase: {
+      ...parsed.purchase,
+      description: `Dispute lost · ${parsed.purchase.packName} pack · ${dispute.chargeId}`,
+    },
+  };
+}
