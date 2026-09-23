@@ -164,6 +164,7 @@ Base URL: `https://apixis-wallet.vercel.app`. Contract detail and curl examples:
 | `POST /api/v1/redeem` | Wallet cookie, same-origin JSON | `{ productKey, idempotencyKey }` → reserve + capture |
 | `GET /api/cron/release-holds` | `Bearer $CRON_SECRET` | Daily via `vercel.json`. Holds are also freed lazily on the next reserve. |
 | `GET /api/admin/audit` | master account session | Legal/accounting export (§4b), JSON or `format=csv` |
+| `GET /api/v1/admin/summary?days=30` | `Bearer $WALLET_STATS_KEY` (read-only, ≥32 chars) | Owner business summary for AWAD COMMAND: daily cash in / refunds / Ixis sold / Ixis redeemed, redemptions by site, customer holdings, active entitlements, last 25 events (no IP / user agent). 503 until the key is set. Not a money key. |
 
 **Service auth** (`lib/api/service-auth.ts`):
 - **Per-site keys (preferred):** `apx_live_…`, stored hashed in `public.wallet_api_clients` and scoped to `app_slugs`.
