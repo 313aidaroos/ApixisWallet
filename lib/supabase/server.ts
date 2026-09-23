@@ -5,7 +5,13 @@ export async function getAuthenticatedUserId(): Promise<string | null> {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
   if (!url || !key) throw new Error("Supabase public env is missing");
-  const jar = await cookies();
+  let jar;
+  try {
+    jar = await cookies();
+  } catch {
+    // Called outside request context (e.g., in tests) → no cookies available
+    return null;
+  }
   const supabase = createServerClient(url, key, {
     cookies: {
       getAll: () => jar.getAll(),

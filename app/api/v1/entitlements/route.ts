@@ -57,5 +57,7 @@ export async function GET(request: Request) {
 
   return NextResponse.json({
     entitlements: data || [],
+    persisted: (data && data.length > 0) || false,
+    app: app || undefined,
   });
 }

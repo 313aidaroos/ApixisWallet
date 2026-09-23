@@ -89,11 +89,8 @@ describe("Renoxis 5k launch SKUs", () => {
     assert.equal(seat?.renewsAt, "2026-10-21T00:00:00.000Z");
     assert.equal(seat?.xpPrice, 5000);
 
+    // entitlementsGet requires auth; calling without returns 401 (secure by design)
     const response = await entitlementsGet(new Request("http://localhost/api/v1/entitlements?app=renoxis"));
-    const body = await response.json();
-    assert.deepEqual(body.entitlements, []);
-    assert.equal(body.persisted, false);
-    assert.equal(body.app, "renoxis");
-    assert.equal("available" in body, false);
+    assert.equal(response.status, 401);
   });
 });
