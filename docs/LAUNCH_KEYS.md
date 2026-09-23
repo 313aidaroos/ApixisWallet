@@ -71,8 +71,8 @@ If a site has a custom domain the Wallet doesn't know yet, also add it to the Wa
 "Sign in with Apixis" needs each site's **own** Supabase service key on its server.
 - **Where to find it:** Supabase → that site's project → Settings → API → `service_role` secret.
 - **Where it goes:** that site's Vercel project, as `SUPABASE_SERVICE_ROLE_KEY`.
-- **Needed on:** Recovra and Lyrixis. They didn't have it before.
-- **Probably already set on:** Renoxis, Rawixis, Socixis and Contraxis. Check.
+- **Needed on:** every site with the sign-in button. Recovra and Lyrixis definitely didn't have it before.
+- **Probably already set on:** Renoxis, Rawixis, Socixis and Contraxis. Check the others (Launchixis, Qahwah World, PersonalContentBot, Deduxis, Halaxis).
 
 ## Step 6: Merge (in this order)
 
@@ -84,6 +84,12 @@ If a site has a custom domain the Wallet doesn't know yet, also add it to the Wa
    - Lyrixis #6
    - Rawixis #15
    - Contraxis #22
+   - Launchixis #3
+   - qahwahworld #5
+   - PersonalContentBot #1
+   - Deduxis #1
+   - Halaxis #5
+   - Notes-only PRs, safe any time: Geoxis #1, NurseryToons #1, Apixis.dev #38
 3. Redeploy each site in Vercel if it doesn't redeploy automatically.
 
 **Once every site works with its own key:**

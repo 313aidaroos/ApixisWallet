@@ -37,14 +37,19 @@ Last updated: 2026-09-23 (launch hardening 007, legal record 008, SDK v2).
 
 | Repo | PR | What changed | Status |
 |---|---|---|---|
-| ApixisWallet | branch `claude/epic-rubin-oen8nu` (after #6) | Wallet screen shows real data · Apixis ID · `/api/v1/balance` · SDK v3 · security scan report · `LAUNCH_KEYS.md` | Open. Needs migration 009 applied first |
-| Renoxis.dev | #18 | Apixis sign-in · shared balance · office Ixis ledger retired (drafts paid from Wallet via `renoxis.email_draft` / `renoxis.offer_letter`) | Open |
+| ApixisWallet | #7 | Wallet screen shows real data · Apixis ID · `/api/v1/balance` · SDK v3 · family keys · `LAUNCH_KEYS.md` | Open. Apply migration 009 first |
+| Renoxis.dev | #18 | Apixis sign-in · shared balance · office Ixis ledger retired (drafts paid from Wallet) | Open |
 | Socixis | #32 | Apixis sign-in · shared balance on the Wallet page | Open. `socixis-app/lib/stripe-checkout.js` still needs a policy review |
-| Recovra | #4 | Apixis sign-in · shared balance · **free-plan hole closed** (service-only grant + migration) | Open. Merge together with its migration |
-| Lyrixis | #6 | Apixis sign-in · shared balance in the nav | Open |
+| Recovra | #4 | Apixis sign-in · shared balance · **free-plan hole closed** (service-only grant + migration) | Open. Merge together with its migration; needs `SUPABASE_SERVICE_ROLE_KEY` |
+| Lyrixis | #6 | Apixis sign-in · shared balance in the nav | Open; needs `SUPABASE_SERVICE_ROLE_KEY` |
 | Rawixis.dev | #15 | Apixis sign-in · real balance · red build fixed | Open (3 test failures already on main) |
 | Contraxis.dev | #22 | Apixis sign-in · shared balance on the dashboard | Open |
-| Geoxis, Launchixis, NurseryToons, qahwahworld, PersonalContentBot, Deduxis, Halaxis.dev, Apixis.dev | — | Not rolled out yet | Next |
+| Launchixis | #3 | Apixis sign-in · shared balance on /pricing | Open |
+| qahwahworld | #5 | Apixis sign-in · shared balance on home | Open (its Stripe = the physical-coffee marketplace, not Ixis) |
+| PersonalContentBot | #1 | Apixis sign-in routes · shared balance on /pricing | Open (no login page yet; link to `/auth/apixis/start`) |
+| Deduxis | #1 | Apixis sign-in · shared balance on /pricing | Open |
+| Halaxis.dev | #5 | Apixis sign-in · shared balance in the header | Open (no Wallet SKUs yet) |
+| Geoxis, NurseryToons, Apixis.dev | #1, #1, #38 | Notes only. These are plain HTML + serverless sites; Apixis sign-in is the next step | Open. Apixis.dev `api/checkout.js` (direct Stripe) still to review |
 
 Launch-morning steps for Awad: **`docs/LAUNCH_KEYS.md`**. One command makes every site's key: `npm run family-keys`.
 
