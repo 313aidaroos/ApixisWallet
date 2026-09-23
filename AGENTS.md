@@ -17,9 +17,13 @@ Last updated: 2026-09-23 (launch hardening 007, legal record 008, SDK v2).
 | D1 | **Ixis never expire.** | `paid` Ixis has no expiry anywhere. Don't add one. |
 | D2 | **Monthly seats last 30 days.** Ixis doesn't expire; the *access bought* does. | Catalog rows with `days: 30` → `entitlements.renews_at` = capture + 30 days, stacking. One-time unlocks never end. |
 | D3 | **No refunds. All Ixis sales are final.** Someone who bought 10,000 and spent 8,000 keeps the 2,000 to spend; there is no cash back. | Checkout shows `FINAL_SALE_NOTICE` (`lib/checkout/policy.ts`). Stripe refunds are *not* issued. If one is issued anyway, or a chargeback is lost (the bank forces it), the webhook removes the Ixis (`refund_xp`, balance may go negative). Counsel should confirm the terms wording (EU/UK withdrawal rights, US state gift-card rules). |
-| D4 | **One shared Apixis login across every platform (Apixis ID).** | Not built yet; next project, see "Next steps". |
+| D4 | **One shared Apixis login across every platform (Apixis ID).** | Built (migration 009, `/sso/authorize`, `/api/sso/token`, SDK v3 + `sdk/apixis-login-next.ts`). Rolled out to six sites (see §0b). |
 | D5 | **Keep a legal record of every transaction:** time, date, site, transaction id, invoice/receipt, IP. | Migration 008 `audit_events` plus the routes below (§4b). Export: `/api/admin/audit`. |
 | D6 | Awad owns design/UI; the backend lead owns backend/plumbing (§1). | |
+| D7 | **Claude is the lead developer for the whole Apixis family** (all repos, backend and plumbing). | Keep this file, §0b and each site's `docs/APIXIS_FAMILY.md` current. |
+| D8 | **Vision: Apixis Family Company is its own economy.** Ixis is platform credit now, and becomes a crypto currency once compliant. | One shared Wallet and ledger across every app, never a per-site balance. That ledger is what the future coin maps onto (see `docs/WALLET_VISION_DETAILED.md`; the chain adapter stays `demo` until counsel clears it). |
+| D9 | **Every site links to "Buy Ixis".** It goes to the Wallet, the person buys, and comes back to the same site with the Ixis. | `buyIxisUrl(app, returnUrl)`; every catalog app is a valid destination; the return host must be allowlisted (`CHECKOUT_RETURN_HOSTS` for custom domains). |
+| D10 | **No clones and no duplicates:** one Wallet, one SDK. Sites carry copies of `sdk/*.ts` and never fork them. | Change the SDK here, then copy it to the sites. |
 
 **Status (2026-09-23):**
 - Backend code is complete and tested on branch `claude/epic-rubin-oen8nu`.
@@ -28,6 +32,21 @@ Last updated: 2026-09-23 (launch hardening 007, legal record 008, SDK v2).
   - A rolled-back live dry run passed: credit → reserve → capture → 30-day seat → release-after-capture = WA409 → refund debits.
 - **Before 007 was applied:** the ledger held only test/QA data (57 rows, all `@apixis.dev` accounts: ledger-test, e2e, victim/attack security tests, `awad+<site>` QA). No real customers, no real Stripe purchases, no sign of abuse of the open functions. Awad chose to **keep** the test rows (they're now permanent). Three test holds get released automatically by expiry.
 - Audit reference numbering starts at APX-00000002: APX-00000001 was used by the rolled-back dry run, because sequences don't roll back.
+
+### 0b. Family rollout (2026-09-23)
+
+| Repo | PR | What changed | Status |
+|---|---|---|---|
+| ApixisWallet | branch `claude/epic-rubin-oen8nu` (after #6) | Wallet screen shows real data · Apixis ID · `/api/v1/balance` · SDK v3 · security scan report · `LAUNCH_KEYS.md` | Open. Needs migration 009 applied first |
+| Renoxis.dev | #18 | Apixis sign-in · shared balance · office Ixis ledger retired (drafts paid from Wallet via `renoxis.email_draft` / `renoxis.offer_letter`) | Open |
+| Socixis | #32 | Apixis sign-in · shared balance on the Wallet page | Open. `socixis-app/lib/stripe-checkout.js` still needs a policy review |
+| Recovra | #4 | Apixis sign-in · shared balance · **free-plan hole closed** (service-only grant + migration) | Open. Merge together with its migration |
+| Lyrixis | #6 | Apixis sign-in · shared balance in the nav | Open |
+| Rawixis.dev | #15 | Apixis sign-in · real balance · red build fixed | Open (3 test failures already on main) |
+| Contraxis.dev | #22 | Apixis sign-in · shared balance on the dashboard | Open |
+| Geoxis, Launchixis, NurseryToons, qahwahworld, PersonalContentBot, Deduxis, Halaxis.dev, Apixis.dev | — | Not rolled out yet | Next |
+
+Launch-morning steps for Awad: **`docs/LAUNCH_KEYS.md`**. One command makes every site's key: `npm run family-keys`.
 
 **Next steps, in order:**
 1. **Merge `claude/epic-rubin-oen8nu` → `main`** (safe now that 007/008 are live). In Vercel, set `CRON_SECRET` and `TERMS_VERSION`, then redeploy.
@@ -165,6 +184,9 @@ Base URL: `https://apixis-wallet.vercel.app`. Contract detail and curl examples:
 | `POST /api/v1/redeem` | Wallet cookie, same-origin JSON | `{ productKey, idempotencyKey }` → reserve + capture |
 | `GET /api/cron/release-holds` | `Bearer $CRON_SECRET` | Daily via `vercel.json`. Holds are also freed lazily on the next reserve. |
 | `GET /api/admin/audit` | master account session | Legal/accounting export (§4b), JSON or `format=csv` |
+| `GET /sso/authorize?client_id&redirect_uri&state` | browser (Wallet session) | Apixis ID: 302 back to the registered `redirect_uri` with a one-time `code` (2 min, single use) |
+| `POST /api/sso/token` | site's own `apx_` key (the legacy key is refused) | `{ code, redirect_uri }` → `{ sub, email, email_verified }`; records the `sso_links` row |
+| `GET /api/v1/balance?owner_id=<sub>&history=N` | service key | The shared balance a site shows. A per-site key only sees people who signed in there with Apixis ID. |
 
 **Service auth** (`lib/api/service-auth.ts`):
 - **Per-site keys (preferred):** `apx_live_…`, stored hashed in `public.wallet_api_clients` and scoped to `app_slugs`.

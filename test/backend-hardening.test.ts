@@ -373,3 +373,13 @@ describe("apixis id", async () => {
     });
   });
 });
+
+describe("buy ixis from every family site", async () => {
+  const { resolveDestination } = await import("../lib/checkout/destinations");
+  it("accepts every app that sells SKUs as a checkout destination", () => {
+    for (const slug of ["renoxis", "socixis", "recovra", "lyrixis", "rawixis", "contraxis", "geoxis", "launchixis", "nurserytoons", "qahwahworld", "deduxis", "contentbot", "apixis"]) {
+      assert.equal(resolveDestination(slug)?.slug, slug, slug);
+    }
+    assert.equal(resolveDestination("not-a-real-app"), null);
+  });
+});

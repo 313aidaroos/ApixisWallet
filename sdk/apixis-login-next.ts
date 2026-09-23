@@ -25,7 +25,7 @@ import { randomBytes } from "node:crypto";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { createClient, type User } from "@supabase/supabase-js";
-import { createServerClient } from "@supabase/ssr";
+import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { apixisLoginUrl, exchangeLoginCode } from "./apixis-wallet";
 
 const STATE_COOKIE = "apixis_login";
@@ -109,7 +109,8 @@ export async function finishApixisLogin(request: Request) {
   const supabase = createServerClient(env.url, env.anon, {
     cookies: {
       getAll: () => jar.getAll(),
-      setAll: (list) => list.forEach(({ name, value, options }) => jar.set(name, value, options)),
+      setAll: (list: { name: string; value: string; options?: CookieOptions }[]) =>
+        list.forEach(({ name, value, options }) => jar.set(name, value, options)),
     },
   });
   const { error } = await supabase.auth.verifyOtp({ type: "magiclink", token_hash: tokenHash });
@@ -122,4 +123,22 @@ export async function finishApixisLogin(request: Request) {
 export function apixisSubOf(user: Pick<User, "app_metadata"> | null | undefined): string | null {
   const sub = user?.app_metadata?.apixis_sub;
   return typeof sub === "string" && sub ? sub : null;
+}
+
+/**
+ * Who pays, for the signed-in request: their Apixis ID `sub` when they signed in with Apixis,
+ * otherwise `fallbackEmail` (the verified email from YOUR session). Use as `owner` in redeem().
+ */
+export async function apixisOwner(fallbackEmail: string | null | undefined): Promise<string | null> {
+  try {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+    if (!url || !anon) return fallbackEmail ?? null;
+    const jar = await cookies();
+    const supabase = createServerClient(url, anon, { cookies: { getAll: () => jar.getAll(), setAll: () => undefined } });
+    const { data } = await supabase.auth.getUser();
+    return apixisSubOf(data.user) ?? data.user?.email ?? fallbackEmail ?? null;
+  } catch {
+    return fallbackEmail ?? null;
+  }
 }

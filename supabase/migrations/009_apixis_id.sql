@@ -18,6 +18,8 @@ begin;
 alter table public.wallet_api_clients
   add column if not exists redirect_uris text[] not null default '{}',
   add column if not exists require_sso boolean not null default false;
+-- One active client per name (Apixis ID looks clients up by name). Rotate a key by deactivating the old row first.
+create unique index if not exists wallet_api_clients_active_name_uidx on public.wallet_api_clients (name) where active;
 
 create table if not exists public.sso_codes (
   code_hash text primary key check (code_hash ~ '^[0-9a-f]{64}$'),

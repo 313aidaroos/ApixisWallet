@@ -47,3 +47,13 @@ begin
 end $$;
 
 \echo 'apixis id tests: ok'
+
+do $$
+begin
+  begin
+    insert into public.wallet_api_clients (name, app_slugs, key_prefix, key_hash) values ('renoxis', array['renoxis'], 'apx_test_z', repeat('c', 64));
+    raise exception 'duplicate active client name accepted';
+  exception when unique_violation then null;
+  end;
+end $$;
+\echo 'apixis id client-name uniqueness: ok'
