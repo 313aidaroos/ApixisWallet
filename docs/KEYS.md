@@ -34,6 +34,7 @@ Add `https://<wallet-domain>/auth/callback` to the Supabase redirect allow-list.
 
 ## Wallet backend
 
+- `TERMS_VERSION` — e.g. `2026-09-23`; stored on every purchase record. Optional: `STRIPE_REQUIRE_TERMS=true`, `STRIPE_CREATE_INVOICES=true` (AGENTS.md §4b).
 - `CRON_SECRET` — any long random string (Vercel Cron uses it for `/api/cron/release-holds`).
 - `WALLET_ALLOW_LEGACY_SERVICE_KEY` — leave unset until every sister site has its own `apx_` key, then set `false` and rotate `SUPABASE_SECRET_KEY`.
 - Sister-site keys: `npm run api-key -- --name <site> --apps <app>`; paste the printed SQL into Supabase, the key into that site's `WALLET_API_KEY`.

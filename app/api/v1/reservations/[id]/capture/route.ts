@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createServiceSupabase } from "@/lib/supabase/service";
 import { authenticateService } from "@/lib/api/service-auth";
 import { ledgerErrorResponse } from "@/lib/api/errors";
+import { recordAudit, requestContext } from "@/lib/audit";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -21,6 +22,16 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     p_description: "Redemption captured",
     p_actor: auth.caller.actor,
     p_allowed_apps: auth.caller.apps,
+  });
+  await recordAudit(supabase, {
+    event_type: "capture",
+    dedupe_key: error ? null : `capture:${id}`,
+    actor: auth.caller.actor,
+    reservation_id: id,
+    ledger_transaction_id: error ? null : data,
+    outcome: error ? "rejected" : "ok",
+    ...requestContext(request),
+    details: error ? { code: error.code ?? null } : {},
   });
   if (error) return ledgerErrorResponse(error, "Capture");
 

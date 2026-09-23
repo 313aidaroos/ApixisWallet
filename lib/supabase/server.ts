@@ -9,8 +9,8 @@ function publicEnv() {
   return { url, key };
 }
 
-/** The signed-in Wallet user from the Supabase session cookie, or null. */
-export async function getAuthenticatedUserId(): Promise<string | null> {
+/** The signed-in Wallet user (id + email) from the Supabase session cookie, or null. */
+export async function getAuthenticatedUser(): Promise<{ id: string; email: string | null; emailConfirmed: boolean } | null> {
   let jar;
   try {
     jar = await cookies();
@@ -32,7 +32,14 @@ export async function getAuthenticatedUserId(): Promise<string | null> {
     },
   });
   const { data } = await supabase.auth.getUser();
-  return data.user?.id ?? null;
+  return data.user
+    ? { id: data.user.id, email: data.user.email ?? null, emailConfirmed: Boolean(data.user.email_confirmed_at) }
+    : null;
+}
+
+/** The signed-in Wallet user id from the Supabase session cookie, or null. */
+export async function getAuthenticatedUserId(): Promise<string | null> {
+  return (await getAuthenticatedUser())?.id ?? null;
 }
 
 const JWT = /^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/;

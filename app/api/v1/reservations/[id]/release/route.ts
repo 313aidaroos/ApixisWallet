@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createServiceSupabase } from "@/lib/supabase/service";
 import { authenticateService } from "@/lib/api/service-auth";
 import { ledgerErrorResponse } from "@/lib/api/errors";
+import { recordAudit, requestContext } from "@/lib/audit";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -20,11 +21,21 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   const supabase = createServiceSupabase();
   if (!supabase) return NextResponse.json({ error: "Service configuration missing" }, { status: 503 });
 
-  const { error } = await supabase.rpc("release_xp", {
+  const { data, error } = await supabase.rpc("release_xp", {
     p_reservation_id: id,
     p_description: "Reservation released",
     p_actor: auth.caller.actor,
     p_allowed_apps: auth.caller.apps,
+  });
+  await recordAudit(supabase, {
+    event_type: "release",
+    dedupe_key: error ? null : `release:${id}`,
+    actor: auth.caller.actor,
+    reservation_id: id,
+    ledger_transaction_id: error ? null : data,
+    outcome: error ? "rejected" : "ok",
+    ...requestContext(request),
+    details: error ? { code: error.code ?? null } : {},
   });
   if (error) return ledgerErrorResponse(error, "Release");
 

@@ -2,9 +2,38 @@
 
 For every bot and developer working on **Apixis Wallet** (Claude, Grok, Cursor, Hermes, Developer Bot, humans).
 If anything here disagrees with an older doc (`GROK_MASTER_PROMPT.md`, `docs/BUILD_AND_LAUNCH.md`, `docs/RENOXIS.md`), **this file wins**.
-Last updated: 2026-09-23 (launch hardening, migration 007, SDK v2).
+Last updated: 2026-09-23 (launch hardening 007, legal record 008, SDK v2).
+
+**New session? Start with §0: it has the owner's decisions and exactly where work stopped.**
 
 ---
+
+## 0. Owner decisions and where work stopped (keep this current)
+
+**Decisions by Awad (2026-09-23). Do not change them without asking.**
+
+| # | Decision | What it means in code |
+|---|---|---|
+| D1 | **Ixis never expire.** | `paid` Ixis has no expiry anywhere. Don't add one. |
+| D2 | **Monthly seats last 30 days.** Ixis doesn't expire; the *access bought* does. | Catalog rows with `days: 30` → `entitlements.renews_at` = capture + 30 days, stacking. One-time unlocks never end. |
+| D3 | **No refunds. All Ixis sales are final.** Someone who bought 10,000 and spent 8,000 keeps the 2,000 to spend; there is no cash back. | Checkout shows `FINAL_SALE_NOTICE` (`lib/checkout/policy.ts`). Stripe refunds are *not* issued. If one is issued anyway, or a chargeback is lost (the bank forces it), the webhook removes the Ixis (`refund_xp`, balance may go negative). Counsel should confirm the terms wording (EU/UK withdrawal rights, US state gift-card rules). |
+| D4 | **One shared Apixis login across every platform (Apixis ID).** | Not built yet; next project, see "Next steps". |
+| D5 | **Keep a legal record of every transaction:** time, date, site, transaction id, invoice/receipt, IP. | Migration 008 `audit_events` plus the routes below (§4b). Export: `/api/admin/audit`. |
+| D6 | Awad owns design/UI; the backend lead owns backend/plumbing (§1). | |
+
+**Status:** backend code is complete and tested on branch `claude/epic-rubin-oen8nu` (not merged to `main`). **Nothing is applied to the live database yet.**
+
+**Next steps, in order:**
+1. **Supabase connector.** Awad is connecting it. With access:
+   - Read-only first: run the §8 step 2–3 queries on live and report the results to Awad.
+   - Show Awad the plan, then apply `007_launch_hardening.sql` and `008_audit_log.sql`, and re-run the check queries.
+2. **Deploy order matters.** Migrations 007 + 008 must be live **before** this branch is deployed. The new code calls the new function signatures and the `audit_events` table, and the webhook returns 500 if it can't write the record. Merge to `main` only after the migrations are applied.
+3. **Apixis ID (D4).** Design one shared login:
+   - The Wallet Supabase project becomes the identity provider.
+   - Sister sites use "Sign in with Apixis".
+   - The Wallet verifies Apixis ID tokens instead of trusting `owner_email`.
+   - Needs access to the sister-site repos, plus Awad's answer on moving sites to `*.apixis.dev` subdomains, which enables one-click SSO.
+4. Per-site API keys for each sister site, then `WALLET_ALLOW_LEGACY_SERVICE_KEY=false` and rotate the Supabase secret.
 
 ## 1. Who owns what
 
@@ -74,6 +103,31 @@ REFUND  Stripe charge.refunded (full) or charge.dispute.closed (lost)
 | `wallet_history(owner, limit, offset)` | One row per transaction, with the change to available and held. |
 | `get_or_create_wallet`, `find_user_id_by_email`, `release_hold_internal` | Helpers. |
 
+### 4b. Legal record: `public.audit_events` (migration 008)
+
+The ledger is the accounting truth. `audit_events` is the evidence around it.
+- **Append-only**, `service_role` only, never deleted.
+- Every row gets a sequential **reference** `APX-00000001`.
+- Written by `recordAudit()` in `lib/audit.ts`.
+
+| Event | Written by | Key fields |
+|---|---|---|
+| `checkout_started` | `POST /api/checkout` | user, email, pack, price shown (cents), Stripe session, terms version, IP, user agent |
+| `purchase` | webhook (**required**: 500 + Stripe retry if it can't be written) | Stripe event / session / payment intent / charge / invoice ids, receipt URL, amount + currency, tax, country, ledger tx |
+| `refund`, `dispute_lost` | webhook (required) | charge, amount, reason, ledger tx |
+| `reserve`, `capture`, `release` | `/api/v1/reservations*` (best effort; the ledger row exists regardless) | site/actor (`key:renoxis`), app, email, product, Ixis, reservation id, IP, and rejected attempts too |
+| `redeem` | `POST /api/v1/redeem` | user, email, product, Ixis, IP |
+| `hold_expiry_sweep` | cron | count released |
+
+- **Export (master account only, confirmed email = `ALLOWED_EMAIL`):**
+  `GET /api/admin/audit?from=2026-09-01&to=2026-10-01&type=purchase&email=…&app=…&format=csv` (10,000 rows per page; page with `before_id`).
+- **Invoices:**
+  - Stripe email receipts are free: turn on Stripe → Settings → Customer emails → Successful payments. Receipt URLs are stored either way.
+  - Real numbered Stripe invoices (PDF): set `STRIPE_CREATE_INVOICES=true`. Stripe charges a per-invoice fee.
+  - Terms checkbox at checkout: set `STRIPE_REQUIRE_TERMS=true` after a Terms URL is set in Stripe → Settings → Public details.
+  - Set `TERMS_VERSION` (e.g. `2026-09-23`) and bump it whenever the terms page changes.
+- **Privacy:** IP addresses and emails are personal data. The privacy policy must say they are kept for fraud, tax and legal purposes.
+
 **Error SQLSTATEs → HTTP** (`lib/api/errors.ts`):
 
 | SQLSTATE | HTTP |
@@ -105,6 +159,7 @@ Base URL: `https://apixis-wallet.vercel.app`. Contract detail and curl examples:
 | `GET /api/v1/ledger?limit&offset` | Wallet user | `{ transactions: [{ kind, description, app, productKey, amount, held, createdAt }], total }` |
 | `POST /api/v1/redeem` | Wallet cookie, same-origin JSON | `{ productKey, idempotencyKey }` → reserve + capture |
 | `GET /api/cron/release-holds` | `Bearer $CRON_SECRET` | Daily via `vercel.json`. Holds are also freed lazily on the next reserve. |
+| `GET /api/admin/audit` | master account session | Legal/accounting export (§4b), JSON or `format=csv` |
 
 **Service auth** (`lib/api/service-auth.ts`):
 - **Per-site keys (preferred):** `apx_live_…`, stored hashed in `public.wallet_api_clients` and scoped to `app_slugs`.
@@ -136,8 +191,8 @@ const r = await redeemProduct("renoxis.agent.monthly"); // { ok } | { ok:false, 
 
 ## 7. Database and migrations
 
-- **Order:** `supabase/migrations/001` → `007`. Apply in order in the Wallet Supabase project (SQL editor or `supabase db push`). **007 is safe to re-run.**
-- **Tables** (in `public`, not moved to a `wallet` schema yet): `wallets`, `ledger_transactions`, `ledger_entries`, `entitlements`, `wallet_api_clients`, plus the view `wallet_balances`.
+- **Order:** `supabase/migrations/001` → `008`. Apply in order in the Wallet Supabase project (SQL editor or `supabase db push`). **007 and 008 are safe to re-run.** Apply them before deploying code that needs them (§0).
+- **Tables** (in `public`, not moved to a `wallet` schema yet): `wallets`, `ledger_transactions`, `ledger_entries`, `entitlements`, `wallet_api_clients`, `audit_events`, plus the view `wallet_balances`.
 - **Customers** (`authenticated`) have SELECT-only access through row-level security on their own rows. `anon` has nothing.
 - **Tests:** `npm run test:sql` runs every migration plus `supabase/tests/*.sql` on a throwaway Postgres (set `PGHOST`, `PGUSER`, `PGPASSWORD`), including a 20-way concurrency test. **Never point it at production.** `supabase/tests/00_supabase_stub.sql` fakes the Supabase roles and grants for local and CI runs only.
 
@@ -154,10 +209,12 @@ const r = await redeemProduct("renoxis.agent.monthly"); // { ok } | { ok:false, 
 - [x] Append-only, always-balanced ledger.
 - [x] Per-site scoped API keys.
 - [x] Real balance, history and redeem endpoints.
+- [x] Append-only legal record of every money event, with a master-only CSV export (008).
+- [x] Final-sale notice on Stripe Checkout; optional terms checkbox and Stripe invoices.
 - [x] CI: lint, typecheck, unit tests, build, SQL tests.
 
 **Ops (Awad / whoever holds the keys):**
-1. [ ] **Apply `007_launch_hardening.sql`** to the live Wallet Supabase project.
+1. [ ] **Apply `007_launch_hardening.sql` and `008_audit_log.sql`** to the live Wallet Supabase project, *before* deploying this branch.
 2. [ ] **Verify the lock-down on live.** This must return 0 rows:
    ```sql
    select p.oid::regprocedure from pg_proc p join pg_namespace n on n.oid = p.pronamespace
@@ -173,7 +230,8 @@ const r = await redeemProduct("renoxis.agent.monthly"); // { ok } | { ok:false, 
      ```sql
      select t.* from public.ledger_transactions t where t.kind in ('purchase','bonus') and (t.external_id is null or t.external_id not like 'evt_%');
      ```
-4. [ ] **Vercel env:** set `CRON_SECRET`, and make sure all `STRIPE_*` and Supabase vars are set in Production.
+4. [ ] **Vercel env:** set `CRON_SECRET` and `TERMS_VERSION`, and make sure all `STRIPE_*` and Supabase vars are set in Production. The Stripe restricted key needs Checkout Sessions (write), PaymentIntents and Charges (read), and Invoices (write, only if `STRIPE_CREATE_INVOICES=true`).
+4b. [ ] **Supabase Auth:** email confirmation ON, so nobody can register an unverified `ALLOWED_EMAIL` or someone else's address.
 5. [ ] **Stripe webhook events:** `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `charge.refunded`, `charge.dispute.closed`.
 6. [ ] **Per-site keys:** issue one per sister site (`npm run api-key`), put it in that site's `WALLET_API_KEY`, copy SDK v2 into each site. When all are moved, set `WALLET_ALLOW_LEGACY_SERVICE_KEY=false` and rotate the Supabase secret key (the old one was shared with every site).
 7. [ ] **Test-mode rehearsal** end to end: buy Spark → credited once → redeem → entitlement → refund → Ixis removed.
@@ -181,8 +239,8 @@ const r = await redeemProduct("renoxis.agent.monthly"); // { ok } | { ok:false, 
 
 ## 9. Known limits and open decisions
 
-- **Identity is by email.** The Wallet trusts the email a sister-site *server* sends. Any site that lets people sign up without verifying their email could let someone spend another person's Ixis. Every sister site must send only verified emails. The long-term fix is one shared Apixis ID (a single auth project) or signed identity tokens.
-- **Refunds after spending:** a full refund removes the Ixis even if it was already spent, so the balance goes negative and further redeems are blocked until the customer tops up. Partial refunds are not applied; they're logged for manual handling.
+- **Identity is by email until Apixis ID (D4) ships.** The Wallet trusts the email a sister-site *server* sends. Any site that lets people sign up without verifying their email could let someone spend another person's Ixis. Every sister site must send only verified emails. The long-term fix is one shared Apixis ID (a single auth project) or signed identity tokens.
+- **Refunds:** policy is no refunds (D3). If a full refund is issued anyway, or a chargeback is lost, the Ixis are removed even if already spent, so the balance goes negative and redeems are blocked until a top-up. Partial refunds are not applied to the ledger; they're logged for manual handling.
 - **Bonus expiry** is not enforced, so don't sell or grant expiring bonus yet.
 - **Quotes are informational.** A price change between quote and reserve charges the new catalog price.
 - **Not built yet:**

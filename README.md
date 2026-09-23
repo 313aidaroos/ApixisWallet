@@ -16,6 +16,7 @@ Source unpacked from `Apixis_Wallet_MVP_GitHub_Ready.zip` onto `main` on 2026-09
 - Double-entry, append-only Supabase ledger (migrations 001–007): reserve → capture/release with row locking, expiring holds, entitlements with 30-day periods.
 - Sister-site APIs with per-site scoped API keys, SDK v2 (`sdk/apixis-wallet.ts`).
 - Real balance / history / in-Wallet redeem endpoints (`lib/wallet-client.ts` for the UI).
+- Append-only legal record of every money event (`audit_events`, migration 008) with a master-only CSV export.
 - CI: lint, typecheck, unit tests, build, ledger SQL tests incl. concurrency.
 
 The dashboard UI (`components/WalletScreen.tsx`) still shows **demo data** until it is wired to `lib/wallet-client.ts` — see AGENTS.md §6.

@@ -5,6 +5,7 @@ import { createServiceSupabase } from "@/lib/supabase/service";
 import { authenticateService, callerMayUseApp } from "@/lib/api/service-auth";
 import { resolveOwnerByEmail } from "@/lib/api/owner";
 import { ledgerErrorResponse } from "@/lib/api/errors";
+import { recordAudit, requestContext } from "@/lib/audit";
 import { IDEMPOTENCY_KEY, productApp, reserveProduct } from "@/lib/api/reserve";
 
 const bodySchema = z.object({
@@ -55,11 +56,38 @@ export async function POST(request: Request) {
     actor: auth.caller.actor,
   });
   if (error) {
+    await recordAudit(supabase, {
+      event_type: "reserve",
+      actor: auth.caller.actor,
+      app_slug: app,
+      owner_id: ownerId,
+      owner_email: parsed.data.owner_email ?? null,
+      product_key: product.key,
+      amount_ixis: product.xp,
+      outcome: "rejected",
+      ...requestContext(request),
+      details: { code: error.code ?? null, idempotency_key: parsed.data.idempotencyKey },
+    });
     if (error.message?.includes("wallets_owner_id_fkey")) {
       return NextResponse.json({ error: "Unknown wallet owner — send owner_email, not a sister-site uid" }, { status: 400 });
     }
     return ledgerErrorResponse(error, "Reservation");
   }
+
+  await recordAudit(supabase, {
+    event_type: "reserve",
+    dedupe_key: `reserve:${data}`,
+    actor: auth.caller.actor,
+    app_slug: app,
+    owner_id: ownerId,
+    owner_email: parsed.data.owner_email ?? null,
+    ledger_transaction_id: data,
+    reservation_id: data,
+    product_key: product.key,
+    amount_ixis: product.xp,
+    ...requestContext(request),
+    details: { idempotency_key: parsed.data.idempotencyKey, product_name: product.name, usd_equivalent: product.xp / 100 },
+  });
 
   return NextResponse.json(
     {

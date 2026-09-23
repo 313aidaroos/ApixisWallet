@@ -5,6 +5,7 @@ import { getStripe } from "@/lib/stripe";
 import { decideChargeRefund, decideCheckoutCredit, decideDisputeReversal, type FulfillmentDecision } from "@/lib/stripe/fulfillment";
 import { creditPaidPack, findRefundForCharge, refundPaidPack } from "@/lib/stripe/ledger";
 import { createServiceSupabase } from "@/lib/supabase/service";
+import { recordAudit, type AuditEvent } from "@/lib/audit";
 
 export const runtime = "nodejs";
 
@@ -23,7 +24,23 @@ async function ownerExists(supabase: NonNullable<ReturnType<typeof createService
   return Boolean(data.user);
 }
 
-async function creditFromSession(eventId: string, session: Stripe.Checkout.Session) {
+/** Charge id + Stripe receipt URL for a payment. Best effort: the credit never waits on this. */
+async function chargeDetails(stripe: Stripe, paymentIntentId: string | null) {
+  if (!paymentIntentId) return { chargeId: null, receiptUrl: null };
+  try {
+    const intent = await stripe.paymentIntents.retrieve(paymentIntentId, { expand: ["latest_charge"] });
+    const charge = typeof intent.latest_charge === "object" && intent.latest_charge ? intent.latest_charge : null;
+    return { chargeId: charge?.id ?? (typeof intent.latest_charge === "string" ? intent.latest_charge : null), receiptUrl: charge?.receipt_url ?? null };
+  } catch {
+    return { chargeId: null, receiptUrl: null };
+  }
+}
+
+function idOf(value: string | { id: string } | null | undefined) {
+  return typeof value === "string" ? value : value?.id ?? null;
+}
+
+async function creditFromSession(stripe: Stripe, eventId: string, session: Stripe.Checkout.Session) {
   const decision = decideCheckoutCredit(session, pointPacks);
   if (decision.action === "ignore") {
     return NextResponse.json({ received: true, credited: false, reason: decision.reason });
@@ -44,7 +61,43 @@ async function creditFromSession(eventId: string, session: Stripe.Checkout.Sessi
   }
 
   const transactionId = await creditPaidPack(supabase, eventId, decision.purchase);
-  return NextResponse.json({ received: true, credited: true, transactionId });
+
+  // Legal record. Required: if it fails the webhook returns 500 and Stripe retries; the credit above
+  // is idempotent on the event id and the audit row on its dedupe key, so a retry fixes it safely.
+  const paymentIntentId = idOf(session.payment_intent);
+  const charge = await chargeDetails(stripe, paymentIntentId);
+  const reference = await recordAudit(
+    supabase,
+    {
+      event_type: "purchase",
+      dedupe_key: `purchase:${eventId}`,
+      actor: "stripe",
+      app_slug: session.metadata?.destination_app ?? "wallet",
+      owner_id: decision.purchase.ownerId,
+      owner_email: session.customer_details?.email ?? session.customer_email ?? null,
+      ledger_transaction_id: typeof transactionId === "string" ? transactionId : null,
+      product_key: `pack.${session.metadata?.pack_id ?? ""}`,
+      amount_ixis: decision.purchase.amount,
+      amount_cents: session.amount_total ?? null,
+      currency: session.currency ?? null,
+      stripe_event_id: eventId,
+      stripe_checkout_session_id: session.id,
+      stripe_payment_intent_id: paymentIntentId,
+      stripe_charge_id: charge.chargeId,
+      stripe_invoice_id: idOf(session.invoice),
+      stripe_receipt_url: charge.receiptUrl,
+      terms_version: session.metadata?.terms_version ?? null,
+      details: {
+        pack: decision.purchase.packName,
+        amount_subtotal_cents: session.amount_subtotal ?? null,
+        tax_cents: session.total_details?.amount_tax ?? null,
+        customer_country: session.customer_details?.address?.country ?? null,
+        livemode: session.livemode,
+      },
+    },
+    { required: true },
+  );
+  return NextResponse.json({ received: true, credited: true, transactionId, reference });
 }
 
 async function packSessionForPaymentIntent(stripe: Stripe, paymentIntentId: string | null) {
@@ -54,7 +107,12 @@ async function packSessionForPaymentIntent(stripe: Stripe, paymentIntentId: stri
 }
 
 /** Shared by full refunds and lost disputes: one reversal per charge, keyed by the Stripe event id. */
-async function applyReversal(eventId: string, decision: FulfillmentDecision, label: string) {
+async function applyReversal(
+  eventId: string,
+  decision: FulfillmentDecision,
+  label: string,
+  audit: Pick<AuditEvent, "event_type" | "amount_cents" | "currency" | "stripe_payment_intent_id" | "stripe_checkout_session_id" | "details">,
+) {
   if (decision.action === "ignore") {
     return NextResponse.json({ received: true, refunded: false, reason: decision.reason });
   }
@@ -77,7 +135,22 @@ async function applyReversal(eventId: string, decision: FulfillmentDecision, lab
   if (existing) return NextResponse.json({ received: true, refunded: true, transactionId: existing, duplicate: true });
 
   const transactionId = await refundPaidPack(supabase, eventId, decision.purchase);
-  return NextResponse.json({ received: true, refunded: true, transactionId });
+  const reference = await recordAudit(
+    supabase,
+    {
+      ...audit,
+      dedupe_key: `${audit.event_type}:${eventId}`,
+      actor: "stripe",
+      owner_id: decision.purchase.ownerId,
+      ledger_transaction_id: typeof transactionId === "string" ? transactionId : null,
+      amount_ixis: -decision.purchase.amount,
+      stripe_event_id: eventId,
+      stripe_charge_id: decision.chargeId,
+      details: { ...(audit.details ?? {}), pack: decision.purchase.packName, description: decision.purchase.description },
+    },
+    { required: true },
+  );
+  return NextResponse.json({ received: true, refunded: true, transactionId, reference });
 }
 
 async function refundFromCharge(stripe: Stripe, eventId: string, charge: Stripe.Charge) {
@@ -88,7 +161,14 @@ async function refundFromCharge(stripe: Stripe, eventId: string, charge: Stripe.
     return NextResponse.json({ received: true, refunded: false, reason: "partial_refund_not_applied" });
   }
   const session = await packSessionForPaymentIntent(stripe, paymentIntentId);
-  return applyReversal(eventId, decideChargeRefund(charge, session, pointPacks), "refund");
+  return applyReversal(eventId, decideChargeRefund(charge, session, pointPacks), "refund", {
+    event_type: "refund",
+    amount_cents: charge.amount_refunded,
+    currency: charge.currency,
+    stripe_payment_intent_id: paymentIntentId,
+    stripe_checkout_session_id: session?.id ?? null,
+    details: { refunds: charge.refunds?.data?.map((refund) => ({ id: refund.id, reason: refund.reason, amount: refund.amount })) ?? [] },
+  });
 }
 
 async function reverseLostDispute(stripe: Stripe, eventId: string, dispute: Stripe.Dispute) {
@@ -96,7 +176,14 @@ async function reverseLostDispute(stripe: Stripe, eventId: string, dispute: Stri
   const paymentIntentId =
     typeof dispute.payment_intent === "string" ? dispute.payment_intent : dispute.payment_intent?.id ?? null;
   const session = dispute.status === "lost" ? await packSessionForPaymentIntent(stripe, paymentIntentId) : null;
-  return applyReversal(eventId, decideDisputeReversal({ id: dispute.id, status: dispute.status, chargeId }, session, pointPacks), "dispute");
+  return applyReversal(eventId, decideDisputeReversal({ id: dispute.id, status: dispute.status, chargeId }, session, pointPacks), "dispute", {
+    event_type: "dispute_lost",
+    amount_cents: dispute.amount,
+    currency: dispute.currency,
+    stripe_payment_intent_id: paymentIntentId,
+    stripe_checkout_session_id: session?.id ?? null,
+    details: { dispute_id: dispute.id, reason: dispute.reason, status: dispute.status },
+  });
 }
 
 export async function POST(request: Request) {
@@ -120,7 +207,7 @@ export async function POST(request: Request) {
 
   try {
     if (event.type === "checkout.session.completed" || event.type === "checkout.session.async_payment_succeeded") {
-      return await creditFromSession(event.id, event.data.object);
+      return await creditFromSession(stripe, event.id, event.data.object);
     }
     if (event.type === "charge.refunded") {
       return await refundFromCharge(stripe, event.id, event.data.object);

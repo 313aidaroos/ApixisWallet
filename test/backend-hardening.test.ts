@@ -224,3 +224,84 @@ describe("cron", () => {
     });
   });
 });
+
+describe("legal record", async () => {
+  const { csvCell, toCsv } = await import("../lib/csv");
+  const { recordAudit, requestContext } = await import("../lib/audit");
+  const { checkoutPolicyParams, FINAL_SALE_NOTICE } = await import("../lib/checkout/policy");
+  const { GET: auditExport } = await import("../app/api/admin/audit/route");
+
+  it("writes CSV safely", () => {
+    assert.equal(csvCell(-5000), "-5000");
+    assert.equal(csvCell("=HYPERLINK(1)"), "'=HYPERLINK(1)");
+    assert.equal(csvCell('a,"b"'), '"a,""b"""');
+    assert.equal(csvCell({ a: 1 }), '"{""a"":1}"');
+    assert.equal(toCsv(["x", "y"], [{ x: 1, y: null }]), "x,y\r\n1,\r\n");
+  });
+
+  it("captures client IP, user agent and request id", () => {
+    const ctx = requestContext(
+      new Request("https://w.test", { headers: { "x-forwarded-for": "203.0.113.9, 10.0.0.1", "user-agent": "UA/1", "x-vercel-id": "iad1::abc" } }),
+    );
+    assert.deepEqual(ctx, { ip_address: "203.0.113.9", user_agent: "UA/1", request_id: "iad1::abc" });
+  });
+
+  it("dedupes on dedupe_key and normalises email", async () => {
+    const calls: { op: string; row: Record<string, unknown>; options?: unknown }[] = [];
+    const supabase = {
+      from: () => ({
+        upsert: (row: Record<string, unknown>, options: unknown) => {
+          calls.push({ op: "upsert", row, options });
+          return { select: async () => ({ data: [{ reference: "APX-00000001" }], error: null }) };
+        },
+        insert: (row: Record<string, unknown>) => {
+          calls.push({ op: "insert", row });
+          return { select: async () => ({ data: [{ reference: "APX-00000002" }], error: null }) };
+        },
+      }),
+    } as unknown as Parameters<typeof recordAudit>[0];
+    assert.equal(await recordAudit(supabase, { event_type: "purchase", dedupe_key: "purchase:evt_1", owner_email: " A@B.co " }), "APX-00000001");
+    assert.equal(calls[0].op, "upsert");
+    assert.deepEqual(calls[0].options, { onConflict: "dedupe_key", ignoreDuplicates: true });
+    assert.equal(calls[0].row.owner_email, "a@b.co");
+    assert.equal(await recordAudit(supabase, { event_type: "reserve" }), "APX-00000002");
+    assert.equal(calls[1].op, "insert");
+  });
+
+  it("throws only when the record is required", async () => {
+    const failing = {
+      from: () => ({ insert: () => ({ select: async () => ({ data: null, error: { code: "42P01" } }) }) }),
+    } as unknown as Parameters<typeof recordAudit>[0];
+    const original = console.error;
+    console.error = () => undefined;
+    try {
+      assert.equal(await recordAudit(failing, { event_type: "reserve" }), null);
+      await assert.rejects(() => recordAudit(failing, { event_type: "reserve" }, { required: true }));
+    } finally {
+      console.error = original;
+    }
+  });
+
+  it("shows the final-sale notice on checkout and gates terms/invoices behind env", async () => {
+    await withEnv({ STRIPE_REQUIRE_TERMS: undefined, STRIPE_CREATE_INVOICES: undefined }, async () => {
+      const plain = checkoutPolicyParams({ name: "Spark", xp: 1000 });
+      assert.equal(plain.custom_text.submit.message, FINAL_SALE_NOTICE);
+      assert.match(FINAL_SALE_NOTICE, /non-refundable/);
+      assert.match(FINAL_SALE_NOTICE, /never expire/);
+      assert.equal(plain.consent_collection, undefined);
+      assert.equal(plain.invoice_creation, undefined);
+    });
+    await withEnv({ STRIPE_REQUIRE_TERMS: "true", STRIPE_CREATE_INVOICES: "true", TERMS_VERSION: "2026-09-23" }, async () => {
+      const full = checkoutPolicyParams({ name: "Spark", xp: 1000 });
+      assert.deepEqual(full.consent_collection, { terms_of_service: "required" });
+      assert.equal(full.invoice_creation?.enabled, true);
+      assert.equal(full.invoice_creation?.invoice_data.metadata.terms_version, "2026-09-23");
+    });
+  });
+
+  it("audit export needs a signed-in master account", async () => {
+    await withEnv({ NEXT_PUBLIC_SUPABASE_URL: "https://x.supabase.co", NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "pk" }, async () => {
+      assert.equal((await auditExport(new Request("https://w.test/api/admin/audit"))).status, 401);
+    });
+  });
+});

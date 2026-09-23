@@ -1,6 +1,7 @@
 import { timingSafeEqual } from "node:crypto";
 import { NextResponse } from "next/server";
 import { createServiceSupabase } from "@/lib/supabase/service";
+import { recordAudit } from "@/lib/audit";
 
 export const runtime = "nodejs";
 
@@ -24,6 +25,9 @@ export async function GET(request: Request) {
   if (error) {
     console.error("release_expired_holds failed", { code: error.code });
     return NextResponse.json({ error: "Sweep failed" }, { status: 500 });
+  }
+  if (Number(data) > 0) {
+    await recordAudit(supabase, { event_type: "hold_expiry_sweep", actor: "cron", details: { released: Number(data) } });
   }
   return NextResponse.json({ released: data ?? 0 });
 }
