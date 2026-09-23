@@ -37,6 +37,7 @@ Last updated: 2026-09-23 (launch hardening 007, legal record 008, SDK v2).
    - Sister sites use "Sign in with Apixis".
    - The Wallet verifies Apixis ID tokens instead of trusting `owner_email`.
    - Needs access to the sister-site repos, plus Awad's answer on moving sites to `*.apixis.dev` subdomains. Every sister site has its own Supabase project in the same org (renoxis, Socixis, Lyrixis, recovra, deduxis, rawixis, geoxis, nurserytoons, launchixis, halaxis, Contraxis).
+3b. **Sister-site security:** see `docs/SECURITY_SCAN_2026-09-23.md`. The Geoxis and Lyrixis critical holes are fixed live. Recovra's `grant_plan_entitlement` (free paid plans) is still open. Awad has authorised security fixes on all his Supabase projects and GitHub repos.
 4. Per-site API keys for each sister site, then `WALLET_ALLOW_LEGACY_SERVICE_KEY=false` and rotate the Supabase secret.
 
 ## 1. Who owns what
