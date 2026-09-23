@@ -22,6 +22,10 @@ export type ServiceCaller = {
   /** Apps this caller may touch. null = every app (legacy key only). */
   apps: string[] | null;
   legacy: boolean;
+  /** wallet_api_clients.id for per-site keys; null for the legacy key. */
+  clientId: string | null;
+  /** Once true (migration 009), this site may only act for users who signed in through Apixis ID. */
+  requireSso: boolean;
 };
 
 export const API_KEY_PATTERN = /^apx_(live|test)_[A-Za-z0-9_-]{32,64}$/;
@@ -60,7 +64,7 @@ export async function authenticateService(
     if (!supabase) return { response: NextResponse.json({ error: "Service configuration missing" }, { status: 503 }) };
     const { data, error } = await supabase
       .from("wallet_api_clients")
-      .select("id, name, app_slugs, active")
+      .select("*")
       .eq("key_hash", hashApiKey(token))
       .maybeSingle();
     if (error) {
@@ -74,13 +78,21 @@ export async function authenticateService(
       () => undefined,
       () => undefined,
     );
-    return { caller: { actor: `key:${data.name}`, apps: data.app_slugs as string[], legacy: false } };
+    return {
+      caller: {
+        actor: `key:${data.name}`,
+        apps: data.app_slugs as string[],
+        legacy: false,
+        clientId: data.id as string,
+        requireSso: data.require_sso === true,
+      },
+    };
   }
 
   const serviceKey = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!serviceKey) return { response: NextResponse.json({ error: "Service configuration missing" }, { status: 503 }) };
   if (legacyServiceKeyAllowed() && sameSecret(token, serviceKey)) {
-    return { caller: { actor: "legacy-service-key", apps: null, legacy: true } };
+    return { caller: { actor: "legacy-service-key", apps: null, legacy: true, clientId: null, requireSso: false } };
   }
   return { response: unauthorized() };
 }

@@ -111,7 +111,7 @@ describe("service auth", () => {
   });
 
   it("scopes per-site callers to their apps", () => {
-    const renoxis = { actor: "key:renoxis", apps: ["renoxis"], legacy: false };
+    const renoxis = { actor: "key:renoxis", apps: ["renoxis"], legacy: false, clientId: "c1", requireSso: false };
     assert.ok(callerMayUseApp(renoxis, "renoxis"));
     assert.ok(!callerMayUseApp(renoxis, "socixis"));
   });
@@ -302,6 +302,74 @@ describe("legal record", async () => {
   it("audit export needs a signed-in master account", async () => {
     await withEnv({ NEXT_PUBLIC_SUPABASE_URL: "https://x.supabase.co", NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "pk" }, async () => {
       assert.equal((await auditExport(new Request("https://w.test/api/admin/audit"))).status, 401);
+    });
+  });
+});
+
+describe("apixis id", async () => {
+  const { redirectUriAllowed, hashSsoCode, newSsoCode, SSO_CODE_PATTERN, redirectWithParams } = await import("../lib/sso");
+  const { POST: tokenPost } = await import("../app/api/sso/token/route");
+  const { GET: authorizeGet } = await import("../app/sso/authorize/route");
+  const { ownerForCaller } = await import("../lib/api/caller-owner");
+
+  it("only redirects to exact, registered https callbacks", () => {
+    const registered = ["https://renoxis.dev/auth/apixis/callback", "http://localhost:3000/auth/apixis/callback"];
+    assert.ok(redirectUriAllowed("https://renoxis.dev/auth/apixis/callback", registered));
+    assert.ok(redirectUriAllowed("http://localhost:3000/auth/apixis/callback", registered));
+    assert.ok(!redirectUriAllowed("https://renoxis.dev/auth/apixis/callback?x=1", registered));
+    assert.ok(!redirectUriAllowed("https://evil.test/auth/apixis/callback", registered));
+    assert.ok(!redirectUriAllowed("http://renoxis.dev/auth/apixis/callback", ["http://renoxis.dev/auth/apixis/callback"]));
+    assert.ok(!redirectUriAllowed("javascript:alert(1)", registered));
+    assert.equal(redirectWithParams("https://a.test/cb?keep=1", { code: "c", state: "s" }), "https://a.test/cb?keep=1&code=c&state=s");
+  });
+
+  it("makes unguessable one-time codes stored only as a hash", () => {
+    const a = newSsoCode();
+    const b = newSsoCode();
+    assert.notEqual(a, b);
+    assert.match(a, SSO_CODE_PATTERN);
+    assert.match(hashSsoCode(a), /^[0-9a-f]{64}$/);
+  });
+
+  it("authorize refuses bad input without redirecting anywhere", async () => {
+    const r1 = await authorizeGet(new Request("https://w.test/sso/authorize?client_id=Bad!&redirect_uri=https://evil.test&state=abcdefghijklmnop"));
+    assert.equal(r1.status, 400);
+    const r2 = await authorizeGet(new Request("https://w.test/sso/authorize?client_id=renoxis&redirect_uri=https://evil.test&state=short"));
+    assert.equal(r2.status, 400);
+    assert.equal(r2.headers.get("location"), null);
+  });
+
+  it("token exchange refuses the legacy shared key (no client identity)", async () => {
+    await withEnv({ SUPABASE_SECRET_KEY: SERVICE_KEY }, async () => {
+      const none = await tokenPost(req("https://w.test/api/sso/token", { method: "POST", body: "{}" }));
+      assert.equal(none.status, 401);
+      const legacy = await tokenPost(req("https://w.test/api/sso/token", { method: "POST", bearer: SERVICE_KEY, body: "{}" }));
+      assert.equal(legacy.status, 403);
+    });
+  });
+
+  it("per-site keys may act only for people linked by Apixis ID; require_sso blocks email", async () => {
+    const linked = new Set(["11111111-1111-4111-8111-111111111111"]);
+    const supabase = {
+      from: () => ({
+        select: () => ({
+          eq: () => ({
+            eq: (_col: string, value: string) => ({ maybeSingle: async () => ({ data: linked.has(value) ? { user_id: value } : null, error: null }) }),
+          }),
+        }),
+      }),
+    } as unknown as Parameters<typeof ownerForCaller>[0];
+    const site = { actor: "key:renoxis", apps: ["renoxis"], legacy: false, clientId: "c1", requireSso: true };
+    assert.deepEqual(await ownerForCaller(supabase, site, { ownerId: "11111111-1111-4111-8111-111111111111" }, { create: false }), {
+      ownerId: "11111111-1111-4111-8111-111111111111",
+    });
+    const stranger = await ownerForCaller(supabase, site, { ownerId: "22222222-2222-4222-8222-222222222222" }, { create: false });
+    assert.ok("error" in stranger && stranger.status === 403);
+    const byEmail = await ownerForCaller(supabase, site, { ownerEmail: "a@b.co" }, { create: false });
+    assert.ok("error" in byEmail && byEmail.status === 403);
+    const legacy = { actor: "legacy", apps: null, legacy: true, clientId: null, requireSso: false };
+    assert.deepEqual(await ownerForCaller(supabase, legacy, { ownerId: "22222222-2222-4222-8222-222222222222" }, { create: false }), {
+      ownerId: "22222222-2222-4222-8222-222222222222",
     });
   });
 });
