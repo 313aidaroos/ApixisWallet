@@ -6,6 +6,8 @@ Last updated: 2026-09-23 (launch hardening 007, legal record 008, SDK v2).
 
 **New session? Start with §0: it has the owner's decisions and exactly where work stopped.**
 
+**Full family briefing for bots:** [`docs/BOT_UPDATE_2026-09-23.md`](docs/BOT_UPDATE_2026-09-23.md).
+
 ---
 
 ## 0. Owner decisions and where work stopped (keep this current)
