@@ -21,18 +21,22 @@ Last updated: 2026-09-23 (launch hardening 007, legal record 008, SDK v2).
 | D5 | **Keep a legal record of every transaction:** time, date, site, transaction id, invoice/receipt, IP. | Migration 008 `audit_events` plus the routes below (§4b). Export: `/api/admin/audit`. |
 | D6 | Awad owns design/UI; the backend lead owns backend/plumbing (§1). | |
 
-**Status:** backend code is complete and tested on branch `claude/epic-rubin-oen8nu` (not merged to `main`). **Nothing is applied to the live database yet.**
+**Status (2026-09-23):**
+- Backend code is complete and tested on branch `claude/epic-rubin-oen8nu`.
+- **Migrations 007 + 008 are APPLIED on live** (Supabase project `apixis-wallet`, ref `kzneeksminozmhnqaaun`).
+  - Verified after applying: 0 money functions open to anon/authenticated, `audit_events` hidden from customers, append-only triggers active, all transactions balanced.
+  - A rolled-back live dry run passed: credit → reserve → capture → 30-day seat → release-after-capture = WA409 → refund debits.
+- **Before 007 was applied:** the ledger held only test/QA data (57 rows, all `@apixis.dev` accounts: ledger-test, e2e, victim/attack security tests, `awad+<site>` QA). No real customers, no real Stripe purchases, no sign of abuse of the open functions. Awad chose to **keep** the test rows (they're now permanent). Three test holds get released automatically by expiry.
+- Audit reference numbering starts at APX-00000002: APX-00000001 was used by the rolled-back dry run, because sequences don't roll back.
 
 **Next steps, in order:**
-1. **Supabase connector.** Awad is connecting it. With access:
-   - Read-only first: run the §8 step 2–3 queries on live and report the results to Awad.
-   - Show Awad the plan, then apply `007_launch_hardening.sql` and `008_audit_log.sql`, and re-run the check queries.
-2. **Deploy order matters.** Migrations 007 + 008 must be live **before** this branch is deployed. The new code calls the new function signatures and the `audit_events` table, and the webhook returns 500 if it can't write the record. Merge to `main` only after the migrations are applied.
+1. **Merge `claude/epic-rubin-oen8nu` → `main`** (safe now that 007/008 are live). In Vercel, set `CRON_SECRET` and `TERMS_VERSION`, then redeploy.
+2. **Supabase Auth settings** (dashboard): turn on leaked-password protection (Authentication → Policies/Passwords) and keep email confirmation ON.
 3. **Apixis ID (D4).** Design one shared login:
    - The Wallet Supabase project becomes the identity provider.
    - Sister sites use "Sign in with Apixis".
    - The Wallet verifies Apixis ID tokens instead of trusting `owner_email`.
-   - Needs access to the sister-site repos, plus Awad's answer on moving sites to `*.apixis.dev` subdomains, which enables one-click SSO.
+   - Needs access to the sister-site repos, plus Awad's answer on moving sites to `*.apixis.dev` subdomains. Every sister site has its own Supabase project in the same org (renoxis, Socixis, Lyrixis, recovra, deduxis, rawixis, geoxis, nurserytoons, launchixis, halaxis, Contraxis).
 4. Per-site API keys for each sister site, then `WALLET_ALLOW_LEGACY_SERVICE_KEY=false` and rotate the Supabase secret.
 
 ## 1. Who owns what
@@ -214,14 +218,14 @@ const r = await redeemProduct("renoxis.agent.monthly"); // { ok } | { ok:false, 
 - [x] CI: lint, typecheck, unit tests, build, SQL tests.
 
 **Ops (Awad / whoever holds the keys):**
-1. [ ] **Apply `007_launch_hardening.sql` and `008_audit_log.sql`** to the live Wallet Supabase project, *before* deploying this branch.
-2. [ ] **Verify the lock-down on live.** This must return 0 rows:
+1. [x] **Apply `007_launch_hardening.sql` and `008_audit_log.sql`** to the live Wallet Supabase project (done 2026-09-23).
+2. [x] **Verify the lock-down on live** (done: 0 rows). This must return 0 rows:
    ```sql
    select p.oid::regprocedure from pg_proc p join pg_namespace n on n.oid = p.pronamespace
    where n.nspname = 'public' and p.proname in ('credit_xp','refund_xp','reserve_xp','capture_xp','release_xp','get_or_create_wallet','wallet_history','release_expired_holds','release_hold_internal')
      and (has_function_privilege('anon', p.oid, 'execute') or has_function_privilege('authenticated', p.oid, 'execute'));
    ```
-3. [ ] **Audit for damage from before 007.**
+3. [x] **Audit for damage from before 007** (done: test data only, nothing to fix).
    - Any `kind='refund'` rows created before 007 *added* Ixis. They need an `adjustment`:
      ```sql
      select * from public.ledger_transactions where kind = 'refund' order by created_at;
