@@ -80,6 +80,12 @@ export function WalletScreen({ lockTab, unitLabel = "Ixis" }: { lockTab?: Tab; u
         }),
       });
       const data = await response.json().catch(() => null);
+      if (response.status === 401) {
+        // Not signed in: go through magic link (and first-time password), then come straight back here.
+        const here = window.location.pathname + window.location.search;
+        window.location.assign(`/login?next=${encodeURIComponent(here)}`);
+        return;
+      }
       if (!response.ok) {
         setNotice(typeof data?.error === "string" ? data.error : "Stripe dark. Coin checkout is the only card flow.");
         return;
