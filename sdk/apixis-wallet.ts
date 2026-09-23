@@ -129,6 +129,12 @@ export async function redeem<T>(opts: {
   productKey: string;
   idempotencyKey: string;
   provision: (reservation: Reservation) => Promise<T>;
+  /**
+   * Undo what provision() did. Called when capture FAILS after provision succeeded, before the
+   * hold is released — so a customer is never left with access they were not charged for.
+   * Optional for backward compatibility; every site that writes access in provision() should pass it.
+   */
+  unprovision?: (reservation: Reservation, result: T) => Promise<void>;
 }): Promise<{ ok: true; receiptId: string; result: T } | { ok: false; insufficient: true; needed: number; message: string }> {
   let held: Reservation;
   try {
@@ -140,11 +146,17 @@ export async function redeem<T>(opts: {
     }
     throw e;
   }
+  let provisioned: { result: T } | null = null;
   try {
     const result = await opts.provision(held);
+    provisioned = { result };
     const cap = await capture(held.reservationId);
     return { ok: true, receiptId: cap.receiptId, result };
   } catch (e) {
+    if (provisioned && opts.unprovision) {
+      // Capture failed after access was written: take the access back first, then release.
+      await opts.unprovision(held, provisioned.result).catch((u) => console.error("wallet unprovision failed", u));
+    }
     await release(held.reservationId).catch(() => { /* already settled or wallet down; ledger stays consistent */ });
     throw e;
   }

@@ -21,3 +21,7 @@ if (!(await hasEntitlement(user.email!, "renoxis", "renoxis.activate"))) redirec
 Rules baked in: Wallet owns entitlements (you read, never write) · reserve→provision→capture,
 release on any failure · 402 = "Buy Ixis", not an error · never fake success.
 Product keys are the canonical catalog (`lib/catalog.ts`). Run `npx tsc --noEmit` after copying.
+
+
+## Rollback on capture failure
+If `provision()` writes access (a role, a seat row, an unlock), pass `unprovision(reservation, result)` too. `redeem()` calls it when capture fails after provision succeeded, then releases the hold. Without it a customer can end up with access they were never charged for.
