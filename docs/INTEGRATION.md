@@ -219,7 +219,7 @@ Use this to show the user's balance before redemption or to check eligibility.
 
 ```bash
 curl "https://apixis-wallet.vercel.app/api/v1/entitlements?app=socixis" \
-  -H "Authorization: Bearer <USER_SESSION_TOKEN>"
+  -H "Authorization: Bearer <USER_...KEN>"
 ```
 
 **Response (200):**
@@ -237,6 +237,8 @@ curl "https://apixis-wallet.vercel.app/api/v1/entitlements?app=socixis" \
   ]
 }
 ```
+
+**Wallet entitlements prove a purchase happened; expiry is the site's job.** The Wallet writes an entitlement row on `capture_xp()` but does NOT set `renews_at` — sister sites own their seat dates (e.g., Renoxis stores `seat_period_end` in its own `renoxis_entitlements` table). Check expiry on YOUR server before granting access. The Wallet's entitlement is proof of purchase, not the clock.
 
 Returns stored entitlement rows for the signed-in user. Wallet does not invent a balance here. Grant rows are not persisted yet, so the list is empty until capture writes them. That empty list is not an access decision. Renoxis still calls quote → reserve → provision → capture. After a real capture, the grant shape is `renoxis.activate` (`active`, no `renewsAt`) or `renoxis.agent.monthly` (`active`, `renewsAt` about 30 days later). See [docs/RENOXIS.md](RENOXIS.md).
 

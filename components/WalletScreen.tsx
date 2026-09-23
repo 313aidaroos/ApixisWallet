@@ -272,7 +272,7 @@ export function WalletScreen({ lockTab, unitLabel = "Ixis" }: { lockTab?: Tab; u
                           p.name,
                           p.xp,
                           "Shop",
-                          p.category === "merch" ? "We'll fulfill when designs land." : "",
+                          "", // merch/cixy removed from catalog
                         )
                       }
                     >

@@ -83,8 +83,9 @@ export const redeemCatalog = [
  */
 export const shopCategories = [
   { id: "templates", label: "Templates" },
-  { id: "cixy", label: "Cixy" },
-  { id: "merch", label: "Merch" },
+  // Cixy and merch categories hidden until items exist
+  // { id: "cixy", label: "Cixy" },
+  // { id: "merch", label: "Merch" },
 ] as const;
 
 export type ShopCategory = (typeof shopCategories)[number]["id"];
@@ -96,14 +97,14 @@ export const shopCatalog = [
   { key: "shop.template.listing", category: "templates", app: "Renoxis", name: "Listing file", xp: UNIT_XP, color: "#c8ff63", blurb: "One listing template." },
   { key: "shop.template.offer", category: "templates", app: "Renoxis", name: "Offer file", xp: UNIT_XP, color: "#c8ff63", blurb: "One offer template." },
 
-  { key: "shop.cixy.voice", category: "cixy", app: "Cixy", name: "Voice pack", xp: UNIT_XP, color: "#ff6bce", blurb: "Voice customization. Sound lands when Awad fills it." },
-  { key: "shop.cixy.skin", category: "cixy", app: "Cixy", name: "Skin pack", xp: 2500, color: "#ff6bce", blurb: "Look customization. Art lands when Awad fills it." },
-  { key: "shop.cixy.persona", category: "cixy", app: "Cixy", name: "Persona pack", xp: 5000, color: "#b14bff", blurb: "Tone, habits, and replies. Persona lands when Awad fills it." },
-
-  { key: "shop.merch.tee", category: "merch", app: "Apixis", name: "Tee", xp: 2500, color: "#ffbd59", blurb: "Design coming. We'll fulfill when designs land." },
-  { key: "shop.merch.hoodie", category: "merch", app: "Apixis", name: "Hoodie", xp: 5000, color: "#ffbd59", blurb: "Design coming. We'll fulfill when designs land." },
-  { key: "shop.merch.sticker", category: "merch", app: "Apixis", name: "Sticker pack", xp: UNIT_XP, color: "#ffbd59", blurb: "Design coming. We'll fulfill when designs land." },
-  { key: "shop.merch.mug", category: "merch", app: "Apixis", name: "Mug", xp: 1500, color: "#ffbd59", blurb: "Design coming. We'll fulfill when designs land." },
+  // Cixy and merch placeholders removed until designs exist (per billing hardening Item 5)
+  // { key: "shop.cixy.voice", category: "cixy", app: "Cixy", name: "Voice pack", xp: UNIT_XP, color: "#ff6bce", blurb: "Voice customization. Sound lands when Awad fills it." },
+  // { key: "shop.cixy.skin", category: "cixy", app: "Cixy", name: "Skin pack", xp: 2500, color: "#ff6bce", blurb: "Look customization. Art lands when Awad fills it." },
+  // { key: "shop.cixy.persona", category: "cixy", app: "Cixy", name: "Persona pack", xp: 5000, color: "#b14bff", blurb: "Tone, habits, and replies. Persona lands when Awad fills it." },
+  // { key: "shop.merch.tee", category: "merch", app: "Apixis", name: "Tee", xp: 2500, color: "#ffbd59", blurb: "Design coming. We'll fulfill when designs land." },
+  // { key: "shop.merch.hoodie", category: "merch", app: "Apixis", name: "Hoodie", xp: 5000, color: "#ffbd59", blurb: "Design coming. We'll fulfill when designs land." },
+  // { key: "shop.merch.sticker", category: "merch", app: "Apixis", name: "Sticker pack", xp: UNIT_XP, color: "#ffbd59", blurb: "Design coming. We'll fulfill when designs land." },
+  // { key: "shop.merch.mug", category: "merch", app: "Apixis", name: "Mug", xp: 1500, color: "#ffbd59", blurb: "Design coming. We'll fulfill when designs land." },
 ] as const;
 
 /**
