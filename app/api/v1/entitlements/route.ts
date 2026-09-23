@@ -38,7 +38,12 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Service configuration missing" }, { status: 503 });
   }
 
-  let query = supabase.from("entitlements").select("*").eq("owner_id", userId);
+  let query = supabase
+    .from("entitlements")
+    .select("*")
+    .eq("owner_id", userId)
+    .eq("status", "active")
+    .or("renews_at.is.null,renews_at.gt.now()");
   if (app) {
     query = query.eq("app_slug", app.toLowerCase());
   }
