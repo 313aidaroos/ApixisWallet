@@ -1,6 +1,8 @@
-# Apixis Wallet MVP
+# Apixis Wallet
 
 **One balance across every Apixis product.**
+
+> **Bots and developers: read [AGENTS.md](AGENTS.md) first.** It is the source of truth for ownership (design vs backend), money rules, APIs, migrations and the launch checklist.
 
 Detailed vision, including the Phase 5 legal-gated own-chain / own-currency path: [docs/WALLET_VISION_DETAILED.md](docs/WALLET_VISION_DETAILED.md).
 
@@ -8,17 +10,15 @@ Apixis Wallet is the shared commerce layer for Renoxis, Socixis, Lyrixis, Recovr
 
 Source unpacked from `Apixis_Wallet_MVP_GitHub_Ready.zip` onto `main` on 2026-09-19.
 
-## What works in this MVP
+## What works
 
-- Responsive wallet dashboard and point-pack storefront.
-- Cross-platform product catalog and preview activation.
-- Purchased, bonus and reserved XP presentation.
-- Transaction history and renewal insight.
-- Stripe Checkout route with signed-webhook skeleton.
-- Supabase double-entry ledger schema, RLS and entitlements.
-- Clear separation between closed-loop XP and future APX token.
+- Stripe Checkout for Ixis packs, signed webhook, idempotent credit; full refunds and lost disputes reverse the pack.
+- Double-entry, append-only Supabase ledger (migrations 001–007): reserve → capture/release with row locking, expiring holds, entitlements with 30-day periods.
+- Sister-site APIs with per-site scoped API keys, SDK v2 (`sdk/apixis-wallet.ts`).
+- Real balance / history / in-Wallet redeem endpoints (`lib/wallet-client.ts` for the UI).
+- CI: lint, typecheck, unit tests, build, ledger SQL tests incl. concurrency.
 
-The dashboard runs with **demo data** immediately. Real authentication, persisted balances and actual XP fulfillment require completing `docs/BUILD_AND_LAUNCH.md`.
+The dashboard UI (`components/WalletScreen.tsx`) still shows **demo data** until it is wired to `lib/wallet-client.ts` — see AGENTS.md §6.
 
 ## Sister sites
 
@@ -32,9 +32,9 @@ This is one apple on the Apixis trunk:
 
 - Own repo: `313aidaroos/ApixisWallet`
 - Own Vercel project (to create)
-- Shared Supabase project with schema `wallet` (migration currently uses `public`; move before production)
+- Supabase tables live in `public` (a `wallet` schema move is deferred; see AGENTS.md §9)
 - Shared Apixis ID / owner email with Command and the other apps
-- XP is platform credit, not crypto. APX stays disabled.
+- Ixis is closed-loop platform credit, not crypto. No chain, no convert button (see POLICY.md).
 
 ## Quick start
 
@@ -49,9 +49,8 @@ Open `http://localhost:3000`.
 ## Verify
 
 ```bash
-npm run lint
-npm run typecheck
-npm run build
+npm run check      # lint + typecheck + unit tests + build
+npm run test:sql   # ledger SQL tests on a local Postgres (never production)
 ```
 
 ## Non-negotiable rules
@@ -59,10 +58,10 @@ npm run build
 1. Never modify wallet balance directly. Add balanced ledger entries.
 2. Use Stripe webhook event IDs as idempotency keys.
 3. Keep service and Stripe restricted keys server-only.
-4. XP is non-transferable, non-withdrawable platform credit at launch.
-5. APX is a separate future digital asset and never an automatic XP conversion.
-6. Show `100 XP = $1` alongside prices.
-7. Paid XP does not expire; promotional XP may expire only with disclosure.
+4. Ixis is non-transferable, non-withdrawable platform credit at launch.
+5. A future chain token is a separate legal product, never an automatic conversion.
+6. Show `100 Ixis = $1` alongside prices.
+7. Paid Ixis does not expire; promotional Ixis may expire only with disclosure (expiry is not implemented yet — don't issue expiring bonus).
 8. Every charge must be shown before approval and recorded in the ledger.
 
-Read `VISION.md`, `docs/BUILD_AND_LAUNCH.md`, and `GROK_MASTER_PROMPT.md` before continuing development.
+Read `AGENTS.md`, then `VISION.md` and `POLICY.md`, before continuing development.

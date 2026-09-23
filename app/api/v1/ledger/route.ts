@@ -1,59 +1,69 @@
 import { NextResponse } from "next/server";
-import { getAuthenticatedUserId } from "@/lib/supabase/server";
+import { getRequestUserId } from "@/lib/supabase/server";
 import { createServiceSupabase } from "@/lib/supabase/service";
 
+type HistoryRow = {
+  id: string;
+  kind: string;
+  description: string;
+  app_slug: string | null;
+  product_key: string | null;
+  created_at: string;
+  available_delta: number | string;
+  held_delta: number | string;
+  total_count: number | string;
+};
+
+function intParam(raw: string | null, fallback: number, min: number, max: number) {
+  const value = Number.parseInt(raw ?? "", 10);
+  if (!Number.isFinite(value)) return fallback;
+  return Math.min(Math.max(value, min), max);
+}
+
+/**
+ * Receipts for the signed-in Wallet user, newest first, one row per ledger transaction.
+ * `amount` = change to spendable Ixis (purchase +, hold −, release +, capture 0, refund −).
+ * `held`   = change to held Ixis (hold +, capture −, release −).
+ */
 export async function GET(request: Request) {
-  const userId = await getAuthenticatedUserId();
-  if (!userId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  let userId: string | null;
+  try {
+    userId = await getRequestUserId(request);
+  } catch {
+    return NextResponse.json({ error: "Supabase auth is not configured" }, { status: 503 });
   }
+  if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const url = new URL(request.url);
-  const limit = Math.min(parseInt(url.searchParams.get("limit") || "50"), 100);
-  const offset = parseInt(url.searchParams.get("offset") || "0");
+  const limit = intParam(url.searchParams.get("limit"), 50, 1, 100);
+  const offset = intParam(url.searchParams.get("offset"), 0, 0, 1_000_000);
 
   const supabase = createServiceSupabase();
-  if (!supabase) {
-    return NextResponse.json({ error: "Service configuration missing" }, { status: 503 });
-  }
+  if (!supabase) return NextResponse.json({ error: "Service configuration missing" }, { status: 503 });
 
-  // Get wallet_id for this user
-  const { data: wallet, error: walletError } = await supabase
-    .from("wallets")
-    .select("id")
-    .eq("owner_id", userId)
-    .single();
-
-  if (walletError || !wallet) {
-    return NextResponse.json({ transactions: [], total: 0, limit, offset });
-  }
-
-  // Get ledger entries + transaction details
-  const { data: entries, error: entriesError } = await supabase
-    .from("ledger_entries")
-    .select("transaction_id, amount, created_at, ledger_transactions(id, kind, description, app_slug)")
-    .eq("wallet_id", wallet.id)
-    .order("created_at", { ascending: false })
-    .range(offset, offset + limit - 1);
-
-  if (entriesError) {
-    console.error("ledger query failed:", entriesError);
+  const { data, error } = await supabase.rpc("wallet_history", { p_owner_id: userId, p_limit: limit, p_offset: offset });
+  if (error) {
+    console.error("ledger query failed", { code: error.code });
     return NextResponse.json({ error: "Query failed" }, { status: 500 });
   }
 
-  const transactions = (entries || []).map((entry: any) => ({
-    id: entry.ledger_transactions.id,
-    kind: entry.ledger_transactions.kind,
-    description: entry.ledger_transactions.description,
-    app: entry.ledger_transactions.app_slug,
-    amount: entry.amount,
-    createdAt: entry.created_at,
-  }));
-
-  return NextResponse.json({
-    transactions,
-    total: transactions.length, // simplified: real total needs count query
-    limit,
-    offset,
-  });
+  const rows = (data ?? []) as HistoryRow[];
+  return NextResponse.json(
+    {
+      transactions: rows.map((row) => ({
+        id: row.id,
+        kind: row.kind,
+        description: row.description,
+        app: row.app_slug,
+        productKey: row.product_key,
+        amount: Number(row.available_delta),
+        held: Number(row.held_delta),
+        createdAt: row.created_at,
+      })),
+      total: rows.length ? Number(rows[0].total_count) : 0,
+      limit,
+      offset,
+    },
+    { headers: { "cache-control": "no-store" } },
+  );
 }

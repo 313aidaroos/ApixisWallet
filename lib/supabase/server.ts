@@ -1,10 +1,16 @@
+import { createClient } from "@supabase/supabase-js";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
-export async function getAuthenticatedUserId(): Promise<string | null> {
+function publicEnv() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
   if (!url || !key) throw new Error("Supabase public env is missing");
+  return { url, key };
+}
+
+/** The signed-in Wallet user from the Supabase session cookie, or null. */
+export async function getAuthenticatedUserId(): Promise<string | null> {
   let jar;
   try {
     jar = await cookies();
@@ -12,6 +18,7 @@ export async function getAuthenticatedUserId(): Promise<string | null> {
     // Called outside request context (e.g., in tests) → no cookies available
     return null;
   }
+  const { url, key } = publicEnv();
   const supabase = createServerClient(url, key, {
     cookies: {
       getAll: () => jar.getAll(),
@@ -26,4 +33,26 @@ export async function getAuthenticatedUserId(): Promise<string | null> {
   });
   const { data } = await supabase.auth.getUser();
   return data.user?.id ?? null;
+}
+
+const JWT = /^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/;
+
+/**
+ * The Wallet user behind a request: `Authorization: Bearer <Wallet Supabase access token>` when
+ * present, otherwise the session cookie. The token is verified with Supabase (getUser), never decoded
+ * and trusted locally. Only Wallet-issued tokens work; a sister site's own Supabase token does not.
+ */
+export async function getRequestUserId(request: Request): Promise<string | null> {
+  const header = request.headers.get("authorization") ?? "";
+  const match = /^Bearer\s+(.+)$/i.exec(header.trim());
+  if (match) {
+    const token = match[1].trim();
+    if (!JWT.test(token)) return null;
+    const { url, key } = publicEnv();
+    const supabase = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
+    const { data, error } = await supabase.auth.getUser(token);
+    if (error) return null;
+    return data.user?.id ?? null;
+  }
+  return getAuthenticatedUserId();
 }

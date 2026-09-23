@@ -52,7 +52,7 @@ Same fields are accepted on `POST /api/checkout` as JSON (`return_url`, `product
 
 ## Optional balance
 
-Show a balance only from Wallet. Skip the call if you only need a buy button.
+Show a balance only from Wallet. Skip the call if you only need a buy button. This route authenticates the **Wallet** user (Wallet session cookie or Wallet-issued access token); a sister site's own Supabase token is not accepted, so most sister sites should link to Wallet instead of showing a number.
 
 **GET** `https://apixis-wallet.vercel.app/api/v1/wallet`
 
@@ -70,13 +70,13 @@ Contract when the signed-in ledger read is connected:
   "paid": 50000,
   "bonus": 2000,
   "reserved": 0,
-  "rate": { "xpPerDollar": 100 }
+  "rate": { "ixisPerDollar": 100, "xpPerDollar": 100 }
 }
 ```
 
-`rate.xpPerDollar` is `100` (100 Ixis = $1). Show Ixis first and the dollar equivalent beside it: `52,000 Ixis ($520)`.
+`rate.ixisPerDollar` (alias `xpPerDollar`) is `100` (100 Ixis = $1). Show Ixis first and the dollar equivalent beside it: `52,000 Ixis ($520)`.
 
-Until that read is connected, the route returns `200` with `available`, `paid`, `bonus`, and `reserved` set to `null` plus a `message`. Treat `null` as "balance unknown". Do not substitute a local number, a zero you invented, or a per-product cash total.
+The route is live: it returns real numbers from the ledger. `401` means the viewer is not signed in to Wallet.
 
 ## CTA copy
 

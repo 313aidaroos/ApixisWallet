@@ -11,9 +11,9 @@ export type RenoxisGrant = {
 };
 
 /**
- * Grant shape after a successful capture. This does not read or write a balance.
- * Wallet does not persist entitlement rows yet; Renoxis still calls
- * quote → reserve → provision → capture. Idempotency keys:
+ * Grant shape after a successful capture (mirrors the row capture_xp writes; see migration 007).
+ * This does not read or write a balance. Renoxis calls quote → reserve → provision → capture
+ * (SDK v2 redeem()). Idempotency keys:
  * activate `renoxis-{userId}-activate`, seat `renoxis-{userId}-seat-{YYYY-MM}`.
  */
 export function renoxisEntitlementAfterCapture(productKey: string, capturedAt: Date): RenoxisGrant | null {
