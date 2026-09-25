@@ -1,3 +1,4 @@
+// Change note (Claude, Sep 2026): New. Read-only totals (sales, daily cash, per-app) for COMMAND's graph. See docs/LAUNCH_NOTES.md.
 import { timingSafeEqual } from "node:crypto";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
