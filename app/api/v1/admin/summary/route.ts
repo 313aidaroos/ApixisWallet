@@ -1,3 +1,4 @@
+// Change note (Claude, Sep 2026): New. `GET /api/v1/admin/summary`, guarded by `WALLET_STATS_KEY`. Cannot move money. See docs/LAUNCH_NOTES.md.
 import { NextResponse } from "next/server";
 import { createServiceSupabase } from "@/lib/supabase/service";
 import { checkStatsKey, loadWalletSummary, parseDays } from "@/lib/admin-summary";

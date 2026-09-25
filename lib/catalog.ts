@@ -1,3 +1,4 @@
+// Change note (Claude, Sep 2026): Added `socixis.avatar.pack.all` ($50, all skins). Socixis already honored it; the Wallet never listed it. See docs/LAUNCH_NOTES.md.
 /** 100 Ixis = $1. Same SKU prices on every apple. */
 export const pointPacks = [
   { id: "spark", name: "Spark", price: 10, xp: 1000, bonus: 0 },
