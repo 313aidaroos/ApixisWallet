@@ -1,5 +1,6 @@
 "use client";
 
+import { safeLocalRedirect } from "@/lib/apixis-redirect";
 import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -7,7 +8,7 @@ import { setPassword } from "@/app/login/actions";
 
 function SetPasswordPageInner() {
   const params = useSearchParams();
-  const next = params.get("next") ?? "/";
+  const next = safeLocalRedirect(params.get("next"));
   const [notice, setNotice] = useState("");
 
   return (

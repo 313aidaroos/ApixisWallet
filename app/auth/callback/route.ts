@@ -1,3 +1,4 @@
+import { safeLocalRedirect } from "@/lib/apixis-redirect";
 import { NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
@@ -6,8 +7,7 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   const code = url.searchParams.get("code");
   const token_hash = url.searchParams.get("token_hash");
-  const rawNext = url.searchParams.get("next") ?? "/";
-  const next = rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : "/";
+  const next = safeLocalRedirect(url.searchParams.get("next"));
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
   if (!supabaseUrl || !key) return NextResponse.redirect(new URL("/login", url.origin));

@@ -1,5 +1,6 @@
 "use client";
 
+import { safeLocalRedirect } from "@/lib/apixis-redirect";
 import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { login, magicLink, signup } from "./actions";
@@ -8,7 +9,7 @@ const field = { padding: 12, borderRadius: 8, border: "1px solid #272e36", backg
 
 function LoginPageInner() {
   const params = useSearchParams();
-  const next = params.get("next") ?? "/";
+  const next = safeLocalRedirect(params.get("next"));
   const [mode, setMode] = useState<"magic" | "password" | "signup" | "master">("magic");
   const [notice, setNotice] = useState("");
   const [sent, setSent] = useState(false);
