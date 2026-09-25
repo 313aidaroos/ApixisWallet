@@ -1,6 +1,6 @@
 # AGENTS.md — read this first
 
-> Rollout update (2026-09-25): migration `009_apixis_id` is now applied to the live Wallet database. The PR conflict with the owner-summary API documentation is resolved with both endpoint groups preserved. Wallet #7 and Renoxis #18 are being validated for merge; older pending-migration notes below are historical.
+> Rollout update (2026-09-25): migration `009_apixis_id` is now applied to the live Wallet database. The PR conflict with the owner-summary API documentation is resolved with both endpoint groups preserved. Wallet #7 and Renoxis #18 are merged and deployed. Redirect hardening adds `sdk/apixis-redirect.ts`; copy it alongside the Next.js login helper. Older pending-migration notes below are historical.
 
 For every bot and developer working on **Apixis Wallet** (Claude, Grok, Cursor, Hermes, Developer Bot, humans).
 If anything here disagrees with an older doc (`GROK_MASTER_PROMPT.md`, `docs/BUILD_AND_LAUNCH.md`, `docs/RENOXIS.md`), **this file wins**.
