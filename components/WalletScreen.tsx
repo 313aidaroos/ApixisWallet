@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { ArrowDownLeft, ArrowUpRight, Coins, LayoutGrid, List, Megaphone, ShoppingBag, TrendingUp, WalletCards } from "lucide-react";
 import { pointPacks, redeemCatalog, shopCatalog, shopCategories, type ShopCategory } from "@/lib/catalog";
@@ -9,6 +9,7 @@ import { returnHost } from "@/lib/checkout/return-url";
 import { last24h, productTape, xpTape } from "@/lib/market";
 import { bulletins, ticker } from "@/lib/news";
 import { Tape } from "@/components/Tape";
+import { fetchBalance, fetchHistory, redeemProduct, WalletClientError, type HistoryItem } from "@/lib/wallet-client";
 
 type Tab = "home" | "buy" | "redeem" | "shop" | "market" | "news" | "activity";
 type ShopFilter = "all" | ShopCategory;
@@ -33,11 +34,31 @@ function openingNotice(checkout: string | null) {
   return "";
 }
 
-const seed = [
-  { title: "Renoxis Monthly", meta: "Redeem", xp: -5000 },
-  { title: "Studio coins", meta: "Purchase", xp: 50000 },
-  { title: "Image meter", meta: "Meter", xp: -150 },
-];
+type LogRow = { title: string; meta: string; xp: number };
+
+const KIND_LABEL: Record<string, string> = {
+  purchase: "Purchase",
+  bonus: "Bonus",
+  spend: "Redeem",
+  refund: "Refund",
+  adjustment: "Adjustment",
+};
+
+/** Ledger receipts → activity rows. Holds and releases are internal steps; the spend is the redeem. */
+function toLogRows(items: HistoryItem[]): LogRow[] {
+  return items
+    .filter((item) => item.kind !== "reserve" && item.kind !== "release")
+    .map((item) => ({
+      title: item.description,
+      meta: [KIND_LABEL[item.kind] ?? item.kind, item.app].filter(Boolean).join(" · "),
+      xp: item.kind === "spend" ? item.held : item.amount,
+    }));
+}
+
+function signInHere() {
+  const here = window.location.pathname + window.location.search;
+  window.location.assign(`/login?next=${encodeURIComponent(here)}`);
+}
 
 const usd = (n: number) =>
   n.toLocaleString(undefined, { style: "currency", currency: "USD", maximumFractionDigits: 0 });
@@ -49,11 +70,13 @@ export function WalletScreen({ lockTab, unitLabel = "Ixis" }: { lockTab?: Tab; u
   const product = params.get("product") ?? params.get("app") ?? params.get("destination") ?? "";
   const queryTab = params.get("tab");
   const [tab, setTab] = useState<Tab>(lockTab ?? (isTab(queryTab) ? queryTab : "home"));
-  const [paid, setPaid] = useState(40350);
-  const [bonus] = useState(0);
-  const [reserved] = useState(0);
+  const [paid, setPaid] = useState(0);
+  const [bonus, setBonus] = useState(0);
+  const [reserved, setReserved] = useState(0);
+  const [signedIn, setSignedIn] = useState<boolean | null>(null);
+  const [redeeming, setRedeeming] = useState<string | null>(null);
   const [notice, setNotice] = useState(() => openingNotice(params.get("checkout")));
-  const [log, setLog] = useState(seed);
+  const [log, setLog] = useState<LogRow[]>([]);
   const [shopFilter, setShopFilter] = useState<ShopFilter>("all");
   const [showAllRedeem, setShowAllRedeem] = useState(false);
   const available = paid + bonus;
@@ -65,6 +88,31 @@ export function WalletScreen({ lockTab, unitLabel = "Ixis" }: { lockTab?: Tab; u
     ? redeemCatalog.filter((item) => appSlug(item.app) === destination.slug)
     : redeemCatalog;
   const redeemItems = scopedRedeem.length ? scopedRedeem : redeemCatalog;
+
+  /** Balance and receipts come only from the Wallet ledger. Nothing is computed in the browser. */
+  const refresh = useCallback(async () => {
+    try {
+      const [balance, history] = await Promise.all([fetchBalance(), fetchHistory({ limit: 50 })]);
+      setPaid(balance.paid);
+      setBonus(balance.bonus);
+      setReserved(balance.reserved);
+      setLog(toLogRows(history.transactions));
+      setSignedIn(true);
+    } catch (error) {
+      if (error instanceof WalletClientError && error.needsSignIn) {
+        setSignedIn(false);
+        setNotice((current) => current || `Sign in to see your ${unit} balance.`);
+        return;
+      }
+      setNotice("Wallet is unreachable right now. Your balance is safe; try again in a moment.");
+    }
+  }, [unit]);
+
+  useEffect(() => {
+    // Fetch-on-mount: the ledger is the only source of the balance.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void refresh();
+  }, [refresh]);
 
   const buy = async (id: string) => {
     setNotice("Opening coin checkout…");
@@ -82,8 +130,7 @@ export function WalletScreen({ lockTab, unitLabel = "Ixis" }: { lockTab?: Tab; u
       const data = await response.json().catch(() => null);
       if (response.status === 401) {
         // Not signed in: go through magic link (and first-time password), then come straight back here.
-        const here = window.location.pathname + window.location.search;
-        window.location.assign(`/login?next=${encodeURIComponent(here)}`);
+        signInHere();
         return;
       }
       if (!response.ok) {
@@ -96,20 +143,38 @@ export function WalletScreen({ lockTab, unitLabel = "Ixis" }: { lockTab?: Tab; u
     }
   };
 
-  const redeem = async (key: string, name: string, xp: number, meta = "Redeem", extra = "") => {
+  const redeem = async (key: string, name: string, xp: number, extra = "") => {
+    if (signedIn === false) {
+      signInHere();
+      return;
+    }
+    if (redeeming) return;
     if (available < xp) {
       setNotice(`Need ${(xp - available).toLocaleString()} more ${unit}.`);
       setTab("buy");
       return;
     }
-    setPaid((p) => p - xp);
-    setLog((rows) => [{ title: name, meta, xp: -xp }, ...rows]);
-    setNotice(extra ? `${name} · ${xp.toLocaleString()} ${unit}. ${extra}` : `${name} · ${xp.toLocaleString()} ${unit}`);
-    void fetch("/api/v1/quotes", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ productKey: key }),
-    });
+    setRedeeming(key);
+    setNotice(`Redeeming ${name}…`);
+    try {
+      const result = await redeemProduct(key);
+      if (result.ok) {
+        setNotice(extra ? `${name} · ${xp.toLocaleString()} ${unit}. ${extra}` : `${name} · ${xp.toLocaleString()} ${unit}. Done.`);
+      } else if (result.reason === "signin") {
+        signInHere();
+        return;
+      } else if (result.reason === "insufficient") {
+        setNotice(`Not enough ${unit} for ${name}. Buy a pack first.`);
+        setTab("buy");
+      } else {
+        setNotice(result.message);
+      }
+    } catch {
+      setNotice("Wallet is unreachable right now. Nothing was charged; try again in a moment.");
+    } finally {
+      setRedeeming(null);
+      await refresh();
+    }
   };
 
   const shopItems = shopFilter === "all" ? shopCatalog : shopCatalog.filter((item) => item.category === shopFilter);
@@ -240,7 +305,7 @@ export function WalletScreen({ lockTab, unitLabel = "Ixis" }: { lockTab?: Tab; u
                 <p>{p.app}</p>
                 <h3>{p.name}</h3>
                 <b>{p.xp.toLocaleString()} {unit}</b>
-                <button onClick={() => redeem(p.key, p.name, p.xp)}>Redeem</button>
+                <button disabled={redeeming === p.key} onClick={() => redeem(p.key, p.name, p.xp)}>Redeem</button>
               </article>
             ))}
           </div>
@@ -271,17 +336,7 @@ export function WalletScreen({ lockTab, unitLabel = "Ixis" }: { lockTab?: Tab; u
                     <b>{p.xp.toLocaleString()} {unit}</b>
                     <span>{usd(p.xp / 100)}</span>
                     <p>{p.blurb}</p>
-                    <button
-                      onClick={() =>
-                        redeem(
-                          p.key,
-                          p.name,
-                          p.xp,
-                          "Shop",
-                          "", // merch/cixy removed from catalog
-                        )
-                      }
-                    >
+                    <button disabled={redeeming === p.key} onClick={() => redeem(p.key, p.name, p.xp)}>
                       Buy with {unit}
                     </button>
                   </article>

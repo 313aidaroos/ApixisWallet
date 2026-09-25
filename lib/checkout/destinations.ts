@@ -83,11 +83,10 @@ export function destinationChoices(): Destination[] {
 export function resolveDestination(raw: string | null | undefined): Destination | null {
   const key = (raw ?? "").trim().toLowerCase().replace(/[\s_]+/g, "-");
   if (!key) return null;
-  const slug = ALIASES[key] ?? ALIASES[key.replace(/-/g, "")];
+  // Known aliases first, then any app that has SKUs in the catalog (lyrixis, rawixis, geoxis, …).
+  const slug = ALIASES[key] ?? ALIASES[key.replace(/-/g, "")] ?? canonicalAppSlug(key);
   if (!slug) return null;
-  const known = destinationChoices().some((item) => item.slug === slug);
-  if (!known) return null;
-  return { slug, label: LABELS[slug] ?? slug };
+  return destinationChoices().find((item) => item.slug === slug) ?? null;
 }
 
 export function productsForDestination(slug: string) {

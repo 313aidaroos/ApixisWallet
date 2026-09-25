@@ -2,10 +2,8 @@ import { NextResponse } from "next/server";
 import { getRequestUserId } from "@/lib/supabase/server";
 import { createServiceSupabase } from "@/lib/supabase/service";
 import { authenticateService, looksLikeServiceBearer } from "@/lib/api/service-auth";
-import { resolveOwnerByEmail } from "@/lib/api/owner";
+import { ownerForCaller } from "@/lib/api/caller-owner";
 import { canonicalAppSlug } from "@/lib/checkout/destinations";
-
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /**
  * Active entitlements: status = active AND (renews_at is null OR renews_at > now).
@@ -28,20 +26,17 @@ export async function GET(request: Request) {
     if (app && apps && !apps.includes(app)) {
       return NextResponse.json({ error: `This API key cannot read ${app} entitlements` }, { status: 403 });
     }
-    const email = url.searchParams.get("owner_email");
-    const requested = url.searchParams.get("owner_id");
     const svc = createServiceSupabase();
     if (!svc) return NextResponse.json({ error: "Service configuration missing" }, { status: 503 });
-    if (email) {
-      const r = await resolveOwnerByEmail(svc, email, { create: false });
-      if ("error" in r) return NextResponse.json({ error: r.error }, { status: 400 });
-      if (!r.ownerId) return NextResponse.json({ entitlements: [], persisted: false, app: app ?? undefined });
-      userId = r.ownerId;
-    } else if (requested && UUID.test(requested) && auth.caller.legacy) {
-      userId = requested;
-    } else {
-      return NextResponse.json({ error: "owner_email required for service calls" }, { status: 400 });
-    }
+    const owner = await ownerForCaller(
+      svc,
+      auth.caller,
+      { ownerId: url.searchParams.get("owner_id"), ownerEmail: url.searchParams.get("owner_email") },
+      { create: false },
+    );
+    if ("error" in owner) return NextResponse.json({ error: owner.error }, { status: owner.status });
+    if (!owner.ownerId) return NextResponse.json({ entitlements: [], persisted: false, app: app ?? undefined });
+    userId = owner.ownerId;
   } else {
     try {
       userId = await getRequestUserId(request);

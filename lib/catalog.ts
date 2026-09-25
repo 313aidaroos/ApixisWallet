@@ -51,6 +51,8 @@ export const redeemCatalog = [
   { key: "socixis.site.agency", app: "Socixis", name: "Site pack: Agency", xp: UNIT_XP, color: "#2563eb", includes: "Case-study pack" },
   { key: "renoxis.file.listing", app: "Renoxis", name: "Listing file", xp: UNIT_XP, color: "#c8ff63", includes: "One listing template" },
   { key: "renoxis.file.offer", app: "Renoxis", name: "Offer file", xp: UNIT_XP, color: "#c8ff63", includes: "One offer template" },
+  { key: "renoxis.email_draft", app: "Renoxis", name: "Email draft", xp: 50, color: "#c8ff63", includes: "One Cixy email draft (per-use, floor-exempt)" },
+  { key: "renoxis.offer_letter", app: "Renoxis", name: "Offer letter draft", xp: 100, color: "#c8ff63", includes: "One Cixy offer-letter draft (per-use, floor-exempt)" },
   { key: "contentbot.clip", app: "PersonalContentBot", name: "60s Video Clip", xp: 800, color: "#a855f7", includes: "Script + storyboard + render (9:16 or 16:9)" },
   { key: "contentbot.text", app: "PersonalContentBot", name: "AI Text Job", xp: 40, color: "#a855f7", includes: "Script generation only" },
   { key: "contentbot.image", app: "PersonalContentBot", name: "AI Image", xp: 150, color: "#a855f7", includes: "Generated image for visuals" },

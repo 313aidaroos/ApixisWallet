@@ -11,7 +11,8 @@
     "test": "tsx --test test/*.test.ts",
     "test:sql": "bash scripts/test-sql.sh",
     "api-key": "tsx scripts/create-api-key.ts",
-    "check": "npm run lint && npm run typecheck && npm test && npm run build"
+    "check": "npm run lint && npm run typecheck && npm test && npm run build",
+    "family-keys": "tsx scripts/create-family-keys.ts"
   },
   "dependencies": {
     "@supabase/ssr": "0.12.7",
