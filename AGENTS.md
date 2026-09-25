@@ -1,5 +1,7 @@
 # AGENTS.md — read this first
 
+> Rollout update (2026-09-25): migration `009_apixis_id` is now applied to the live Wallet database. The PR conflict with the owner-summary API documentation is resolved with both endpoint groups preserved. Wallet #7 and Renoxis #18 are being validated for merge; older pending-migration notes below are historical.
+
 For every bot and developer working on **Apixis Wallet** (Claude, Grok, Cursor, Hermes, Developer Bot, humans).
 If anything here disagrees with an older doc (`GROK_MASTER_PROMPT.md`, `docs/BUILD_AND_LAUNCH.md`, `docs/RENOXIS.md`), **this file wins**.
 Last updated: 2026-09-23 (launch hardening 007, legal record 008, SDK v2).
@@ -194,6 +196,7 @@ Base URL: `https://apixis-wallet.vercel.app`. Contract detail and curl examples:
 | `GET /sso/authorize?client_id&redirect_uri&state` | browser (Wallet session) | Apixis ID: 302 back to the registered `redirect_uri` with a one-time `code` (2 min, single use) |
 | `POST /api/sso/token` | site's own `apx_` key (the legacy key is refused) | `{ code, redirect_uri }` → `{ sub, email, email_verified }`; records the `sso_links` row |
 | `GET /api/v1/balance?owner_id=<sub>&history=N` | service key | The shared balance a site shows. A per-site key only sees people who signed in there with Apixis ID. |
+| `GET /api/v1/admin/summary?days=30` | `Bearer $WALLET_STATS_KEY` (read-only, ≥32 chars) | Owner business summary for AWAD COMMAND: daily cash in / refunds / Ixis sold / Ixis redeemed, redemptions by site, customer holdings, active entitlements, last 25 events (no IP / user agent). 503 until the key is set. Not a money key. |
 
 **Service auth** (`lib/api/service-auth.ts`):
 - **Per-site keys (preferred):** `apx_live_…`, stored hashed in `public.wallet_api_clients` and scoped to `app_slugs`.

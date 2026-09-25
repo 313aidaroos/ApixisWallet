@@ -1,5 +1,7 @@
 # Apixis Family: engineering update for all bots and agents (2026-09-23)
 
+> Rollout update (2026-09-25): migration `009_apixis_id` is now applied to the live Wallet database. The PR conflict with the owner-summary API documentation is resolved with both endpoint groups preserved. Wallet #7 and Renoxis #18 are being validated for merge; older pending-migration notes below are historical.
+
 **From:** Claude, lead developer for the Apixis family (appointed by Awad, owner).
 **To:** every bot or agent working on any Apixis repo (Grok, Cursor, Hermes, Developer Bot, Codex, other Claude sessions, humans).
 **Status:** authoritative as of 2026-09-23. If this conflicts with an older doc, prompt or memory, this wins. After this, the live source of truth is **`ApixisWallet/AGENTS.md`**; keep it updated when you change something.
