@@ -26,7 +26,7 @@ No pending changes.
 ## Open items
 
 - AwadBot is not in `create-family-keys.ts` or the catalog on purpose: AwadBot does not deliver anything yet (see AwadBot notes). Add both when it does.
-- Socixis avatar/skin/site-pack products are in `heldCatalog`. Move each back into `redeemCatalog` once Socixis gates on it.
+- Socixis avatar base and site packs are in `heldCatalog`. Move each back into `redeemCatalog` once Socixis gates on it.
 
 ## What changed, file by file
 
@@ -40,9 +40,9 @@ Each changed backend code file also starts with a one-line `Change note (Claude,
 | `app/api/v1/admin/summary/route.ts` | New. `GET /api/v1/admin/summary`, guarded by `WALLET_STATS_KEY`. Cannot move money. |
 | `docs/LAUNCH_NOTES.md` | This file. |
 | `lib/admin-summary.ts` | New. Read-only totals (sales, daily cash, per-app) for COMMAND's graph. |
-| `lib/catalog.ts` | Socixis avatar, skin and site-pack products (14) moved to `heldCatalog`: not for sale until Socixis checks ownership. They took Ixis and delivered nothing. |
+| `lib/catalog.ts` | Socixis avatar base and 6 site packs held in `heldCatalog` (not for sale). The 6 skins and the all-skins pack sell again now that Socixis checks them. |
 | `test/admin-summary.test.ts` | New. Tests for the summary math and the key check. |
-| `test/held-catalog.test.ts` | New. Held products are refused; Socixis Autopilot still sells. |
+| `test/held-catalog.test.ts` | New. Held products are refused; Autopilot, skins and the all-skins pack sell. |
 
 **Removed:** `Apixis_Wallet_MVP_GitHub_Ready.zip`: stale copy of the app already on main.
 
