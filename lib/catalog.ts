@@ -1,4 +1,4 @@
-// Change note (Claude, Sep 2026): Socixis avatar/skin/site-pack products moved to heldCatalog (not for sale) until Socixis delivers them. See docs/LAUNCH_NOTES.md.
+// Change note (Claude, Sep 2026): Socixis avatar base and site packs held (not for sale); skins and the all-skins pack sell again now that Socixis checks them. See docs/LAUNCH_NOTES.md.
 /** 100 Ixis = $1. Same SKU prices on every apple. */
 export const pointPacks = [
   { id: "spark", name: "Spark", price: 10, xp: 1000, bonus: 0 },
@@ -20,6 +20,13 @@ export const redeemCatalog = [
   { key: "renoxis.activate", app: "Renoxis", name: "Renoxis Activate", xp: 5000, color: "#c8ff63", includes: "One-time activation · $50" },
   { key: "renoxis.agent.monthly", app: "Renoxis", name: "Renoxis Monthly", xp: 5000, color: "#c8ff63", includes: "Month seat · $50/mo", days: 30 },
   { key: "socixis.autopilot.monthly", app: "Socixis", name: "Social Autopilot", xp: 45000, color: "#ff6bce", includes: "20 posts + 20 images", days: 30 },
+  { key: "socixis.avatar.skin.cartoon", app: "Socixis", name: "Skin: Cartoon", xp: UNIT_XP, color: "#ff8a3d", includes: "Look unlock" },
+  { key: "socixis.avatar.skin.anime", app: "Socixis", name: "Skin: Anime", xp: UNIT_XP, color: "#ff8a3d", includes: "Look unlock" },
+  { key: "socixis.avatar.skin.hero", app: "Socixis", name: "Skin: Comic hero", xp: UNIT_XP, color: "#ff8a3d", includes: "Look unlock" },
+  { key: "socixis.avatar.skin.retro", app: "Socixis", name: "Skin: Retro player", xp: UNIT_XP, color: "#ff8a3d", includes: "Look unlock" },
+  { key: "socixis.avatar.skin.character", app: "Socixis", name: "Skin: 3D character", xp: UNIT_XP, color: "#ff8a3d", includes: "Look unlock" },
+  { key: "socixis.avatar.skin.digital", app: "Socixis", name: "Skin: Digital", xp: UNIT_XP, color: "#ff8a3d", includes: "Look unlock" },
+  { key: "socixis.avatar.pack.all", app: "Socixis", name: "Skin pack: All skins", xp: 5000, color: "#ff8a3d", includes: "Every current skin · $50" },
   { key: "recovra.intel.monthly", app: "Recovra", name: "Recovery Intelligence · Starter", xp: 22000, color: "#58c8ff", includes: "Seat + 120 extracts · $220/mo", days: 30 },
   { key: "recovra.intel.growth", app: "Recovra", name: "Recovery Intelligence · Growth", xp: 44000, color: "#58c8ff", includes: "Multi-module · workflows · reporting · $440/mo", days: 30 },
   { key: "deduxis.receipts.monthly", app: "Deduxis", name: "Receipt Intelligence", xp: 15000, color: "#ffbd59", includes: "Seat + 200 receipts", days: 30 },
@@ -71,20 +78,14 @@ export const redeemCatalog = [
 ] as const;
 
 /**
- * Held back: not for sale. Socixis does not check ownership of these yet (its redeem step has
- * TODOs for avatar/site-pack entitlements and nothing calls skinLocked()), so selling them would
- * take Ixis and deliver nothing. findCatalogProduct() ignores this list, so reservations and the
- * Wallet redeem tab refuse them. Move an item back into redeemCatalog once Socixis gates on it.
+ * Held back: not for sale. Socixis does not gate on these yet: the avatar base ("+1 restyle")
+ * and site packs (its AI assigns one of these templates to every website, so gating them is a
+ * pricing decision). findCatalogProduct() ignores this list, so reservations and the Wallet
+ * redeem tab refuse them. Move an item back into redeemCatalog once Socixis gates on it.
+ * Skins and the all-skins pack were released on 2026-09-26: Socixis checks them in setAvatarStyle.
  */
 export const heldCatalog = [
   { key: "socixis.avatar.base", app: "Socixis", name: "Avatar base", xp: UNIT_XP, color: "#ff8a3d", includes: "Photo → real me + 1 restyle" },
-  { key: "socixis.avatar.skin.cartoon", app: "Socixis", name: "Skin: Cartoon", xp: UNIT_XP, color: "#ff8a3d", includes: "Look unlock" },
-  { key: "socixis.avatar.skin.anime", app: "Socixis", name: "Skin: Anime", xp: UNIT_XP, color: "#ff8a3d", includes: "Look unlock" },
-  { key: "socixis.avatar.skin.hero", app: "Socixis", name: "Skin: Comic hero", xp: UNIT_XP, color: "#ff8a3d", includes: "Look unlock" },
-  { key: "socixis.avatar.skin.retro", app: "Socixis", name: "Skin: Retro player", xp: UNIT_XP, color: "#ff8a3d", includes: "Look unlock" },
-  { key: "socixis.avatar.skin.character", app: "Socixis", name: "Skin: 3D character", xp: UNIT_XP, color: "#ff8a3d", includes: "Look unlock" },
-  { key: "socixis.avatar.skin.digital", app: "Socixis", name: "Skin: Digital", xp: UNIT_XP, color: "#ff8a3d", includes: "Look unlock" },
-  { key: "socixis.avatar.pack.all", app: "Socixis", name: "Skin pack: All skins", xp: 5000, color: "#ff8a3d", includes: "Every current skin · $50" },
   { key: "socixis.site.saas", app: "Socixis", name: "Site pack: SaaS", xp: UNIT_XP, color: "#2563eb", includes: "Animated interactive pack" },
   { key: "socixis.site.restaurant", app: "Socixis", name: "Site pack: Restaurant", xp: UNIT_XP, color: "#2563eb", includes: "Menu-first pack" },
   { key: "socixis.site.portfolio", app: "Socixis", name: "Site pack: Portfolio", xp: UNIT_XP, color: "#2563eb", includes: "Work pack" },

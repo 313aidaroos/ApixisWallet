@@ -5,17 +5,28 @@ import { productsForDestination } from "../lib/checkout/destinations";
 
 describe("held catalog", () => {
   it("never sells a held product", () => {
-    assert.equal(heldCatalog.length, 14);
+    assert.equal(heldCatalog.length, 7);
     for (const item of heldCatalog) {
       assert.equal(findCatalogProduct(item.key), undefined, item.key);
-      assert.ok(!redeemCatalog.some((p) => p.key === item.key), item.key);
+      assert.ok(!redeemCatalog.some((p) => (p.key as string) === item.key), item.key);
     }
   });
 
-  it("keeps the Socixis products that are delivered", () => {
-    assert.ok(findCatalogProduct("socixis.autopilot.monthly"));
-    const socixis = productsForDestination("socixis").map((p) => p.key);
-    assert.ok(socixis.includes("socixis.autopilot.monthly"));
-    assert.ok(!socixis.some((k) => k.startsWith("socixis.avatar.") || k.startsWith("socixis.site.")));
+  it("sells the Socixis products Socixis delivers: Autopilot, skins and the all-skins pack", () => {
+    const socixis: string[] = productsForDestination("socixis").map((p) => p.key);
+    for (const key of [
+      "socixis.autopilot.monthly",
+      "socixis.avatar.pack.all",
+      ...["cartoon", "anime", "hero", "retro", "character", "digital"].map((s) => `socixis.avatar.skin.${s}`),
+    ]) {
+      assert.ok(findCatalogProduct(key), key);
+      assert.ok(socixis.includes(key), key);
+    }
+  });
+
+  it("keeps the avatar base and site packs held", () => {
+    for (const key of ["socixis.avatar.base", "socixis.site.saas", "socixis.site.agency"]) {
+      assert.equal(findCatalogProduct(key), undefined, key);
+    }
   });
 });
