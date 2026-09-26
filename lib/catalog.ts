@@ -1,4 +1,4 @@
-// Change note (Claude, Sep 2026): Added `socixis.avatar.pack.all` ($50, all skins). Socixis already honored it; the Wallet never listed it. See docs/LAUNCH_NOTES.md.
+// Change note (Claude, Sep 2026): Socixis avatar/skin/site-pack products moved to heldCatalog (not for sale) until Socixis delivers them. See docs/LAUNCH_NOTES.md.
 /** 100 Ixis = $1. Same SKU prices on every apple. */
 export const pointPacks = [
   { id: "spark", name: "Spark", price: 10, xp: 1000, bonus: 0 },
@@ -37,21 +37,6 @@ export const redeemCatalog = [
   { key: "contraxis.seat.pro", app: "Contraxis", name: "Pro Professional", xp: 39900, color: "#22d3ee", includes: "Was $399/mo card. Now XP.", days: 30 },
 
   { key: "apixis.file.unit", app: "Family", name: "Any file / template / skin", xp: UNIT_XP, color: "#9dff4a", includes: "$10 unit · same on every site" },
-  { key: "socixis.avatar.base", app: "Socixis", name: "Avatar base", xp: UNIT_XP, color: "#ff8a3d", includes: "Photo → real me + 1 restyle" },
-  { key: "socixis.avatar.skin.cartoon", app: "Socixis", name: "Skin: Cartoon", xp: UNIT_XP, color: "#ff8a3d", includes: "Look unlock" },
-  { key: "socixis.avatar.skin.anime", app: "Socixis", name: "Skin: Anime", xp: UNIT_XP, color: "#ff8a3d", includes: "Look unlock" },
-  { key: "socixis.avatar.skin.hero", app: "Socixis", name: "Skin: Comic hero", xp: UNIT_XP, color: "#ff8a3d", includes: "Look unlock" },
-  { key: "socixis.avatar.skin.retro", app: "Socixis", name: "Skin: Retro player", xp: UNIT_XP, color: "#ff8a3d", includes: "Look unlock" },
-  { key: "socixis.avatar.skin.character", app: "Socixis", name: "Skin: 3D character", xp: UNIT_XP, color: "#ff8a3d", includes: "Look unlock" },
-  { key: "socixis.avatar.skin.digital", app: "Socixis", name: "Skin: Digital", xp: UNIT_XP, color: "#ff8a3d", includes: "Look unlock" },
-  // Socixis honors this key as "every skin" (socixis-app/src/lib/avatar/shop.ts).
-  { key: "socixis.avatar.pack.all", app: "Socixis", name: "Skin pack: All skins", xp: 5000, color: "#ff8a3d", includes: "Every current skin · $50" },
-  { key: "socixis.site.saas", app: "Socixis", name: "Site pack: SaaS", xp: UNIT_XP, color: "#2563eb", includes: "Animated interactive pack" },
-  { key: "socixis.site.restaurant", app: "Socixis", name: "Site pack: Restaurant", xp: UNIT_XP, color: "#2563eb", includes: "Menu-first pack" },
-  { key: "socixis.site.portfolio", app: "Socixis", name: "Site pack: Portfolio", xp: UNIT_XP, color: "#2563eb", includes: "Work pack" },
-  { key: "socixis.site.local", app: "Socixis", name: "Site pack: Local service", xp: UNIT_XP, color: "#2563eb", includes: "Geo pack" },
-  { key: "socixis.site.shop", app: "Socixis", name: "Site pack: Shop lite", xp: UNIT_XP, color: "#2563eb", includes: "Catalog pack" },
-  { key: "socixis.site.agency", app: "Socixis", name: "Site pack: Agency", xp: UNIT_XP, color: "#2563eb", includes: "Case-study pack" },
   { key: "renoxis.file.listing", app: "Renoxis", name: "Listing file", xp: UNIT_XP, color: "#c8ff63", includes: "One listing template" },
   { key: "renoxis.file.offer", app: "Renoxis", name: "Offer file", xp: UNIT_XP, color: "#c8ff63", includes: "One offer template" },
   { key: "renoxis.email_draft", app: "Renoxis", name: "Email draft", xp: 50, color: "#c8ff63", includes: "One Cixy email draft (per-use, floor-exempt)" },
@@ -83,6 +68,29 @@ export const redeemCatalog = [
   { key: "launchixis.brandkit", app: "Launchixis", name: "Brand Kit One-off", xp: 1000, color: "#7c3aed", includes: "One-off brand kit · $10" },
   { key: "launchixis.seat.monthly", app: "Launchixis", name: "Launch Ops Seat", xp: 10000, color: "#7c3aed", includes: "Monthly operator seat · $100/mo", days: 30 },
   { key: "launchixis.suite.monthly", app: "Launchixis", name: "Enterprise Launch Suite", xp: 30000, color: "#7c3aed", includes: "Monthly enterprise suite · $300/mo", days: 30 },
+] as const;
+
+/**
+ * Held back: not for sale. Socixis does not check ownership of these yet (its redeem step has
+ * TODOs for avatar/site-pack entitlements and nothing calls skinLocked()), so selling them would
+ * take Ixis and deliver nothing. findCatalogProduct() ignores this list, so reservations and the
+ * Wallet redeem tab refuse them. Move an item back into redeemCatalog once Socixis gates on it.
+ */
+export const heldCatalog = [
+  { key: "socixis.avatar.base", app: "Socixis", name: "Avatar base", xp: UNIT_XP, color: "#ff8a3d", includes: "Photo → real me + 1 restyle" },
+  { key: "socixis.avatar.skin.cartoon", app: "Socixis", name: "Skin: Cartoon", xp: UNIT_XP, color: "#ff8a3d", includes: "Look unlock" },
+  { key: "socixis.avatar.skin.anime", app: "Socixis", name: "Skin: Anime", xp: UNIT_XP, color: "#ff8a3d", includes: "Look unlock" },
+  { key: "socixis.avatar.skin.hero", app: "Socixis", name: "Skin: Comic hero", xp: UNIT_XP, color: "#ff8a3d", includes: "Look unlock" },
+  { key: "socixis.avatar.skin.retro", app: "Socixis", name: "Skin: Retro player", xp: UNIT_XP, color: "#ff8a3d", includes: "Look unlock" },
+  { key: "socixis.avatar.skin.character", app: "Socixis", name: "Skin: 3D character", xp: UNIT_XP, color: "#ff8a3d", includes: "Look unlock" },
+  { key: "socixis.avatar.skin.digital", app: "Socixis", name: "Skin: Digital", xp: UNIT_XP, color: "#ff8a3d", includes: "Look unlock" },
+  { key: "socixis.avatar.pack.all", app: "Socixis", name: "Skin pack: All skins", xp: 5000, color: "#ff8a3d", includes: "Every current skin · $50" },
+  { key: "socixis.site.saas", app: "Socixis", name: "Site pack: SaaS", xp: UNIT_XP, color: "#2563eb", includes: "Animated interactive pack" },
+  { key: "socixis.site.restaurant", app: "Socixis", name: "Site pack: Restaurant", xp: UNIT_XP, color: "#2563eb", includes: "Menu-first pack" },
+  { key: "socixis.site.portfolio", app: "Socixis", name: "Site pack: Portfolio", xp: UNIT_XP, color: "#2563eb", includes: "Work pack" },
+  { key: "socixis.site.local", app: "Socixis", name: "Site pack: Local service", xp: UNIT_XP, color: "#2563eb", includes: "Geo pack" },
+  { key: "socixis.site.shop", app: "Socixis", name: "Site pack: Shop lite", xp: UNIT_XP, color: "#2563eb", includes: "Catalog pack" },
+  { key: "socixis.site.agency", app: "Socixis", name: "Site pack: Agency", xp: UNIT_XP, color: "#2563eb", includes: "Case-study pack" },
 ] as const;
 
 /**
