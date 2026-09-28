@@ -23,7 +23,9 @@ export async function GET(request: Request) {
   if (!supabase) return NextResponse.json({ error: "Service configuration missing" }, { status: 503 });
   const { data, error } = await supabase.rpc("release_expired_holds", { p_limit: 1000 });
   if (error) {
-    console.error("release_expired_holds failed", { code: error.code });
+    // 2026-09-28 Grok Developer Bot: log the message too (the 2026-09-27 500 was a duplicate key,
+    // fixed in supabase/migrations/010_idempotent_hold_release.sql).
+    console.error("release_expired_holds failed", { code: error.code, message: error.message });
     return NextResponse.json({ error: "Sweep failed" }, { status: 500 });
   }
   if (Number(data) > 0) {
