@@ -23,7 +23,7 @@ Create separate development and production projects. Use Supabase for authentica
 2. Add the Price IDs to environment variables.
 3. Use a restricted API key with only required Checkout permissions.
 4. Create a webhook endpoint at `/api/webhooks/stripe`.
-5. Subscribe to `checkout.session.completed`, refund and dispute events.
+5. Subscribe to `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `checkout.session.async_payment_failed`, `charge.refunded`, `charge.dispute.closed`.
 6. Verify every signature before processing.
 7. On completion, write one balanced ledger transaction using the event ID as `external_id`; duplicate events must do nothing.
 8. Add refund handling that reverses unspent eligible XP and records the decision.

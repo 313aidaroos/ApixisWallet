@@ -1,3 +1,4 @@
+// Change note (Grok, Sep 2026): Explicit no-credit handling for checkout.session.async_payment_failed (crypto / delayed methods). Credit still happens only on a paid session. See docs/LAUNCH_NOTES.md.
 import { NextResponse } from "next/server";
 import type Stripe from "stripe";
 import { pointPacks } from "@/lib/catalog";
@@ -206,8 +207,20 @@ export async function POST(request: Request) {
   }
 
   try {
+    // Credit ONLY on a paid session. Instant methods (cards, Apple Pay, Google Pay, Link, Cash App Pay)
+    // arrive as `completed` with payment_status "paid". Delayed methods (e.g. some crypto / bank methods)
+    // arrive as `completed` with "unpaid" (ignored by decideCheckoutCredit), then as
+    // `async_payment_succeeded` with "paid", which credits. Stripe sends `async_payment_succeeded` only
+    // for sessions whose `completed` event was unpaid, so each session is credited exactly once;
+    // retries of either event are deduped by credit_xp on the Stripe event id.
     if (event.type === "checkout.session.completed" || event.type === "checkout.session.async_payment_succeeded") {
       return await creditFromSession(stripe, event.id, event.data.object);
+    }
+    if (event.type === "checkout.session.async_payment_failed") {
+      // The delayed payment failed: nothing was credited for this session, so nothing to reverse.
+      const session = event.data.object;
+      console.warn("stripe async checkout payment failed", { eventId: event.id, session: session.id });
+      return NextResponse.json({ received: true, credited: false, reason: "async_payment_failed" });
     }
     if (event.type === "charge.refunded") {
       return await refundFromCharge(stripe, event.id, event.data.object);

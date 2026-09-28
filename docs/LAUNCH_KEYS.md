@@ -27,6 +27,7 @@ Leave `WALLET_ALLOW_LEGACY_SERVICE_KEY` unset for now (see Step 6).
 Make sure these events are ticked:
 - `checkout.session.completed`
 - `checkout.session.async_payment_succeeded`
+- `checkout.session.async_payment_failed`
 - `charge.refunded`
 - `charge.dispute.closed`
 

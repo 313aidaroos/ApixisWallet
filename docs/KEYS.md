@@ -15,7 +15,7 @@ Add `https://<wallet-domain>/auth/callback` to the Supabase redirect allow-list.
 
 1. Stripe Dashboard → Developers → API keys → restricted key (Checkout only).
 2. Products: Starter $100, Studio $500, Empire $1500. Copy Price IDs.
-3. Webhook: `https://<wallet-domain>/api/webhooks/stripe` events `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `charge.refunded`, `charge.dispute.closed`.
+3. Webhook: `https://<wallet-domain>/api/webhooks/stripe` events `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `checkout.session.async_payment_failed`, `charge.refunded`, `charge.dispute.closed`. Payment methods: Settings → Payment methods (see `docs/LAUNCH_NOTES.md`).
 4. Paste (products: Spark $10, Starter $100, Studio $500, Empire $1500):
    - `STRIPE_RESTRICTED_KEY` (needs Checkout Sessions read/write + Charges/Disputes read)
    - `STRIPE_WEBHOOK_SECRET`
