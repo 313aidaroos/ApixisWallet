@@ -13,6 +13,11 @@ export type CheckoutStatusPayload = {
   /** Full URL only when next is redirect. The browser return hop uses /api/checkout/return. */
   returnUrl: string | null;
   returnHost: string | null;
+  /**
+   * The allowlisted return_url whatever the payment state, for the always-visible "Back to <product>"
+   * link (/api/checkout/return?to=product). Never sent to the browser. 2026-09-28 Grok Developer Bot.
+   */
+  backUrl: string | null;
   ledgerUnreachable: boolean;
 };
 
@@ -33,6 +38,7 @@ export function buildStatusPayload(
   const returnHost = returnUrl ? new URL(returnUrl).host : null;
   const pack = input.pack ? { id: input.pack.id, name: input.pack.name, ixis: input.pack.xp } : null;
   const base = {
+    backUrl: returnUrl,
     pack,
     destinationApp: destination?.slug ?? null,
     destinationLabel: destination?.label ?? null,
@@ -68,6 +74,12 @@ export function toPublicStatus(payload: CheckoutStatusPayload) {
     returnHost: payload.returnHost,
     ledgerUnreachable: payload.ledgerUnreachable,
   };
+}
+
+/** "Back to <product>": the stored, still-allowlisted return_url, even before the credit lands. */
+export function backRedirectTarget(payload: CheckoutStatusPayload, options?: AllowOptions) {
+  if (!payload.backUrl) return null;
+  return canonicalReturnUrl(payload.backUrl, options);
 }
 
 export function returnRedirectTarget(payload: CheckoutStatusPayload, options?: AllowOptions) {
