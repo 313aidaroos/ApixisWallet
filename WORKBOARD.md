@@ -2,5 +2,6 @@
 
 Claim work here before you start so Claude, Hermes, Codex and Grok don't collide. One dated line per task; mark it done (with PR link) when finished.
 
-- 2026-09-28 (CT) Grok Developer Bot: Apixis ID sign-in + onboarding fixes (login `next` redirect, CheckoutSuccess back links, release-holds cron duplicate key), in progress
-- 2026-09-28 (CT) Grok executor (Socixis lead): Socixis paid 90s/120s avatar renders — Wallet catalog SKUs `socixis.avatar.render.90s` (3000 Ixis) / `socixis.avatar.render.120s` (4000 Ixis) + Socixis reserve/capture/release wiring. Not touching login/actions, CheckoutSuccess, release-holds. In progress
+- 2026-09-28 (CT) Grok Developer Bot: Apixis ID sign-in + onboarding fixes (login `next` redirect, CheckoutSuccess back links, release-holds cron duplicate key) — done: #16 (ff5797b), #17 (85a3930), #18 (b7ce1ae); migration 010 applied to kzneeksminozmhnqaaun 2026-09-28 00:52 CT
+- 2026-09-28 (CT) Grok executor (Socixis lead): Socixis paid 90s/120s avatar renders — Wallet catalog SKUs `socixis.avatar.render.90s` (3000 Ixis) / `socixis.avatar.render.120s` (4000 Ixis) + Socixis reserve/capture/release wiring. Not touching login/actions, CheckoutSuccess, release-holds. Paused 2026-09-28 (nothing merged for it yet)
+- 2026-09-28 (CT) Grok Developer Bot: Apixis ID pages — /login "Log in with Apixis ID" with Wallet header, Forgot password, Cixy help card; /set-password handles reset links. Files: app/login/*, app/set-password/page.tsx, components/AuthShell.tsx, lib/auth-reset.ts, app/globals.css (appended), public/cixy/. No checkout/Stripe. In progress
