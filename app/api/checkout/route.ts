@@ -1,3 +1,4 @@
+// Change note (Grok, Sep 2026): Documented that payment methods are dashboard-driven (no payment_method_types). See docs/LAUNCH_NOTES.md.
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { pointPacks } from "@/lib/catalog";
@@ -62,6 +63,10 @@ export async function POST(request: Request) {
       integrationIdentifier: integrationIdentifier(),
     });
     const terms = termsVersion();
+    // Hosted Checkout with dynamic payment methods: do NOT pass `payment_method_types` (or
+    // `payment_method_configuration`). Stripe shows every method enabled in Dashboard → Settings →
+    // Payment methods that the customer is eligible for (cards, Apple Pay, Google Pay, Link,
+    // Cash App Pay, Stablecoins/Crypto). Crypto and Cash App Pay need USD prices.
     const session = await stripe.checkout.sessions.create({
       ...base,
       ...checkoutPolicyParams(pack),

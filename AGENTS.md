@@ -181,7 +181,7 @@ Base URL: `https://apixis-wallet.vercel.app`. Contract detail and curl examples:
 | `POST /api/checkout` | Wallet session cookie | `{ packId: spark\|agent\|office\|business, return_url?, product? }` → `{ url }` |
 | `GET /api/checkout/status?session_id=` | cookie | Success-page polling |
 | `GET /api/checkout/return?session_id=` | cookie | 302 to the stored, allowlisted return_url |
-| `POST /api/webhooks/stripe` | Stripe signature | Events: `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `charge.refunded`, `charge.dispute.closed` |
+| `POST /api/webhooks/stripe` | Stripe signature | Events: `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `checkout.session.async_payment_failed`, `charge.refunded`, `charge.dispute.closed` |
 | `POST /api/v1/quotes` | public | Price from the catalog. Informational: reserve re-reads the catalog. |
 | `POST /api/v1/reservations` | service key | `{ productKey, idempotencyKey (8–80 printable, no spaces), owner_email }` → 201 `{ reservationId, status:"held", app, ixis }` · 402 · 403 (key can't use that app) · 409 (key reused differently) |
 | `GET /api/v1/reservations/:id` | service key | `{ status: held\|expired\|captured\|released, receiptId, … }`. Use it to reconcile. |
@@ -269,7 +269,7 @@ const r = await redeemProduct("renoxis.agent.monthly"); // { ok } | { ok:false, 
      ```
 4. [ ] **Vercel env:** set `CRON_SECRET` and `TERMS_VERSION`, and make sure all `STRIPE_*` and Supabase vars are set in Production. The Stripe restricted key needs Checkout Sessions (write), PaymentIntents and Charges (read), and Invoices (write, only if `STRIPE_CREATE_INVOICES=true`).
 4b. [ ] **Supabase Auth:** email confirmation ON, so nobody can register an unverified `ALLOWED_EMAIL` or someone else's address.
-5. [ ] **Stripe webhook events:** `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `charge.refunded`, `charge.dispute.closed`.
+5. [ ] **Stripe webhook events:** `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `checkout.session.async_payment_failed`, `charge.refunded`, `charge.dispute.closed`.
 6. [ ] **Per-site keys:** issue one per sister site (`npm run api-key`), put it in that site's `WALLET_API_KEY`, copy SDK v2 into each site. When all are moved, set `WALLET_ALLOW_LEGACY_SERVICE_KEY=false` and rotate the Supabase secret key (the old one was shared with every site).
 7. [ ] **Test-mode rehearsal** end to end: buy Spark → credited once → redeem → entitlement → refund → Ixis removed.
 8. [ ] **Legal and product:** terms, refund policy and a privacy page live (`docs/BUILD_AND_LAUNCH.md` §6). Replace the demo UI (§6 above).
