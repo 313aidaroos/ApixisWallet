@@ -29,7 +29,6 @@ export function CheckoutSuccess({ unitLabel = "Ixis" }: { unitLabel?: string }) 
   const [phase, setPhase] = useState<Phase>({ kind: "loading" });
   const [nonce, setNonce] = useState(0);
   const [stalled, setStalled] = useState(false);
-  const [stay, setStay] = useState(false);
   const [selectedOverride, setSelectedOverride] = useState<string | null>(null);
   const [confirmed, setConfirmed] = useState<string | null>(null);
 
@@ -74,15 +73,23 @@ export function CheckoutSuccess({ unitLabel = "Ixis" }: { unitLabel?: string }) 
   }, [sessionId, nonce]);
 
   useEffect(() => {
-    if (stay || phase.kind !== "ready" || phase.status.next !== "redirect" || !sessionId) return;
+    if (phase.kind !== "ready" || phase.status.next !== "redirect" || !sessionId) return;
     const timer = window.setTimeout(() => {
       // Full navigation so the route can 302 to the allowlisted sister host.
       // eslint-disable-next-line @next/next/no-location-assign-relative-destination
       window.location.assign(`/api/checkout/return?session_id=${encodeURIComponent(sessionId)}`);
     }, 1400);
     return () => window.clearTimeout(timer);
-  }, [stay, phase, sessionId]);
+  }, [phase, sessionId]);
 
+  // "Back to <product>" only when the checkout stored an allowlisted return_url (returnHost is set
+  // server-side from canonicalReturnUrl); the hop itself goes through /api/checkout/return.
+  const backLabel =
+    phase.kind === "ready" && phase.status.returnHost && sessionId
+      ? phase.status.destinationApp && phase.status.destinationApp !== "wallet"
+        ? (phase.status.destinationLabel ?? phase.status.returnHost)
+        : phase.status.returnHost
+      : null;
   const suggested = phase.kind === "ready" ? (phase.status.destinationApp ?? "wallet") : "wallet";
   const selected = selectedOverride ?? suggested;
   const confirmedChoice = choices.find((choice) => choice.slug === confirmed) ?? null;
@@ -120,7 +127,7 @@ export function CheckoutSuccess({ unitLabel = "Ixis" }: { unitLabel?: string }) 
             <h2>Sign in</h2>
             <p>Sign in with the same Apixis account you used at checkout. The webhook still credits that account. This page only shows where the Ixis landed.</p>
             <div className="balance-actions">
-              <Link className="go" href="/login">Sign in</Link>
+              <Link className="go" href={`/login?next=${encodeURIComponent(`/buy/complete?session_id=${sessionId}`)}`}>Sign in</Link>
             </div>
           </article>
         ) : null}
@@ -164,17 +171,17 @@ export function CheckoutSuccess({ unitLabel = "Ixis" }: { unitLabel?: string }) 
               </>
             ) : null}
 
-            {phase.status.status === "credited" && phase.status.next === "redirect" && !stay ? (
+            {phase.status.status === "credited" && phase.status.next === "redirect" ? (
               <>
                 <p>Paid Ixis is in your Apixis Wallet. Sending you back to {phase.status.returnHost ?? "the site you came from"}.</p>
                 <div className="balance-actions">
                   <a className="go" href={`/api/checkout/return?session_id=${encodeURIComponent(sessionId)}`}>Continue</a>
-                  <button type="button" className="secondary" onClick={() => setStay(true)}>Stay in Apixis Wallet</button>
+                  <Link className="go secondary" href="/">Stay in Apixis Wallet</Link>
                 </div>
               </>
             ) : null}
 
-            {phase.status.status === "credited" && (phase.status.next === "choose" || stay) ? (
+            {phase.status.status === "credited" && phase.status.next === "choose" ? (
               <form
                 onSubmit={(event) => {
                   event.preventDefault();
@@ -236,6 +243,16 @@ export function CheckoutSuccess({ unitLabel = "Ixis" }: { unitLabel?: string }) 
             ))}
           </div>
         ) : null}
+
+        {/* 2026-09-28 Grok Developer Bot: always a way back after paying. */}
+        <nav className="balance-actions" aria-label="Leave checkout" style={{ marginTop: 14 }}>
+          <Link className="go" href="/">Back to Wallet</Link>
+          {backLabel ? (
+            <a className="go secondary" href={`/api/checkout/return?session_id=${encodeURIComponent(sessionId)}&to=product`}>
+              Back to {backLabel}
+            </a>
+          ) : null}
+        </nav>
 
         <footer>APIXIS FAMILY CO. · coins only · peg 100 {unit} = $1</footer>
       </section>
