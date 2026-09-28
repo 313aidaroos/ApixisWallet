@@ -1,46 +1,115 @@
 "use client";
 
 import { safeLocalRedirect } from "@/lib/apixis-redirect";
-import { Suspense, useState } from "react";
+import { parseRecoveryHash } from "@/lib/auth-reset";
+import { AuthShell } from "@/components/AuthShell";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { setPassword } from "@/app/login/actions";
+import { setPassword, startRecovery } from "@/app/login/actions";
 
+/**
+ * Choose a password: after a first magic-link sign-in, or (reset=1) from the "Forgot password?" email.
+ * 2026-09-28 Grok Developer Bot: reset links carry the recovery session in the URL hash; it is turned into
+ * the session cookie (startRecovery) before the form is shown. Wallet header + Cixy help (AuthShell).
+ */
 function SetPasswordPageInner() {
   const params = useSearchParams();
   const next = safeLocalRedirect(params.get("next"));
-  const [notice, setNotice] = useState("");
+  const reset = params.get("reset") === "1";
+  const [notice, setNotice] = useState<{ text: string; kind: "ok" | "error" } | null>(null);
+  const [state, setState] = useState<"checking" | "ready" | "expired">(reset ? "checking" : "ready");
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    if (!reset) return;
+    let cancelled = false;
+    const run = async () => {
+      const parsed = parseRecoveryHash(window.location.hash);
+      if (parsed.kind !== "none") {
+        // Never leave tokens in the address bar or history.
+        window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}`);
+      }
+      const outcome = await (parsed.kind === "session"
+        ? startRecovery(parsed.accessToken, parsed.refreshToken)
+        : Promise.resolve(parsed.kind === "error" ? { ok: false, message: parsed.message } : { ok: true }));
+      if (cancelled) return;
+      if (outcome.ok) {
+        setState("ready");
+      } else {
+        setNotice({ text: outcome.message ?? "This reset link did not work. Request a new one below.", kind: "error" });
+        setState("expired");
+      }
+    };
+    void run();
+    return () => {
+      cancelled = true;
+    };
+  }, [reset]);
+
+  const forgotHref = `/login?mode=forgot&next=${encodeURIComponent(next)}`;
 
   return (
-    <main style={{ display: "grid", placeItems: "center" }}>
-      <section className="shell" style={{ maxWidth: 420, paddingTop: 80 }}>
-        <p style={{ color: "#c8ff63", letterSpacing: 2, fontSize: 10, fontWeight: 700 }}>APIXIS WALLET · YOU ARE SIGNED IN</p>
-        <h1 style={{ marginTop: 8 }}>Choose a password</h1>
-        <p style={{ color: "#8e99a5", fontSize: 13 }}>
-          Next time you can sign in without waiting for an email. This password works on every Apixis family site.
-        </p>
-        {notice && <div className="notice" role="alert">{notice}</div>}
+    <AuthShell>
+      <p className="auth-eyebrow">{reset ? "APIXIS ID · PASSWORD RESET" : "APIXIS ID · YOU ARE SIGNED IN"}</p>
+      <h1>{reset ? "Choose a new password" : "Choose a password"}</h1>
+      <p className="auth-lede">
+        {reset
+          ? "Pick a new password for your Apixis ID. It works on Apixis Wallet, Apixis.dev and every family site."
+          : "Next time you can log in without waiting for an email. This password works on every Apixis family site."}
+      </p>
+      {notice && (
+        <div className={`auth-notice ${notice.kind}`} role={notice.kind === "error" ? "alert" : "status"}>
+          {notice.text}
+        </div>
+      )}
+      {state === "checking" && <p className="auth-lede" role="status">Checking your reset link…</p>}
+      {state === "expired" && (
+        <div className="auth-form">
+          <a className="auth-submit" href={forgotHref}>Email me a new reset link</a>
+        </div>
+      )}
+      {state === "ready" && (
         <form
-          style={{ display: "grid", gap: 12, marginTop: 24 }}
+          className="auth-form"
           action={async (form) => {
-            const result = await setPassword(form);
-            if (result?.redirectTo) {
-              // Full navigation so /sso/authorize can 302 back to the product.
-              window.location.assign(safeLocalRedirect(result.redirectTo));
-              return;
+            setBusy(true);
+            try {
+              const result = await setPassword(form);
+              if (result?.redirectTo) {
+                setNotice({ text: "Password saved. Taking you back…", kind: "ok" });
+                // Full navigation so /sso/authorize can 302 back to the product.
+                window.location.assign(safeLocalRedirect(result.redirectTo));
+                return;
+              }
+              if (result?.message) {
+                setNotice({ text: result.message, kind: "error" });
+                if (/expired/i.test(result.message) && reset) setState("expired");
+              }
+            } finally {
+              setBusy(false);
             }
-            if (result?.message) setNotice(result.message);
           }}
         >
           <input type="hidden" name="next" value={next} />
-          <input name="password" type="password" required minLength={8} autoComplete="new-password" placeholder="new password (min 8)" style={{ padding: 12, borderRadius: 8, border: "1px solid #272e36", background: "#11151a", color: "white" }} />
-          <button type="submit" style={{ padding: 12, border: 0, borderRadius: 8, background: "#c8ff63", fontWeight: 800 }}>Save password and continue</button>
+          <label htmlFor="new-password">New password</label>
+          <input id="new-password" name="password" type="password" required minLength={8} autoComplete="new-password" placeholder="At least 8 characters" />
+          <button type="submit" className="auth-submit" disabled={busy}>
+            {busy ? "Saving…" : reset ? "Save new password and continue" : "Save password and continue"}
+          </button>
         </form>
-        <p style={{ marginTop: 18, fontSize: 13 }}>
+      )}
+      {!reset && (
+        <div className="auth-links">
           {/* Plain <a>: `next` may be /sso/authorize (route handler → sister site), not a page. */}
-          <a href={next} style={{ color: "#8e99a5" }}>Skip for now →</a>
-        </p>
-      </section>
-    </main>
+          <a className="auth-link" href={next}>Skip for now →</a>
+        </div>
+      )}
+      {reset && state !== "checking" && (
+        <div className="auth-links">
+          <a className="auth-link" href={`/login?next=${encodeURIComponent(next)}`}>← Back to log in</a>
+        </div>
+      )}
+    </AuthShell>
   );
 }
 

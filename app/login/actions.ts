@@ -1,8 +1,10 @@
 "use server";
 
 import { createServerClient } from "@supabase/ssr";
+import { createClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
 import { safeLocalRedirect } from "@/lib/apixis-redirect";
+import { resetRedirectUrl } from "@/lib/auth-reset";
 import { isMasterEmail, MASTER_EMAIL } from "@/lib/owners";
 
 /**
@@ -45,7 +47,11 @@ export async function login(form: FormData): Promise<LoginResult> {
   const next = safeLocalRedirect(form.get("next"));
   const supabase = await client();
   const { error } = await supabase.auth.signInWithPassword({ email, password });
-  if (error) return { message: error.message };
+  if (error) {
+    if (error.code === "invalid_credentials") return { message: "Invalid email or password." };
+    if (error.code === "email_not_confirmed") return { message: "Confirm your email first: open the link we sent you, then log in again." };
+    return { message: error.message };
+  }
   return { redirectTo: next };
 }
 
@@ -98,4 +104,34 @@ export async function setPassword(form: FormData): Promise<LoginResult> {
   const { error } = await supabase.auth.updateUser({ password, data: { password_set: true } });
   if (error) return { message: error.message };
   return { redirectTo: next };
+}
+
+/**
+ * 2026-09-28 Grok Developer Bot: "Forgot password?". Implicit-flow client so the emailed link works in
+ * any browser (see lib/auth-reset.ts); lands on /set-password?reset=1&next=<next>.
+ * Same answer whether or not the address has an account.
+ */
+export async function resetPassword(form: FormData): Promise<LoginResult & { sent?: boolean }> {
+  const email = String(form.get("email") ?? "").trim().toLowerCase();
+  const next = safeLocalRedirect(form.get("next"));
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { message: "Enter the email you use for Apixis ID." };
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+  if (!url || !key) return { message: "Password reset is unavailable right now. Use an email link instead." };
+  const supabase = createClient(url, key, { auth: { flowType: "implicit", persistSession: false, autoRefreshToken: false } });
+  const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: resetRedirectUrl(appBase(), next) });
+  if (error && error.status === 429) return { message: "A reset email was sent very recently. Wait a minute, then try again." };
+  if (error && (error.status ?? 500) >= 500) return { message: "Password reset is unavailable right now. Use an email link instead." };
+  return { sent: true, message: `If ${email} has an Apixis ID, a password reset link is on its way. It expires in 1 hour.` };
+}
+
+/** /set-password?reset=1: turns the recovery tokens from the email link's URL hash into the session cookie. */
+export async function startRecovery(accessToken: string, refreshToken: string): Promise<{ ok: boolean; message?: string }> {
+  if (typeof accessToken !== "string" || typeof refreshToken !== "string" || !accessToken || !refreshToken) {
+    return { ok: false, message: "This reset link did not work. Request a new one below." };
+  }
+  const supabase = await client();
+  const { data, error } = await supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
+  if (error || !data.user) return { ok: false, message: "This reset link has expired or was already used. Request a new one below." };
+  return { ok: true };
 }
