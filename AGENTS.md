@@ -295,3 +295,6 @@ npm run check          # lint + typecheck + unit tests + build
 npm run test:sql       # ledger SQL tests (needs a local Postgres; PGHOST/PGUSER/PGPASSWORD)
 npm run api-key -- --name <site> --apps <app>[,<app>] [--test]
 ```
+
+## AI change log (owner's standing rule)
+Any AI model, bot, or agent that changes anything in this repo must append a dated entry to AI_CHANGELOG.md (what changed + why). No exceptions.
