@@ -35,6 +35,11 @@ function LoginPageInner() {
             action={async (form) => {
               const result =
                 mode === "magic" ? await magicLink(form) : mode === "password" ? await login(form) : await signup(form);
+              if (result?.redirectTo) {
+                // Full navigation: `next` is often /sso/authorize, which 302s back to the product.
+                window.location.assign(safeLocalRedirect(result.redirectTo));
+                return;
+              }
               setNotice(result?.message ?? "");
               if (mode === "magic" && result?.message?.startsWith("Check ")) setSent(true);
             }}

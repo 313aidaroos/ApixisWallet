@@ -3,7 +3,6 @@
 import { safeLocalRedirect } from "@/lib/apixis-redirect";
 import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import Link from "next/link";
 import { setPassword } from "@/app/login/actions";
 
 function SetPasswordPageInner() {
@@ -24,6 +23,11 @@ function SetPasswordPageInner() {
           style={{ display: "grid", gap: 12, marginTop: 24 }}
           action={async (form) => {
             const result = await setPassword(form);
+            if (result?.redirectTo) {
+              // Full navigation so /sso/authorize can 302 back to the product.
+              window.location.assign(safeLocalRedirect(result.redirectTo));
+              return;
+            }
             if (result?.message) setNotice(result.message);
           }}
         >
@@ -32,7 +36,8 @@ function SetPasswordPageInner() {
           <button type="submit" style={{ padding: 12, border: 0, borderRadius: 8, background: "#c8ff63", fontWeight: 800 }}>Save password and continue</button>
         </form>
         <p style={{ marginTop: 18, fontSize: 13 }}>
-          <Link href={next} style={{ color: "#8e99a5" }}>Skip for now →</Link>
+          {/* Plain <a>: `next` may be /sso/authorize (route handler → sister site), not a page. */}
+          <a href={next} style={{ color: "#8e99a5" }}>Skip for now →</a>
         </p>
       </section>
     </main>
