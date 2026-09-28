@@ -1,9 +1,19 @@
 "use server";
 
-import { redirect } from "next/navigation";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import { safeLocalRedirect } from "@/lib/apixis-redirect";
 import { isMasterEmail, MASTER_EMAIL } from "@/lib/owners";
+
+/**
+ * Result of a login form action. `redirectTo` is always a same-origin path (safeLocalRedirect).
+ * The page does a full navigation to it (window.location.assign) instead of a server-action
+ * redirect(): `next` is usually /sso/authorize, a route handler that 302s to a sister site's
+ * callback, and a client-router (RSC) fetch of that chain would burn the one-time code.
+ * 2026-09-28 Grok Developer Bot: login() used to redirect("/") and drop `next`, so
+ * "Sign in with Apixis" from a product never came back to /sso/authorize.
+ */
+export type LoginResult = { message?: string; redirectTo?: string };
 
 async function client() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -20,45 +30,57 @@ async function client() {
   });
 }
 
-export async function login(form: FormData) {
+function appBase() {
+  return (process.env.NEXT_PUBLIC_APP_URL ?? "").replace(/\/+$/, "");
+}
+
+/** Where the email link lands: /auth/callback, which then sends the person on to `next`. */
+function emailCallback(next: string) {
+  return `${appBase()}/auth/callback?next=${encodeURIComponent(next)}`;
+}
+
+export async function login(form: FormData): Promise<LoginResult> {
   const email = String(form.get("email") ?? "").trim().toLowerCase();
   const password = String(form.get("password") ?? "");
+  const next = safeLocalRedirect(form.get("next"));
   const supabase = await client();
   const { error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) return { message: error.message };
-  redirect("/");
+  return { redirectTo: next };
 }
 
-export async function signup(form: FormData) {
+export async function signup(form: FormData): Promise<LoginResult> {
   const email = String(form.get("email") ?? "").trim().toLowerCase();
   const password = String(form.get("password") ?? "");
+  const next = safeLocalRedirect(form.get("next"));
   if (password.length < 8) return { message: "Password must be at least 8 characters." };
   const supabase = await client();
-  const { error } = await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.signUp({
     email,
     password,
-    options: { emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL ?? ""}/auth/callback` },
+    // The confirmation link keeps `next`, so an Apixis ID sign-up from a product returns to it.
+    options: { emailRedirectTo: emailCallback(next) },
   });
   if (error) return { message: error.message };
+  // Email confirmation off: already signed in, carry on to `next`.
+  if (data.session) return { redirectTo: next };
   if (isMasterEmail(email) || email === MASTER_EMAIL) {
     return { message: "Master account created. If email confirm is on, open the mail, then sign in with this password." };
   }
-  return { message: "Account created. Confirm email if required, then sign in." };
+  return { message: "Account created. Confirm your email (the link brings you back here), then sign in." };
 }
 
-/** Magic link: the default way in. `next` is where the user was headed (e.g. /buy?...); kept same-origin only. */
-export async function magicLink(form: FormData) {
+/** Magic link: the default way in. `next` is where the user was headed (e.g. /sso/authorize?...); same-origin only. */
+export async function magicLink(form: FormData): Promise<LoginResult> {
   const email = String(form.get("email") ?? "").trim().toLowerCase();
-  const rawNext = String(form.get("next") ?? "/");
-  const next = rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : "/";
+  const next = safeLocalRedirect(form.get("next"));
   if (!email.includes("@")) return { message: "Enter your email." };
   const supabase = await client();
-  const base = process.env.NEXT_PUBLIC_APP_URL ?? "";
   const { error } = await supabase.auth.signInWithOtp({
     email,
     options: {
       shouldCreateUser: true,
-      emailRedirectTo: `${base}/auth/callback?next=${encodeURIComponent(`/set-password?next=${encodeURIComponent(next)}`)}`,
+      emailRedirectTo: emailCallback(`/set-password?next=${encodeURIComponent(next)}`),
     },
   });
   if (error) return { message: error.message };
@@ -66,15 +88,14 @@ export async function magicLink(form: FormData) {
 }
 
 /** Called from /set-password after a magic-link sign-in. */
-export async function setPassword(form: FormData) {
+export async function setPassword(form: FormData): Promise<LoginResult> {
   const password = String(form.get("password") ?? "");
-  const rawNext = String(form.get("next") ?? "/");
-  const next = rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : "/";
+  const next = safeLocalRedirect(form.get("next"));
   if (password.length < 8) return { message: "Password must be at least 8 characters." };
   const supabase = await client();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { message: "Your sign-in link expired. Request a new one." };
   const { error } = await supabase.auth.updateUser({ password, data: { password_set: true } });
   if (error) return { message: error.message };
-  redirect(next);
+  return { redirectTo: next };
 }
