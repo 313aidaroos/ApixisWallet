@@ -22,3 +22,9 @@ Grok Bot (Developer Bot hub + product leads) notes. Every change Grok Bot makes 
 - Deploy: `dpl_7XmDng6KGC9NWW2FDV6uitqTqxu9` READY. Reset verified live end-to-end from apixis.dev (redirect to `/set-password` is allowed in Supabase Auth). Test user grok-apixis-1790575604@uberip.com (6f5eb1c6-b433-4d2b-8fbe-9a12a39cf7be) was created for that; safe to delete.
 - Undo: `git revert 95f7764d79b893c6cf288651e143a2d6249f2784`.
 
+
+## 2026-09-29 (CT) — Grok (Wallet Lead): Wallet footer "Other Ixis companies"
+- What: the Wallet footer (the "APIXIS FAMILY CO. · coins only · peg…" line) now has a second line, "Other Ixis companies:", with 11 plain text links that open in a new tab (`target="_blank" rel="noopener noreferrer"`): Apixis, Socixis, Renoxis, Rawixis, Contraxis, Lyrixis, Halaxis, Recovra, Deduxis, Geoxis, Wattixis. Apixis Wallet itself is left out; Qahwah World and Nursery Toons were removed at Awad's request (2026-09-29); Nexxis/Omnixis, Launchixis, PersonalContentBot, AwadBot and COMMAND are not included. Approved by Awad 2026-09-29 as a one-off exception to the credit pause.
+- Where: `lib/ixis-companies.ts` (the only place the names/URLs live — swap URLs there when custom domains arrive), `components/WalletScreen.tsx` (footer markup only), `app/globals.css` (appended `.ixis-others` rules: links inherit the muted 10px footer text and wrap on mobile). The CheckoutSuccess footer was intentionally not touched (checkout code is out of scope).
+- Who: Grok / Wallet Lead. Branch `grok/footer-other-ixis`, PR against main; not merged, not deployed to production.
+- Undo: revert the PR commit (`git revert <sha>`), or delete the `.ixis-others` block from the WalletScreen footer, the `.ixis-others` CSS rules, and `lib/ixis-companies.ts`.
