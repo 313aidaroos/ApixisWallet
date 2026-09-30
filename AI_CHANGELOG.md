@@ -25,3 +25,8 @@ Entry format:
 - Why: Awad's 2026-09-30 audit confirmation — put every AI on the same page, fix the fleet-wide sign-in bug at its source, and harden the money routes before testers.
 - Changed (same session, later): `app/api/v1/marketplace/orders` + `.../[id]/settle`, `lib/api/marketplace.ts`, `test/marketplace.test.ts`, migration `011_marketplace_orders.sql` (30-day holds, `payout` audit type), `lib/audit.ts`, `sdk/apixis-wallet.ts` v3.1 (`marketplaceOrder`, `marketplaceSettle`), AGENTS.md §5.
 - Why: D13 — Ominix (and later Rawixis) settle person-to-person orders through the one ledger with the 5% Apixis Bank fee, instead of a local NXC wallet. Migration 011 applied live (Supabase `kzneeksminozmhnqaaun`) on 2026-09-30 and verified: 30-day holds, `payout` audit type, `reserve_xp` still service_role-only.
+
+## 2026-09-30 (night pass) — Claude
+- Changed: `sdk/apixis-cixy.ts` + `sdk/apixis-cixy.js` (new): `CIXY_CORE`, `cixySystemPrompt()`, `CIXY_UNAVAILABLE`, `cixyUnavailableReply()`; `docs/CIXY.md` documents the one-persona rule and which sites are aligned.
+- Changed: `docs/security/2026-09-30-hub-project-lint.sql` — advisor fixes for the shared hub Supabase project (`myfclypikkcvfurrlsko`) that Claude's MCP user cannot write to; Awad runs it once. Same fixes were applied live by Claude on Contraxis, Lyrixis and Ominix (trigger functions no longer callable via RPC, fixed `search_path`).
+- Why: Awad's overnight instruction — all backend and security done, one Cixy persona everywhere (ApixisWallet/docs/CIXY.md, sdk/apixis-cixy.*), agents on the same page (ApixisWallet/docs/FAMILY_STATUS.md).
