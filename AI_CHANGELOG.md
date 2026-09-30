@@ -30,3 +30,7 @@ Entry format:
 - Changed: `sdk/apixis-cixy.ts` + `sdk/apixis-cixy.js` (new): `CIXY_CORE`, `cixySystemPrompt()`, `CIXY_UNAVAILABLE`, `cixyUnavailableReply()`; `docs/CIXY.md` documents the one-persona rule and which sites are aligned.
 - Changed: `docs/security/2026-09-30-hub-project-lint.sql` — advisor fixes for the shared hub Supabase project (`myfclypikkcvfurrlsko`) that Claude's MCP user cannot write to; Awad runs it once. Same fixes were applied live by Claude on Contraxis, Lyrixis and Ominix (trigger functions no longer callable via RPC, fixed `search_path`).
 - Why: Awad's overnight instruction — all backend and security done, one Cixy persona everywhere (ApixisWallet/docs/CIXY.md, sdk/apixis-cixy.*), agents on the same page (ApixisWallet/docs/FAMILY_STATUS.md).
+
+## 2026-10-01 (early) — Claude
+- Changed: `docs/MORNING_BRIEF_2026-10-01.md` (new) and `docs/FAMILY_STATUS.md` rewritten with the overnight state: 33 PRs merged, second-pass verification (every repo: tests, tsc, build) green, security advisor state, and Awad's key/SQL/toggle checklist.
+- Why: Awad asked for a morning brief and for every agent to read one board.
