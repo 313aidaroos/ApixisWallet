@@ -15,3 +15,7 @@ Entry format:
 ## 2026-09-28 — JunoAI
 - Changed: created this file
 - Why: owner's standing rule — every AI that touches this repo must log its changes here
+
+## 2026-09-29 — Grok (Wallet Lead)
+- Changed: `lib/ixis-companies.ts` (new), `components/WalletScreen.tsx` (footer only), `app/globals.css` (appended `.ixis-others`), `WORKBOARD.md`, `NOTES/GROK.md`
+- Why: Awad-approved footer task — add an "Other Ixis companies" section with links to the other Ixis sites, list kept in one constant file

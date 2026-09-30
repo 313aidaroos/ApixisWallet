@@ -193,3 +193,10 @@ main.auth-page { display: block; min-height: 100vh; padding-bottom: 40px; }
 @media (max-width: 420px) {
   .auth-nav a[href="/?tab=buy"] { display: none; }
 }
+
+/* Wallet footer "Other Ixis companies" (lib/ixis-companies.ts). 2026-09-29 Grok (Wallet Lead).
+   Same muted 10px footer text; links inherit it and wrap on narrow screens. */
+.ixis-others { margin-top: 6px; line-height: 1.8; overflow-wrap: anywhere; }
+.ixis-others a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.ixis-others a:hover, .ixis-others a:focus-visible { color: var(--lime); }
+.ixis-others span { white-space: nowrap; }

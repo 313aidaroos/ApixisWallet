@@ -10,6 +10,7 @@ import { last24h, productTape, xpTape } from "@/lib/market";
 import { bulletins, ticker } from "@/lib/news";
 import { Tape } from "@/components/Tape";
 import { fetchBalance, fetchHistory, redeemProduct, WalletClientError, type HistoryItem } from "@/lib/wallet-client";
+import { OTHER_IXIS_COMPANIES } from "@/lib/ixis-companies";
 
 type Tab = "home" | "buy" | "redeem" | "shop" | "market" | "news" | "activity";
 type ShopFilter = "all" | ShopCategory;
@@ -396,7 +397,18 @@ export function WalletScreen({ lockTab, unitLabel = "Ixis" }: { lockTab?: Tab; u
             ))}
           </article>
         )}
-        <footer>APIXIS FAMILY CO. · coins only · peg 100 {unit} = $1</footer>
+        <footer>
+          APIXIS FAMILY CO. · coins only · peg 100 {unit} = $1
+          <div className="ixis-others" role="navigation" aria-label="Other Ixis companies">
+            Other Ixis companies:{" "}
+            {OTHER_IXIS_COMPANIES.map((c, i) => (
+              <span key={c.url}>
+                {i > 0 ? " · " : null}
+                <a href={c.url} target="_blank" rel="noopener noreferrer">{c.name}</a>
+              </span>
+            ))}
+          </div>
+        </footer>
       </section>
     </main>
   );
