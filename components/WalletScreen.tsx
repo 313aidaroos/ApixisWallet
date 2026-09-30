@@ -57,7 +57,7 @@ function toLogRows(items: HistoryItem[]): LogRow[] {
 
 function signInHere() {
   const here = window.location.pathname + window.location.search;
-  window.location.assign(`/login?next=${encodeURIComponent(here)}`);
+  window.location.assign(new URL(`/login?next=${encodeURIComponent(here)}`, window.location.origin).toString());
 }
 
 const usd = (n: number) =>
@@ -353,8 +353,8 @@ export function WalletScreen({ lockTab, unitLabel = "Ixis" }: { lockTab?: Tab; u
               <h2>$0.01 <small>FIXED</small></h2>
               <div className="split">
                 <span><b>{tape.circulating.toLocaleString()}</b>Circulating</span>
-                <span><b>{usd(tape.capUsd)}</b>Cap</span>
-                <span><b>{usd(tape.volumeUsd)}</b>24h vol</span>
+                <span><b>{tape.volumeXp.toLocaleString()}</b>Bought + redeemed 24h</span>
+                <span><b>{usd(tape.volumeUsd)}</b>Same, in USD</span>
               </div>
               <div style={{ marginTop: 18 }}>
                 <Tape values={xpTape.map((d) => d.circulating)} bars={xpTape.map((d) => d.buyXp + d.redeemXp)} height={160} />
