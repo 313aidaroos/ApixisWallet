@@ -29,7 +29,7 @@ Legend: **Sell** = can take Ixis for something today. All branches for the 2026-
 
 | Repo | Backend state | Sell | Open items |
 |---|---|---|---|
-| ApixisWallet | Ledger, SSO, Stripe, SDK, cron, audit, rate limiting. 88+ tests. Migrations 007–010 live. | Yes | Legacy key still accepted; `require_sso=false` on all clients; Terms/Privacy. |
+| ApixisWallet | Ledger, SSO, Stripe, SDK v3.1 (marketplace orders), cron, audit, rate limiting. 95 tests. Migrations 007–011 live. | Yes | Legacy key still accepted; `require_sso=false` on all clients; Terms/Privacy. |
 | Renoxis | Seats via Wallet, PKCE, `apixisSubOf`. | Yes | — |
 | Socixis | Skins/packs/autopilot via Wallet, `apixisOwner`. Stripe webhook deactivated (D14). | Yes | Per-second render SKUs gated off (`PAID_RENDERS_LIVE`); launch/identity PRs #47/#48 unreviewed. |
 | Contraxis | Pro redeem via Wallet. Stripe webhook deactivated (D14); local `credit_wallets` no longer fed. | Yes | PR #39 blocked only by a duplicate Vercel project (`temporary-turbo-sienna…`, wrong root). |
@@ -44,7 +44,7 @@ Legend: **Sell** = can take Ixis for something today. All branches for the 2026-
 | Apixis.dev | Hub, world kit, provision endpoint, pulse cron. Redeem owner = Apixis `sub` first; missing idempotency key is now rejected. | Hub | PRs #58/#59 (world) — #59 is DO NOT MERGE; starter = 1,000. |
 | Geoxis | JS port of SDK; `PLANS_ON_SALE=false`. Redeem owner = Apixis `sub` first. | Off | — |
 | NurseryToons | JS redeem; idempotency key now includes the user; world-agent update uses the service role. Family plan paused. | Off | — |
-| Ominix | **Ixis-only (D13).** Orders reserve/capture through the Wallet with a 5% Apixis Bank fee; NXC ledger deactivated. | After key | Register as Wallet client; verify one order end to end. |
+| Ominix | **Ixis-only (D13).** Orders hold + settle through the Wallet (`marketplaceOrder` / `marketplaceSettle`, 5% fee). Migration `002_ixis_only_orders` applied live 2026-09-30: NXC functions revoked, `award_job` at 5%, `complete_order_ixis`. | After key | Register as Wallet client (`npm run family-keys`) + set `WALLET_API_KEY`, `APIXIS_CLIENT_ID=ominix` in Vercel; a seller "Complete order" control still has to post to `/api/orders/complete` (design side); verify one order end to end. |
 | Wattixis | Draft persistence async repair in progress (Codex, uncommitted on their machine). Not a Wallet client yet. | No | Register as Wallet client; `/api/drafts` validation. |
 | awad-command | Internal: crypto-floor tick cron, mission control. Dead SDK v2 copy removed. | n/a | — |
 | AwadBot | `AWADBOT_ON_SALE=false`; fulfilment TODO. Never run trading commands from an AI. | Off | — |
