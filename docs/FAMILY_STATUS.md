@@ -50,7 +50,7 @@ Legend: **Sell** = can take Ixis for something today once its `WALLET_API_KEY` i
 | Geoxis | JS SDK takes Apixis `sub`; Cixy on shared core + fallback. `PLANS_ON_SALE=false`. | Off | ✓ (added) | — |
 | NurseryToons | Idempotency key incl. user; agent metadata via service role; Cixy on shared core + fallback; Cixy test runs. Family plan paused. | Off | — (no package.json) | — |
 | Ominix | **Ixis-only (D13)**: award → Wallet hold, complete → Wallet settle (5%). Migration 002 live. | After key | ✓ | Ominix keys in Vercel; a "Complete order" control (design side). |
-| Wattixis | `drafts`/`listings`/`requests` APIs validated + RLS verified; callback `type: "email"`; Cixy on shared core. | No | — (UI tests red on main: Codex's async draft work pending) | No Apixis ID / Wallet code yet (next Claude session); register client. |
+| Wattixis | Apixis ID sign-in (`/auth/apixis/*`), `api/wallet/balance`, `drafts`/`listings`/`requests` APIs validated + RLS verified; callback `type: "email"`; Cixy on shared core. | After key (no SKUs yet) | — (UI tests red on main: Codex's async draft work pending) | Wattixis keys in Vercel; SKUs are Awad's call. |
 | awad-command | Internal tool; dead SDK copy removed. | n/a | — (pnpm) | — |
 | AwadBot | `AWADBOT_ON_SALE=false`; Cixy on shared core. 32 tests. | Off | ✓ (added) | Never run trading commands from an AI. |
 | github-actions | Shared `node-ci.yml`, Node 22. | n/a | — | — |
