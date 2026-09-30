@@ -112,7 +112,8 @@ export async function finishApixisLogin(request: Request) {
         list.forEach(({ name, value, options }) => jar.set(name, value, options)),
     },
   });
-  const { error } = await supabase.auth.verifyOtp({ type: "magiclink", token_hash: tokenHash });
+  // "email" accepts the magic-link token and the `signup` token GoTrue mints for a brand-new address.
+  const { error } = await supabase.auth.verifyOtp({ type: "email", token_hash: tokenHash });
   if (error) return fail("session_error");
 
   return NextResponse.redirect(new URL(safeLocalRedirect(saved.next ?? "/"), url.origin), 302);

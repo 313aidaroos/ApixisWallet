@@ -7,6 +7,7 @@ import { ledgerErrorResponse } from "@/lib/api/errors";
 import { IDEMPOTENCY_KEY, productApp, reserveProduct } from "@/lib/api/reserve";
 import { sameOriginRequest } from "@/lib/api/origin";
 import { recordAudit, requestContext } from "@/lib/audit";
+import { LIMITS, checkLimits } from "@/lib/api/rate-limit";
 
 const bodySchema = z.object({
   productKey: z.string().min(1).max(80),
@@ -30,6 +31,9 @@ export async function POST(request: Request) {
   }
   if (!user) return NextResponse.json({ error: "Sign in required" }, { status: 401 });
   const userId = user.id;
+
+  const limited = checkLimits([{ key: `redeem:${userId}`, ...LIMITS.walletRedeem }]);
+  if (limited) return limited;
 
   const parsed = bodySchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "Invalid redeem request" }, { status: 400 });

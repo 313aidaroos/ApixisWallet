@@ -25,7 +25,9 @@ export async function GET(request: Request) {
   });
   let user = null;
   if (code) user = (await supabase.auth.exchangeCodeForSession(code)).data?.user ?? null;
-  else if (token_hash) user = (await supabase.auth.verifyOtp({ type: "magiclink", token_hash })).data?.user ?? null;
+  // "email" accepts magic-link, signup-confirmation and email-change tokens alike. GoTrue mints a
+  // `signup` token for an address it has never seen, which `type: "magiclink"` rejects.
+  else if (token_hash) user = (await supabase.auth.verifyOtp({ type: "email", token_hash })).data?.user ?? null;
   next = skipSetPassword(next, user?.user_metadata?.password_set === true);
   return NextResponse.redirect(new URL(next, url.origin));
 }

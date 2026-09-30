@@ -7,6 +7,7 @@ import { ownerForCaller } from "@/lib/api/caller-owner";
 import { ledgerErrorResponse } from "@/lib/api/errors";
 import { recordAudit, requestContext } from "@/lib/audit";
 import { IDEMPOTENCY_KEY, productApp, reserveProduct } from "@/lib/api/reserve";
+import { LIMITS, checkLimits } from "@/lib/api/rate-limit";
 
 const bodySchema = z.object({
   productKey: z.string().min(1).max(80),
@@ -20,6 +21,9 @@ const bodySchema = z.object({
 export async function POST(request: Request) {
   const auth = await authenticateService(request);
   if ("response" in auth) return auth.response;
+
+  const clientLimit = checkLimits([{ key: `client:${auth.caller.clientId ?? auth.caller.actor}`, ...LIMITS.clientReserve }]);
+  if (clientLimit) return clientLimit;
 
   const parsed = bodySchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
@@ -45,6 +49,9 @@ export async function POST(request: Request) {
   if ("error" in owner) return NextResponse.json({ error: owner.error }, { status: owner.status });
   const ownerId = owner.ownerId;
   if (!ownerId) return NextResponse.json({ error: "owner_email required" }, { status: 400 });
+
+  const ownerLimit = checkLimits([{ key: `owner:${ownerId}`, ...LIMITS.ownerReserve }]);
+  if (ownerLimit) return ownerLimit;
 
   const { data, error } = await reserveProduct(supabase, {
     ownerId,

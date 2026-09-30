@@ -26,6 +26,9 @@ export const FAMILY_SITES = [
   { name: "contentbot", apps: ["contentbot"], domain: "personalcontentbot.vercel.app" },
   { name: "deduxis", apps: ["deduxis"], domain: "deduxis.vercel.app" },
   { name: "apixis", apps: ["apixis"], domain: "apixis.dev" },
+  { name: "halaxis", apps: ["halaxis"], domain: "halaxis.vercel.app" },
+  { name: "ominix", apps: ["ominix"], domain: "ominix-app.vercel.app" },
+  { name: "wattixis", apps: ["wattixis"], domain: "wattixis.vercel.app" },
 ] as const;
 
 const mode = process.argv.includes("--test") ? "test" : "live";

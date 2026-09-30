@@ -14,7 +14,8 @@ export type AuditEventType =
   | "capture"
   | "release"
   | "redeem"
-  | "hold_expiry_sweep";
+  | "hold_expiry_sweep"
+  | "payout";
 
 export type AuditEvent = {
   event_type: AuditEventType;

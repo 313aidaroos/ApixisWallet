@@ -57,6 +57,20 @@ Last updated: 2026-09-23 (launch hardening 007, legal record 008, SDK v2).
 
 Launch-morning steps for Awad: **`docs/LAUNCH_KEYS.md`**. One command makes every site's key: `npm run family-keys`.
 
+### 0c. Family decisions (2026-09-30) — the current source of truth for every AI
+
+The table in §0b is history (those PRs are merged or superseded). **Live family status lives in
+`docs/FAMILY_STATUS.md`** — read it before touching any sister repo. Decisions Awad made on 2026-09-30:
+
+| # | Decision | What it means in code |
+|---|---|---|
+| D11 | **Starter in-world Ixis = 1,000** on first Apixis ID sign-in (Awad lock 2026-09-29, confirmed 2026-09-30). | `STARTER_IXIS = 1000` in the Apixis.dev world kit and every copy; docs that said 200 are wrong. |
+| D12 | **Apixis Bank fee = 5% (500 bps) everywhere.** No per-site fee. | Ominix moves from 8% to 5%. Fee math lives with the product that sells, but the number is family-wide. |
+| D13 | **Ominix is Ixis-only.** Its NXC wallet/ledger is retired: deactivated, not deleted. | Ominix orders reserve + capture through this Wallet like every other site. Its local `wallets` / `ledger_entries` / `complete_order` stay in the schema but nothing writes to them. |
+| D14 | **Non-Wallet Stripe money paths are deactivated, not deleted.** | Contraxis and Socixis Stripe webhooks answer 410 (same as their checkouts). Only this Wallet runs Stripe for Ixis. qahwahworld's physical-coffee Stripe is the one approved exception. |
+| D15 | **One log, one board per repo.** `AI_CHANGELOG.md` is the only change log; `docs/FAMILY_STATUS.md` (here) is the only family status board. Per-repo `NOTES/*.md`, `JUNOAI_NOTES.md`, `WORKBOARD.md`, `LAUNCH_NOTES.md` are archives — do not update them, do not create new ones. | Every AI appends to `AI_CHANGELOG.md` and, when family status changes, edits `docs/FAMILY_STATUS.md` in this repo. |
+| D16 | **`verifyOtp({ type: "email" })` everywhere.** GoTrue mints a `signup` token for a never-seen address, which `type: "magiclink"` rejects; `"email"` accepts both. | Fixed in `app/auth/callback` and `sdk/apixis-login-next.ts`; copy the kit, never patch a site's copy by hand. |
+
 **Next steps, in order:**
 1. **Merge `claude/epic-rubin-oen8nu` → `main`** (safe now that 007/008 are live). In Vercel, set `CRON_SECRET` and `TERMS_VERSION`, then redeploy.
 2. **Supabase Auth settings** (dashboard): turn on leaked-password protection (Authentication → Policies/Passwords) and keep email confirmation ON.
@@ -196,6 +210,8 @@ Base URL: `https://apixis-wallet.vercel.app`. Contract detail and curl examples:
 | `GET /sso/authorize?client_id&redirect_uri&state` | browser (Wallet session) | Apixis ID: 302 back to the registered `redirect_uri` with a one-time `code` (2 min, single use) |
 | `POST /api/sso/token` | site's own `apx_` key (the legacy key is refused) | `{ code, redirect_uri }` → `{ sub, email, email_verified }`; records the `sso_links` row |
 | `GET /api/v1/balance?owner_id=<sub>&history=N` | service key | The shared balance a site shows. A per-site key only sees people who signed in there with Apixis ID. |
+| `POST /api/v1/marketplace/orders` | service key | Person → person (Ominix jobs). `{ amount (100–10,000,000 Ixis), idempotencyKey, buyer_id\|buyer_email, reference?, description?, holdDays? (1–30, default 14), app? }` → 201 `{ reservationId, status:"held", app, ixis }`. A product-less hold: no entitlement row. Cancel = `/api/v1/reservations/:id/release`. Migration 011 (applied live 2026-09-30) allows holds up to 30 days. |
+| `POST /api/v1/marketplace/orders/:id/settle` | service key | `{ seller_id\|seller_email, feeBps? (default 500 = 5%, D12), description? }` → capture the buyer's hold, credit the seller `amount − fee` (`paid` bucket, idempotent by `<hold external id>:payout`). The fee stays in clearing. 500 `payout_pending` = buyer charged, retry the same call. Audit: `capture` + `payout`. SDK: `marketplaceOrder()` / `marketplaceSettle()` (v3.1). |
 | `GET /api/v1/admin/summary?days=30` | `Bearer $WALLET_STATS_KEY` (read-only, ≥32 chars) | Owner business summary for AWAD COMMAND: daily cash in / refunds / Ixis sold / Ixis redeemed, redemptions by site, customer holdings, active entitlements, last 25 events (no IP / user agent). 503 until the key is set. Not a money key. |
 
 **Service auth** (`lib/api/service-auth.ts`):
@@ -280,8 +296,11 @@ const r = await redeemProduct("renoxis.agent.monthly"); // { ok } | { ok:false, 
 - **Refunds:** policy is no refunds (D3). If a full refund is issued anyway, or a chargeback is lost, the Ixis are removed even if already spent, so the balance goes negative and redeems are blocked until a top-up. Partial refunds are not applied to the ledger; they're logged for manual handling.
 - **Bonus expiry** is not enforced, so don't sell or grant expiring bonus yet.
 - **Quotes are informational.** A price change between quote and reserve charges the new catalog price.
+- **Rate limiting** is burst protection only (`lib/api/rate-limit.ts`, 2026-09-30): fixed window, in memory,
+  per serverless instance — per site key (300 holds/min), per person (30 holds/min across sites,
+  20 Wallet-UI redeems/min), per site (120 Apixis ID code exchanges/min). A 429 carries `Retry-After`.
+  It is not a replacement for Vercel WAF rules on `/api/checkout` and `/api/v1/*`.
 - **Not built yet:**
-  - rate limiting (use the Vercel WAF / firewall rules for `/api/checkout` and `/api/v1/*`)
   - an owner admin dashboard
   - low-balance notices
   - auto-renewing subscriptions (today the customer or the site redeems each month)

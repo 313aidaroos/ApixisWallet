@@ -3,6 +3,7 @@ import { z } from "zod";
 import { authenticateService } from "@/lib/api/service-auth";
 import { createServiceSupabase } from "@/lib/supabase/service";
 import { SSO_CODE_PATTERN, hashSsoCode } from "@/lib/sso";
+import { LIMITS, checkLimits } from "@/lib/api/rate-limit";
 
 const bodySchema = z.object({ code: z.string().regex(SSO_CODE_PATTERN), redirect_uri: z.string().url().max(500) });
 
@@ -16,6 +17,8 @@ export async function POST(request: Request) {
   if (!auth.caller.clientId) {
     return NextResponse.json({ error: "Use this site's own apx_ key for Apixis ID" }, { status: 403 });
   }
+  const limited = checkLimits([{ key: `sso:${auth.caller.clientId}`, ...LIMITS.ssoToken }]);
+  if (limited) return limited;
 
   const parsed = bodySchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "invalid_request" }, { status: 400 });

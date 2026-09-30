@@ -11,7 +11,7 @@
  *   APIXIS_WALLET_API_URL   https://apixis-wallet.vercel.app
  *   APIXIS_CLIENT_ID        this site's Apixis ID client name (e.g. "renoxis") — for "Sign in with Apixis"
  *
- * SDK version: 3 (2026-09-23). Replace older copies with this file.
+ * SDK version: 3.1 (2026-09-30: marketplace orders). Replace older copies with this file.
  *
  * WHO a call is about (`owner` below): pass the Apixis ID `sub` (a Wallet user id, from
  * exchangeLoginCode) — preferred — or, until your site uses Apixis ID, the user's VERIFIED email.
@@ -147,6 +147,46 @@ export async function release(reservationId: string) {
 /** Where a hold stands. Use it to reconcile after a timeout or crash. */
 export async function reservationStatus(reservationId: string): Promise<ReservationStatus> {
   return call<ReservationStatus>("GET", `/api/v1/reservations/${reservationId}`);
+}
+
+// ---------------------------------------------------------------- marketplace orders (person → person)
+
+export type MarketplaceOrder = { reservationId: string; status: "held"; app: string; ixis: number };
+export type MarketplaceSettlement = {
+  reservationId: string; status: "settled"; receiptId: string; payoutId: string | null;
+  app: string; ixis: number; fee: number; feeBps: number; payout: number;
+};
+
+/**
+ * Open a marketplace order: hold `amount` Ixis on the buyer until the seller delivers (up to
+ * `holdDays`, default 14, max 30). `buyer` = the buyer's Apixis ID `sub` (or verified email).
+ * Same rules as reserve(): stable idempotencyKey per order, 402 = "not enough Ixis".
+ * Cancel with release(reservationId); the Wallet also releases it itself when the hold expires.
+ */
+export async function marketplaceOrder(opts: {
+  buyer: Owner; amount: number; idempotencyKey: string; reference?: string; description?: string; holdDays?: number; app?: string;
+}): Promise<MarketplaceOrder> {
+  const { buyer, ...rest } = opts;
+  const fields = ownerFields(buyer);
+  return call("POST", "/api/v1/marketplace/orders", {
+    ...rest,
+    ...("owner_id" in fields ? { buyer_id: fields.owner_id } : { buyer_email: fields.owner_email }),
+  });
+}
+
+/**
+ * Settle a delivered order: the buyer's hold is captured and the seller is paid amount − fee
+ * (family fee 5% unless you pass feeBps). Idempotent — retry the same call after a lost response.
+ * A WalletError with code "payout_pending" means the buyer WAS charged and the seller payout must
+ * be retried (call again with the same arguments); never refund the buyer on that code.
+ */
+export async function marketplaceSettle(reservationId: string, opts: { seller: Owner; feeBps?: number; description?: string }): Promise<MarketplaceSettlement> {
+  const { seller, ...rest } = opts;
+  const fields = ownerFields(seller);
+  return call("POST", `/api/v1/marketplace/orders/${reservationId}/settle`, {
+    ...rest,
+    ...("owner_id" in fields ? { seller_id: fields.owner_id } : { seller_email: fields.owner_email }),
+  });
 }
 
 /** What this user owns on your app. Wallet writes these on capture; you only read. */
