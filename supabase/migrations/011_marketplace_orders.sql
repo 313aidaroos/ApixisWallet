@@ -93,3 +93,22 @@ begin
   if v_from_bonus > 0 then
     insert into ledger_entries (transaction_id, wallet_id, bucket, amount) values (v_tx_id, v_wallet_id, 'bonus', -v_from_bonus);
   end if;
+  if p_amount - v_from_bonus > 0 then
+    insert into ledger_entries (transaction_id, wallet_id, bucket, amount) values (v_tx_id, v_wallet_id, 'paid', -(p_amount - v_from_bonus));
+  end if;
+  insert into ledger_entries (transaction_id, wallet_id, bucket, amount) values (v_tx_id, v_wallet_id, 'reserved', p_amount);
+  return v_tx_id;
+end $$;
+
+-- Same lock-down as 007/010 (create or replace keeps grants; restated so a fresh database matches).
+do $$
+declare f regprocedure;
+begin
+  for f in
+    select p.oid::regprocedure from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+     where n.nspname = 'public' and p.proname = 'reserve_xp'
+  loop
+    execute format('revoke all on function %s from public, anon, authenticated', f);
+    execute format('grant execute on function %s to service_role', f);
+  end loop;
+end $$;
