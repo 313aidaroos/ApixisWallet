@@ -23,3 +23,5 @@ Entry format:
 - Changed: `components/WalletScreen.tsx` — Tape tab no longer shows "Cap" / "24h vol" (POLICY.md: never market Ixis as an asset); absolute URL in `signInHere` to clear the Next lint warning.
 - Changed: `AGENTS.md` §0c (decisions D11–D16 of 2026-09-30) and §9; new `docs/FAMILY_STATUS.md` — the single family status board (D15).
 - Why: Awad's 2026-09-30 audit confirmation — put every AI on the same page, fix the fleet-wide sign-in bug at its source, and harden the money routes before testers.
+- Changed (same session, later): `app/api/v1/marketplace/orders` + `.../[id]/settle`, `lib/api/marketplace.ts`, `test/marketplace.test.ts`, migration `011_marketplace_orders.sql` (30-day holds, `payout` audit type), `lib/audit.ts`, `sdk/apixis-wallet.ts` v3.1 (`marketplaceOrder`, `marketplaceSettle`), AGENTS.md §5.
+- Why: D13 — Ominix (and later Rawixis) settle person-to-person orders through the one ledger with the 5% Apixis Bank fee, instead of a local NXC wallet. Migration 011 is NOT applied live yet; until then order holds are capped at 24 h by the live `reserve_xp`.
