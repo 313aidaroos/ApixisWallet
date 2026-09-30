@@ -36,6 +36,9 @@ export const VERCEL_PRODUCT_HOSTS = [
   "geoxis.vercel.app",
   "recovra-three.vercel.app",
   "contraxis-dev.vercel.app",
+  "ominix-app.vercel.app",
+  "nexxis-tau.vercel.app",
+  "wattixis.vercel.app",
 ] as const;
 
 const FAMILY_DOMAINS = ["apixis.dev"] as const;
