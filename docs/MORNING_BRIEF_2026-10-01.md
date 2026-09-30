@@ -36,7 +36,7 @@ Every family site needs these three from step A:
 |---|---|
 | apixis-wallet | `CRON_SECRET`, `TERMS_VERSION`, (later) `WALLET_ALLOW_LEGACY_SERVICE_KEY=false` |
 | ominix | the three above (**new** — Ominix cannot award a bid until they exist), `APIXIS_WORLD_KEY` |
-| wattixis | `ANTHROPIC_API_KEY`, `APIXIS_WORLD_KEY`, `SUPABASE_SERVICE_ROLE_KEY` (no Wallet/Apixis ID code yet — see §5) |
+| wattixis | the three above (**new** — Apixis ID sign-in and balance shipped overnight), `ANTHROPIC_API_KEY`, `APIXIS_WORLD_KEY`, `SUPABASE_SERVICE_ROLE_KEY` |
 | halaxis | the three above (new), `ANTHROPIC_API_KEY`, `APIXIS_WORLD_KEY` |
 | personalcontentbot | `PCB_DURABLE_JOBS=true` **after** SQL C2, `CRON_SECRET` (any long random string) |
 | recovra | `SUPABASE_SERVICE_ROLE_KEY` (Codex validated it; never configured) |
@@ -69,7 +69,6 @@ D11 starter 1,000 · D12 fee 5% everywhere · D13 Ominix Ixis-only, NXC deactiva
 | Item | Who | Notes |
 |---|---|---|
 | Wattixis draft UI tests (8 of 13 red on `main`) | Codex (uncommitted on your Mac) | `public/js/*` harness is sync, code is async. APIs are done and validated; CI held off this repo until that lands. |
-| Wattixis Apixis ID + Wallet | Claude, next session | Site has no `/auth/apixis/*` routes or Wallet calls at all; needs the login kit ported to its plain-JS API style (~half a day). |
 | Ominix "Complete order" control | You (design) | Backend `/api/orders/complete` is ready; no button posts to it. |
 | Lyrixis upload → transcript | Keys first | `REDIS_URL` + worker host + `TRANSCRIPTION_API_KEY`, then one real upload. |
 | Halaxis SKUs | Your call | Nothing to sell; payments intentionally off. |
