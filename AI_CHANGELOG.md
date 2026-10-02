@@ -49,3 +49,7 @@ Entry format:
 - Changed: `scripts/family-sites.ts` now holds the site list (shared by family-keys and the kit).
 - Decision D17 (owner): Pinixis takes card payments through its own Stripe — AGENTS.md §0c, second exception to D14.
 - Changed: `docs/OWNER_CHECKLIST.md` rewritten around the kit; `docs/FAMILY_STATUS.md` Pinixis row.
+
+## 2026-10-02 (night, later) — Claude (Claude Code)
+- Changed: `.env.launch.example` names `wallet=apixis-wallet` under `[vercel]`; checklist notes the second Vercel project `aw-live`.
+- Why: GitHub shows this repo deploying to two Vercel projects, so the kit would otherwise stop and ask which is the Wallet.
