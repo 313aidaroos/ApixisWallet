@@ -236,9 +236,10 @@ export const COMPANIES: Company[] = [
     id: "geoxis",
     label: "Geoxis",
     repos: ["geoxis"],
+    supabase: { ref: "ncifprfgastofurrlsko", url: ["SUPABASE_URL"], anon: ["SUPABASE_ANON_KEY"] },
     wallet: true,
     world: true,
-    required: ["WALLET_API_KEY"],
+    required: ["SUPABASE_URL", "WALLET_API_KEY"],
   },
   {
     id: "nurserytoons",
