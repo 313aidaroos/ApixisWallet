@@ -171,7 +171,7 @@ Live check before applying 007: the ledger held **test/QA data only** (57 rows, 
 - **Stored:** in `wallet_api_clients`. Only the SHA-256 hash is kept, scoped to `app_slugs`, with registered `redirect_uris`.
 - **Format:** `apx_live_…` or `apx_test_…`.
 - **Legacy:** the Wallet's Supabase service key still works as a bearer, **unscoped**, until `WALLET_ALLOW_LEGACY_SERVICE_KEY=false`. It must then be rotated, because it was shared with every site.
-- **Mint all at once:** `npm run family-keys` prints one SQL block plus each site's env block. Keys never touch disk.
+- **Mint all at once:** `npm run family-keys -- --only <sites>` prints one SQL block plus each site's env block. Keys never touch disk.
 - **Mint one:** `npm run api-key -- --name <site> --apps <app> --redirect https://<domain>/auth/apixis/callback`.
 - **Revoke:** `update public.wallet_api_clients set active=false, revoked_at=now() where name='<site>';`
 
@@ -423,7 +423,7 @@ Not touched: AwadBot, awad-command, AFCCommand.
 1. **Wallet database:** apply `009_apixis_id.sql` (the Wallet's live DB already has 007/008).
 2. **Wallet PR #7:** merge, then add `CRON_SECRET` and `TERMS_VERSION` in Vercel.
 3. **Keys and settings** (the sites' "Sign in with Apixis" needs these first):
-   - run `npm run family-keys`
+   - run `npm run family-keys -- --only <sites without a key>`
    - paste its SQL into the Wallet database
    - paste each site's env block into its Vercel project
    - add `SUPABASE_SERVICE_ROLE_KEY` to each site

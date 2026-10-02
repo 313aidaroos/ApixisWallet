@@ -1,6 +1,6 @@
 # Apixis family — status board (one page, every AI reads this first)
 
-**Owner:** Awad (313aidaroos). **Rules:** `AGENTS.md` §0 (D1–D16). **Last updated: 2026-10-01 early morning (Claude, overnight pass).** Morning brief: `docs/MORNING_BRIEF_2026-10-01.md`.
+**Owner:** Awad (313aidaroos). **Rules:** `AGENTS.md` §0 (D1–D16). **Last updated: 2026-10-02 (Claude).** Owner to-do, company by company: **`docs/OWNER_CHECKLIST.md`**. Previous brief: `docs/MORNING_BRIEF_2026-10-01.md`.
 
 This is the only family-wide status board (D15). Per-repo `NOTES/*.md`, `JUNOAI_NOTES.md`, `WORKBOARD.md`
 and `LAUNCH_NOTES.md` are archives. If you change family status, change it here. Every code change: `AI_CHANGELOG.md` in that repo.
@@ -19,8 +19,8 @@ and `LAUNCH_NOTES.md` are archives. If you change family status, change it here.
 
 | Item | Why it is blocked | Who |
 |---|---|---|
-| `npm run family-keys` → SQL into Wallet Supabase + 3 env vars per Vercel project (now incl. Halaxis, Ominix, Wattixis) | Keys are printed once, never stored. | Awad |
-| Hub project SQL: `docs/security/2026-09-30-hub-project-lint.sql`, `PersonalContentBot/supabase/pcb_jobs_durable.sql` | Claude's connector has no write access to `myfclypikkcvfurrlsko`. | Awad |
+| `npm run family-keys -- --only ominix,wattixis` → SQL into Wallet Supabase + 3 env vars each. The other 14 sites already have keys; never re-mint them (breaks sign-in; migration 012 refuses). | Keys are printed once, never stored. | Awad |
+| Hub project SQL: `docs/security/2026-09-30-hub-project-lint.sql`, `PersonalContentBot/supabase/pcb_jobs_durable.sql` | Claude's connector has no write access to `myfclypikkcvfurkbzmj`. | Awad |
 | Leaked-password protection ON (15 projects) | Dashboard-only setting. | Awad |
 | Anthropic credits | Rawixis/Recovra report insufficient credits; Cixy answers "resting" until topped up. | Awad |
 | Recovra `SUPABASE_SERVICE_ROLE_KEY`, Lyrixis `REDIS_URL` + `TRANSCRIPTION_API_KEY`, PCB `PCB_DURABLE_JOBS` + `CRON_SECRET` | Env only. | Awad |
@@ -39,7 +39,7 @@ Legend: **Sell** = can take Ixis for something today once its `WALLET_API_KEY` i
 | Socixis | Skins/packs/autopilot via Wallet. Stripe webhook 410 (D14). Cixy matched. | Yes | ✓ (added) | Render SKUs gated off; PRs #47/#48 unreviewed. |
 | Contraxis | Pro redeem via Wallet. Stripe webhook 410. Cixy on shared core. | Yes | ✓ (added) | Delete duplicate Vercel project `temporary-turbo-sienna…`. |
 | Recovra | Reserve/capture-first plans, Apixis ID routes, Cixy on shared core + calm fallback. 65 tests. | After key | ✓ | Production service key not configured. |
-| Deduxis | Callback `type: "email"`, owner = Apixis `sub`, Cixy on shared core + fallback. | Yes | ✓ (added) | — |
+| Deduxis | Callback `type: "email"`, owner = Apixis `sub`, Cixy on shared core + fallback. `receipts` + `category_overrides` tables and private `receipts` bucket created live 2026-10-02 (were missing). | Yes | ✓ (added) | — |
 | Lyrixis | Track unlock via Wallet, OTP login. Cixy matched. 39 tests. | Yes | ✓ | `REDIS_URL`, `TRANSCRIPTION_API_KEY`, worker host. |
 | Rawixis | Buyer seats via Wallet, admin key isolated, Cixy on shared core. 288 tests. | Yes (seats) | ✓ | Anthropic credits; end-to-end deal not verified. |
 | qahwahworld | Roaster seat via Wallet, PKCE, Cixy on shared core (neutral opener). 28 tests. | Yes (seat) | ✓ | Seller seat / featured listing SKUs unused. |
@@ -53,6 +53,7 @@ Legend: **Sell** = can take Ixis for something today once its `WALLET_API_KEY` i
 | Wattixis | Apixis ID sign-in (`/auth/apixis/*`), `api/wallet/balance`, `drafts`/`listings`/`requests` APIs validated + RLS verified; callback `type: "email"`; Cixy on shared core. | After key (no SKUs yet) | — (UI tests red on main: Codex's async draft work pending) | Wattixis keys in Vercel; SKUs are Awad's call. |
 | awad-command | Internal tool; dead SDK copy removed. | n/a | — (pnpm) | — |
 | AwadBot | `AWADBOT_ON_SALE=false`; Cixy on shared core. 32 tests. | Off | ✓ (added) | Never run trading commands from an AI. |
+| Pinixis (new 2026-10-01) | Build/quote/marketplace app; only arcade migration live, main `schema.sql` not applied. Own Stripe (needs a D14 decision). Not a Wallet client yet. | Off | — | Awad: D14 decision, then schema + env. |
 | github-actions | Shared `node-ci.yml`, Node 22. | n/a | — | — |
 | afccommand / thenightexchange | Empty / trading-pit sim without Wallet. | n/a | — | — |
 

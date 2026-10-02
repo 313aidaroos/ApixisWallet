@@ -38,7 +38,7 @@ Optional: Settings → Customer emails → turn on **Successful payments** (free
 On any computer with this repo:
 ```bash
 npm install
-npm run family-keys
+npm run family-keys -- --only <site>   # only sites that have no key yet; see docs/OWNER_CHECKLIST.md
 ```
 It prints two things:
 1. **One SQL block.** Paste it into the **apixis-wallet** Supabase SQL Editor and click Run. That registers every site, and its sign-in callback, with the Wallet.
