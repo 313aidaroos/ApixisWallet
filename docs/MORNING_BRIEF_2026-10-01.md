@@ -23,7 +23,7 @@ Everything below is merged to `main` and deployed by Vercel on merge. What is le
 
 ### A. Wallet keys — one command
 ```bash
-cd ApixisWallet && npm install && npm run family-keys
+cd ApixisWallet && npm install && npm run family-keys -- --only ominix,wattixis   # CORRECTED 2026-10-02: never all sites
 ```
 It prints (1) one SQL block → paste into Supabase **apixis-wallet** (`kzneeksminozmhnqaaun`) SQL editor, (2) three env lines per site. It now covers **Halaxis, Ominix, Wattixis** too. Keys are printed once; never paste them anywhere but Vercel.
 
@@ -44,7 +44,7 @@ Every family site needs these three from step A:
 | every site with Cixy | `ANTHROPIC_API_KEY` — **and Anthropic credits**: Rawixis/Recovra report "insufficient credits"; until topped up Cixy answers "resting" everywhere the key is shared |
 | every site with the world kit | `APIXIS_WORLD_KEY` (per-product key; hashes in `APIXIS_WORLD_KEYS` on apixis-dev) |
 
-### C. Two SQL pastes (Supabase → project "313aidaroos's Project", ref `myfclypikkcvfurrlsko`)
+### C. Two SQL pastes (Supabase → project "313aidaroos's Project", ref `myfclypikkcvfurkbzmj`)
 My connector has no write access to that one project.
 1. `ApixisWallet/docs/security/2026-09-30-hub-project-lint.sql` — advisor fixes (trigger functions off the RPC surface, `search_path`).
 2. `PersonalContentBot/supabase/pcb_jobs_durable.sql` — durable job columns. Then set `PCB_DURABLE_JOBS=true` (B).

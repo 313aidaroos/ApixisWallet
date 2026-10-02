@@ -4,14 +4,14 @@ _Updated 2026-09-27. One notes file per repo: what was changed, file by file, an
 
 ## Status
 
-Live bank for the whole family. Ready: set keys and run `npm run family-keys` once.
+Live bank for the whole family. Ready: set keys and run `npm run family-keys -- --only <new sites>` (never for a site that already has a key).
 
 ## Connect (in order)
 
 1. Supabase (Wallet project): `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`.
 2. Stripe (the only place payments are taken): `STRIPE_RESTRICTED_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_IXIS_*_PRICE_ID`. Webhook URL: `https://apixis-wallet.vercel.app/api/webhooks/stripe` (not `/api/stripe/webhook`, which 404s). Events: see **Stripe webhook and payment methods** below.
 3. `WALLET_STATS_KEY`: same random value as on COMMAND (read-only graph).
-4. Then run `npm run family-keys` and hand each site its block (see each repo's LAUNCH_NOTES).
+4. Then run `npm run family-keys -- --only <new sites>` and hand each site its block (see each repo's LAUNCH_NOTES).
 
 Every key this repo reads is listed in `.env.example` (required, optional, and legacy names to leave unset).
 

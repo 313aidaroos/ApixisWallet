@@ -55,7 +55,7 @@ Last updated: 2026-09-23 (launch hardening 007, legal record 008, SDK v2).
 | Halaxis.dev | #5 | Apixis sign-in · shared balance in the header | Open (no Wallet SKUs yet) |
 | Geoxis, NurseryToons, Apixis.dev | #1, #1, #38 | Notes only. These are plain HTML + serverless sites; Apixis sign-in is the next step | Open. Apixis.dev `api/checkout.js` (direct Stripe) still to review |
 
-Launch-morning steps for Awad: **`docs/LAUNCH_KEYS.md`**. One command makes every site's key: `npm run family-keys`.
+Launch-morning steps for Awad: **`docs/LAUNCH_KEYS.md`**. Keys for NEW sites only: `npm run family-keys -- --only <site>` (re-minting an existing site breaks its sign-in; migration 012 refuses it). Owner to-do list: **`docs/OWNER_CHECKLIST.md`**.
 
 ### 0c. Family decisions (2026-09-30) — the current source of truth for every AI
 

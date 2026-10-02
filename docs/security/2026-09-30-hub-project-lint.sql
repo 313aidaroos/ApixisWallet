@@ -1,4 +1,4 @@
--- Run ONCE in the Supabase SQL editor of project "313aidaroos's Project" (ref myfclypikkcvfurrlsko).
+-- Run ONCE in the Supabase SQL editor of project "313aidaroos's Project" (ref myfclypikkcvfurkbzmj).
 -- Claude's MCP user has no write permission on that project, so this one is manual.
 -- Advisor findings only; no behaviour change. Same SQL was applied by Claude on Contraxis, Lyrixis, Ominix.
 do $$
