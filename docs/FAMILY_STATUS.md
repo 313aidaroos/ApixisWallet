@@ -22,24 +22,44 @@ This replaces every earlier "what is missing" list. Re-check any time with `npm 
 **Deploys:** every Vercel project runs the latest `main` of its repo (checked commit by commit). Pinixis was two
 merges behind (not connected to GitHub; one hand upload had failed) — redeployed from `main` (`5102a50`), READY.
 
-**Wallet clients (Apixis ID + Wallet keys):** 14 active, one per name: apixis, contentbot, contraxis, deduxis, geoxis,
-halaxis, launchixis, lyrixis, nurserytoons, qahwahworld, rawixis, recovra, renoxis, socixis. **Missing: ominix, wattixis**
-(the launch kit issues them). All `require_sso=false` until sign-in is verified live.
+**Wallet clients (Apixis ID + Wallet keys):** 16 active, one per name: apixis, contentbot, contraxis, deduxis, geoxis,
+halaxis, launchixis, lyrixis, nurserytoons, ominix, qahwahworld, rawixis, recovra, renoxis, socixis, wattixis
+(ominix + wattixis registered 2026-10-02 late night). All `require_sso=false` until sign-in is verified live.
 
-**Env vars actually missing in Vercel (names only; everything else is already set):**
+**Filled by Claude 2026-10-02 late night via the Vercel connector (names only; values never written down):**
+
+| Vercel project | Added | How |
+|---|---|---|
+| `ominix` | `WALLET_API_KEY`, `APIXIS_CLIENT_ID`, `APIXIS_WALLET_API_URL` | New Wallet key minted (prefix `apx_live_IH-`), hash stored in the Wallet DB |
+| `wattixis` | `WALLET_API_KEY`, `APIXIS_CLIENT_ID`, `APIXIS_WALLET_API_URL` | New Wallet key minted (prefix `apx_live_gtC`) |
+| `halaxis`, `personalcontentbot` | `CRON_SECRET` | Freshly generated |
+| `launchixis` | `ADMIN_EMAILS` | Awad's two addresses |
+| `pinixis` | `ANTHROPIC_API_KEY`, `RESEND_API_KEY` | Same keys Deduxis uses (copied project to project) |
+| `pinixis` | `ADMIN_EMAIL` | awad@apixis.dev |
+
+All six projects were redeployed from their current `main` build so the new values are live.
+
+**Still missing — only Awad can supply these (names only):**
 
 | Company (Vercel project) | Missing | Effect until set |
 |---|---|---|
-| Ominix (`ominix`) | `WALLET_API_KEY`, `APIXIS_CLIENT_ID`, `APIXIS_WALLET_API_URL` | No Apixis sign-in, bids can't be awarded |
-| Wattixis (`wattixis`) | `WALLET_API_KEY`, `APIXIS_CLIENT_ID`, `APIXIS_WALLET_API_URL` | No Apixis sign-in / balance |
-| Recovra (`recovra`) | `SUPABASE_SERVICE_ROLE_KEY` | Paid plans can't activate |
+| Recovra (`recovra`) | `SUPABASE_SERVICE_ROLE_KEY` (or run the launch kit with a Supabase token) | Paid plans can't activate |
 | Lyrixis (`lyrixis`) | `REDIS_URL`, `TRANSCRIPTION_API_KEY` | Upload → transcript off |
 | Apixis.dev (`apixis-dev`) | `KV_REST_API_URL`, `KV_REST_API_TOKEN` (or Upstash) | World/citizen state not durable |
-| Halaxis (`halaxis`) | `TAVILY_API_KEY`, `CRON_SECRET` | Research off |
-| PersonalContentBot (`personalcontentbot`) | `CRON_SECRET`, `PCB_DURABLE_JOBS` (after hub SQL) | Retry-safe jobs off |
-| Launchixis (`launchixis`) | `ADMIN_EMAILS` | No admin |
-| Pinixis (`pinixis`) | `ANTHROPIC_API_KEY`, `RESEND_API_KEY`, `ADMIN_EMAIL`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` | Payments say "not set up yet" |
-| Wallet, Renoxis, Socixis, Contraxis, Deduxis, Rawixis, Qahwah, Geoxis, NurseryToons, awad-command | — | Complete |
+| Halaxis (`halaxis`) | `TAVILY_API_KEY` | Research off |
+| PersonalContentBot (`personalcontentbot`) | `PCB_DURABLE_JOBS` (after hub `pcb_jobs_durable.sql`) | Retry-safe jobs off |
+| Pinixis (`pinixis`) | `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` (+ Stripe Connect on) | Payments say "not set up yet" |
+| Everyone else | — | Complete |
+
+**How the family connects (checked live 2026-10-02 late night, all match):**
+- Sign-in return addresses in the Wallet DB (`wallet_api_clients.redirect_uris`) match each site's live address:
+  apixis.dev, renoxis.dev, socixis.dev (+www), and `<name>.vercel.app` for the rest, except Recovra
+  (`recovra-three.vercel.app`), Contraxis (`contraxis-dev.vercel.app`), Ominix (`ominix-app.vercel.app`), Geoxis
+  (`spatial-dashboard-xi.vercel.app`), ContentBot (`personalcontentbot.vercel.app`).
+- The Wallet's checkout "return to site" list (`lib/checkout/return-url.ts`) covers every one of those hosts; Geoxis's host
+  is now in the code list too (it was only in the `CHECKOUT_RETURN_HOSTS` env var).
+- Apixis.dev's "Enter" list (`apixis.dev/js/apixis-clients.js`) points at the same addresses.
+- Pinixis is not a Wallet client (own Stripe, D17); its address is `pinixis.vercel.app` until pinixis.com is pointed at it.
 
 **Supabase:** Deduxis receipts + Pinixis marketplace schemas live (2026-10-02). Still Awad's (or the kit's): hub lint SQL,
 hub `pcb_jobs_durable.sql`, Pinixis sign-up trigger (optional), leaked-password protection (Pro plan).

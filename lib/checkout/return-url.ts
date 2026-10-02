@@ -39,6 +39,7 @@ export const VERCEL_PRODUCT_HOSTS = [
   "ominix-app.vercel.app",
   "nexxis-tau.vercel.app",
   "wattixis.vercel.app",
+  "spatial-dashboard-xi.vercel.app",
 ] as const;
 
 const FAMILY_DOMAINS = ["apixis.dev"] as const;
