@@ -27,7 +27,7 @@ Wallet keys, every site's world key, ContentBot durable jobs, Supabase keys, red
   - Pinixis: `https://<pinixis domain>/api/stripe/webhook` — and turn on **Stripe Connect** (sellers get paid out)
 - [ ] **Contraxis:** delete the duplicate Vercel project `temporary-turbo-sienna-p6yqsjd`.
 - [ ] **Wallet:** the repo also deploys to a second Vercel project `aw-live`. If you don't use it, delete it (the kit already uses `apixis-wallet`).
-- [ ] **Pinixis:** create its Vercel project (connected to the `pinixis` repo) if it doesn't exist yet; set its domain.
+- [ ] **Pinixis:** its Vercel project `pinixis` (pinixis.vercel.app) is not connected to GitHub, so merges do not deploy. Vercel → pinixis → Settings → Git → Connect `313aidaroos/Pinixis` (then every merge deploys). Point pinixis.com at it when ready.
 - [ ] Optional: Google OAuth client for Renoxis (redirect `https://renoxis.dev/api/connections/google/callback`),
       Meta app for Socixis.
 

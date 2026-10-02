@@ -79,6 +79,9 @@ describe("launch kit: plan", () => {
     assert.match(pickProject(company("socixis"), projects).problem ?? "", /several/);
     assert.equal(pickProject(company("socixis"), projects, "socixis").project?.id, "3");
     assert.match(pickProject(company("lyrixis"), projects).problem ?? "", /no Vercel project/);
+    // Not connected to GitHub (deployed by hand): matched by name.
+    assert.equal(pickProject(company("pinixis"), [...projects, { id: "5", name: "pinixis" }]).project?.id, "5");
+    assert.match(pickProject(company("pinixis"), [{ id: "6", name: "pinixis", repo: "someone-else" }]).problem ?? "", /no Vercel project/);
   });
 
   it("merges world-key hashes, replacing only the clients that got new keys", () => {
