@@ -62,3 +62,10 @@ Entry format:
 - Changed: `docs/FAMILY_STATUS.md` — live cross-check of all 24 Vercel projects (env var names only, deploy vs GitHub main), Wallet client registry and Supabase; one table of what is really missing; duplicates/leftovers list (nothing deleted). `docs/OWNER_CHECKLIST.md` aligned; `docs/MORNING_BRIEF_2026-10-01.md` marked archived. Launch kit: Geoxis Supabase (`ncifprfgastofurrlsko`).
 - Also: Pinixis redeployed from GitHub `main` (`5102a50`, READY); the live site was two merges behind.
 - Why: owner asked for every agent in sync, one source of truth, no duplicates.
+
+## 2026-10-02 (late night) — Claude (Vercel connector + Supabase, live settings)
+- Live (Wallet DB): registered Wallet clients `ominix` and `wattixis` (new per-site keys; only hashes stored). 16 active clients now.
+- Live (Vercel): added `WALLET_API_KEY`/`APIXIS_CLIENT_ID`/`APIXIS_WALLET_API_URL` on ominix + wattixis; `CRON_SECRET` on halaxis + personalcontentbot; `ADMIN_EMAILS` on launchixis; `ANTHROPIC_API_KEY`, `RESEND_API_KEY` (same keys as Deduxis), `ADMIN_EMAIL` on pinixis. Redeployed all six; values are not written anywhere in this repo.
+- Changed: `lib/checkout/return-url.ts` — Geoxis's live host `spatial-dashboard-xi.vercel.app` added to the code list (was only in env).
+- Changed: `docs/FAMILY_STATUS.md` (what was filled, what is still missing, how the family connects — checked live), `docs/OWNER_CHECKLIST.md`.
+- Why: Awad asked to take care of everything marked missing, check how all sites connect, and keep notes so no one gets confused.

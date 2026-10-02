@@ -6,10 +6,10 @@ Backend is done. Keys now go in through the **launch kit**: one file, one comman
 - [ ] **Anthropic credits** (console.anthropic.com → Billing). Without them Cixy is "resting" on every site.
 - [ ] **Vercel token** (Vercel → Account Settings → Tokens).
 - [ ] **Supabase access token** (Supabase → Account → Access Tokens).
-- [ ] Only these are actually missing in Vercel (checked live 2026-10-02; full table in `docs/FAMILY_STATUS.md`):
-      Redis URL for Lyrixis, a transcription key, Upstash/KV for Apixis.dev, a Tavily key for Halaxis, `ADMIN_EMAILS`
-      for Launchixis, and for Pinixis: Anthropic + Resend + admin email + Stripe. Everything else (Wallet/Ominix/Wattixis
-      keys, Recovra's Supabase key, cron secrets) the kit fills in itself. Put what you have in `.env.launch`.
+- [ ] Only these are still missing (checked live 2026-10-02 late night; table in `docs/FAMILY_STATUS.md`):
+      Redis URL + transcription key for Lyrixis, Upstash/KV for Apixis.dev, a Tavily key for Halaxis, Pinixis Stripe keys,
+      and Recovra's Supabase key (or just give the kit your Supabase token). Claude already set Ominix/Wattixis Wallet keys,
+      cron secrets, Launchixis admins, and Pinixis Anthropic/Resend/admin email. Put what you have in `.env.launch`.
 
 ## Step 2 — Run the kit (on your Mac)
 ```bash
@@ -69,3 +69,4 @@ D11 starter 1,000 Ixis · D12 fee 5% · D13 Ominix Ixis-only · D14 Stripe only 
 - Pinixis: full database live; a stock-changing function locked down; payments say "not set up yet" until Stripe keys.
 - Every repo: `.env.example` lists every key the code reads.
 - Launch kit built and tested.
+- Late night: filled every missing setting that didn't need a new account (list in `docs/FAMILY_STATUS.md`), redeployed those 6 sites, and checked every sign-in/return address matches.
