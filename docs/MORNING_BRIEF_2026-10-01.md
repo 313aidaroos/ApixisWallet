@@ -1,3 +1,5 @@
+> **Archived 2026-10-02.** Superseded by `docs/OWNER_CHECKLIST.md` (to-do) and `docs/FAMILY_STATUS.md` (live state). Do not act on the steps below.
+
 # Morning brief — 2026-10-01 (Claude, overnight pass)
 
 Everything below is merged to `main` and deployed by Vercel on merge. What is left is **keys, a few SQL pastes, and cosmetics**. Family board: `docs/FAMILY_STATUS.md`. Every repo's `AI_CHANGELOG.md` has tonight's entries.

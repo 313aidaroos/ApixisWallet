@@ -1,6 +1,6 @@
 # Apixis family — status board (one page, every AI reads this first)
 
-**Owner:** Awad (313aidaroos). **Rules:** `AGENTS.md` §0 (D1–D16). **Last updated: 2026-10-02 night (Claude).** Owner to-do: **`docs/OWNER_CHECKLIST.md`**. Keys go in with the launch kit: **`docs/LAUNCH_KIT.md`** (`npm run launch`). Previous brief: `docs/MORNING_BRIEF_2026-10-01.md`.
+**Owner:** Awad (313aidaroos). **Rules:** `AGENTS.md` §0 (D1–D16). **Last updated: 2026-10-02 night, live cross-check (Claude).** Owner to-do: **`docs/OWNER_CHECKLIST.md`**. Keys go in with the launch kit: **`docs/LAUNCH_KIT.md`** (`npm run launch`). Previous brief: `docs/MORNING_BRIEF_2026-10-01.md`.
 
 This is the only family-wide status board (D15). Per-repo `NOTES/*.md`, `JUNOAI_NOTES.md`, `WORKBOARD.md`
 and `LAUNCH_NOTES.md` are archives. If you change family status, change it here. Every code change: `AI_CHANGELOG.md` in that repo.
@@ -15,18 +15,49 @@ and `LAUNCH_NOTES.md` are archives. If you change family status, change it here.
 - **World kit:** Apixis.dev `sdk/apixis-world*.ts` + `POST /api/agent/provision`. Every sign-up gets a wallet + avatar agent + 1,000 starter Ixis (D11).
 - **Cixy:** one persona, `sdk/apixis-cixy.*` (`docs/CIXY.md`). Product role is the only site-specific text. Brain down → calm 503, never a vendor error.
 
-## Waiting on Awad (keys / pastes / toggles) — see the morning brief §2
+## Live cross-check — 2026-10-02 night (Claude, read from Vercel + Supabase + GitHub)
 
-| Item | Why it is blocked | Who |
+This replaces every earlier "what is missing" list. Re-check any time with `npm run launch:check` (docs/LAUNCH_KIT.md).
+
+**Deploys:** every Vercel project runs the latest `main` of its repo (checked commit by commit). Pinixis was two
+merges behind (not connected to GitHub; one hand upload had failed) — redeployed from `main` (`5102a50`), READY.
+
+**Wallet clients (Apixis ID + Wallet keys):** 14 active, one per name: apixis, contentbot, contraxis, deduxis, geoxis,
+halaxis, launchixis, lyrixis, nurserytoons, qahwahworld, rawixis, recovra, renoxis, socixis. **Missing: ominix, wattixis**
+(the launch kit issues them). All `require_sso=false` until sign-in is verified live.
+
+**Env vars actually missing in Vercel (names only; everything else is already set):**
+
+| Company (Vercel project) | Missing | Effect until set |
 |---|---|---|
-| `npm run family-keys -- --only ominix,wattixis` → SQL into Wallet Supabase + 3 env vars each. The other 14 sites already have keys; never re-mint them (breaks sign-in; migration 012 refuses). | Keys are printed once, never stored. | Awad |
-| Hub project SQL: `docs/security/2026-09-30-hub-project-lint.sql`, `PersonalContentBot/supabase/pcb_jobs_durable.sql` | Claude's connector has no write access to `myfclypikkcvfurkbzmj`. | Awad |
-| Leaked-password protection ON (15 projects) | Dashboard-only setting. | Awad |
-| Anthropic credits | Rawixis/Recovra report insufficient credits; Cixy answers "resting" until topped up. | Awad |
-| Recovra `SUPABASE_SERVICE_ROLE_KEY`, Lyrixis `REDIS_URL` + `TRANSCRIPTION_API_KEY`, PCB `PCB_DURABLE_JOBS` + `CRON_SECRET` | Env only. | Awad |
-| `require_sso=true` per site, `WALLET_ALLOW_LEGACY_SERVICE_KEY=false`, secret rotation | After keys are in and Apixis sign-in verified live. | Claude on Awad's go |
-| Terms / Privacy pages | Counsel/Awad review before publishing. | Awad |
-| Live smoke tests against the deployed sites | This Claude environment's network policy blocks `*.vercel.app` and the custom domains. | Awad (allow hosts) → Claude |
+| Ominix (`ominix`) | `WALLET_API_KEY`, `APIXIS_CLIENT_ID`, `APIXIS_WALLET_API_URL` | No Apixis sign-in, bids can't be awarded |
+| Wattixis (`wattixis`) | `WALLET_API_KEY`, `APIXIS_CLIENT_ID`, `APIXIS_WALLET_API_URL` | No Apixis sign-in / balance |
+| Recovra (`recovra`) | `SUPABASE_SERVICE_ROLE_KEY` | Paid plans can't activate |
+| Lyrixis (`lyrixis`) | `REDIS_URL`, `TRANSCRIPTION_API_KEY` | Upload → transcript off |
+| Apixis.dev (`apixis-dev`) | `KV_REST_API_URL`, `KV_REST_API_TOKEN` (or Upstash) | World/citizen state not durable |
+| Halaxis (`halaxis`) | `TAVILY_API_KEY`, `CRON_SECRET` | Research off |
+| PersonalContentBot (`personalcontentbot`) | `CRON_SECRET`, `PCB_DURABLE_JOBS` (after hub SQL) | Retry-safe jobs off |
+| Launchixis (`launchixis`) | `ADMIN_EMAILS` | No admin |
+| Pinixis (`pinixis`) | `ANTHROPIC_API_KEY`, `RESEND_API_KEY`, `ADMIN_EMAIL`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` | Payments say "not set up yet" |
+| Wallet, Renoxis, Socixis, Contraxis, Deduxis, Rawixis, Qahwah, Geoxis, NurseryToons, awad-command | — | Complete |
+
+**Supabase:** Deduxis receipts + Pinixis marketplace schemas live (2026-10-02). Still Awad's (or the kit's): hub lint SQL,
+hub `pcb_jobs_durable.sql`, Pinixis sign-up trigger (optional), leaked-password protection (Pro plan).
+
+### Duplicates / leftovers found (cleanup needs Awad's yes — nothing deleted)
+1. Vercel project **`aw-live`** — second deploy of the ApixisWallet repo with **zero env vars**; builds on every merge. Delete.
+2. Vercel project **`temporary-turbo-sienna-p6yqsjd`** — second deploy of contraxis.dev, **fails every merge**. Delete.
+3. Vercel projects **`contraxis-design-demo`**, **`workspace`** — not linked to a family repo, idle since September. Delete if unused.
+4. **`APIXIS_WALLET_API_KEY`** (old shared Wallet secret) still set beside the per-site `WALLET_API_KEY` on 12 projects. The SDK
+   uses `WALLET_API_KEY` first, so it is unused; remove it everywhere when legacy access is switched off (step "flip SSO").
+5. **`STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET`** copies on sites where Stripe is off by rule (D14): Contraxis, Socixis, Lyrixis,
+   Rawixis, Recovra, Halaxis, Launchixis, ContentBot, NurseryToons, awad-command (+ old `STRIPE_PRICE_*`). Unused secrets; remove.
+6. Socixis: five branch-only `ANTHROPIC_API_KEY` copies for old `cursor/*` preview branches. Remove.
+7. Docs: `docs/MORNING_BRIEF_2026-10-01.md` and per-repo `LAUNCH_NOTES.md` key lists are archives — the only owner to-do is
+   `docs/OWNER_CHECKLIST.md`, the only status is this board.
+
+### Still Claude's after keys are in (on Awad's go)
+`require_sso=true` per site, `WALLET_ALLOW_LEGACY_SERVICE_KEY=false`, remove item 4, live tester matrix.
 
 ## Per-repo status (backend) — all on `main`, deployed
 

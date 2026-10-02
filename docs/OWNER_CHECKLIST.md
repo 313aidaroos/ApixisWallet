@@ -6,8 +6,10 @@ Backend is done. Keys now go in through the **launch kit**: one file, one comman
 - [ ] **Anthropic credits** (console.anthropic.com → Billing). Without them Cixy is "resting" on every site.
 - [ ] **Vercel token** (Vercel → Account Settings → Tokens).
 - [ ] **Supabase access token** (Supabase → Account → Access Tokens).
-- [ ] The keys listed in `ApixisWallet/.env.launch.example` (each line says where to get it). Missing some?
-      Fine — run the kit now and again later.
+- [ ] Only these are actually missing in Vercel (checked live 2026-10-02; full table in `docs/FAMILY_STATUS.md`):
+      Redis URL for Lyrixis, a transcription key, Upstash/KV for Apixis.dev, a Tavily key for Halaxis, `ADMIN_EMAILS`
+      for Launchixis, and for Pinixis: Anthropic + Resend + admin email + Stripe. Everything else (Wallet/Ominix/Wattixis
+      keys, Recovra's Supabase key, cron secrets) the kit fills in itself. Put what you have in `.env.launch`.
 
 ## Step 2 — Run the kit (on your Mac)
 ```bash
@@ -25,9 +27,8 @@ Wallet keys, every site's world key, ContentBot durable jobs, Supabase keys, red
   - Wallet: `https://apixis-wallet.vercel.app/api/webhooks/stripe` (events: `docs/LAUNCH_NOTES.md`)
   - Qahwah World (coffee): `https://qahwahworld.vercel.app/api/stripe/webhook`
   - Pinixis: `https://<pinixis domain>/api/stripe/webhook` — and turn on **Stripe Connect** (sellers get paid out)
-- [ ] **Contraxis:** delete the duplicate Vercel project `temporary-turbo-sienna-p6yqsjd`.
-- [ ] **Wallet:** the repo also deploys to a second Vercel project `aw-live`. If you don't use it, delete it (the kit already uses `apixis-wallet`).
-- [ ] **Pinixis:** its Vercel project `pinixis` (pinixis.vercel.app) is not connected to GitHub, so merges do not deploy. Vercel → pinixis → Settings → Git → Connect `313aidaroos/Pinixis` (then every merge deploys). Point pinixis.com at it when ready.
+- [ ] **Pinixis:** point pinixis.com at the `pinixis` Vercel project when ready (it now deploys from GitHub `main`).
+- [ ] **Cleanup (say yes and Claude does it):** delete Vercel projects `aw-live`, `temporary-turbo-sienna-p6yqsjd` (and `contraxis-design-demo`, `workspace` if unused); remove unused Stripe secrets on Stripe-off sites. List: `docs/FAMILY_STATUS.md` → Duplicates.
 - [ ] Optional: Google OAuth client for Renoxis (redirect `https://renoxis.dev/api/connections/google/callback`),
       Meta app for Socixis.
 

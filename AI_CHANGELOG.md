@@ -57,3 +57,8 @@ Entry format:
 ## 2026-10-02 (night, Pinixis) — Claude (Claude Code)
 - Changed: launch kit matches a Vercel project by name when it is not connected to GitHub (Pinixis is deployed by hand as `pinixis`); test added. Checklist: connect the Pinixis Vercel project to its repo so merges deploy.
 - Why: owner pointed out Pinixis has a Vercel project; it has no GitHub link, so the kit could not find it and merges never reached pinixis.vercel.app.
+
+## 2026-10-02 (night, cross-check) — Claude (Claude Code)
+- Changed: `docs/FAMILY_STATUS.md` — live cross-check of all 24 Vercel projects (env var names only, deploy vs GitHub main), Wallet client registry and Supabase; one table of what is really missing; duplicates/leftovers list (nothing deleted). `docs/OWNER_CHECKLIST.md` aligned; `docs/MORNING_BRIEF_2026-10-01.md` marked archived. Launch kit: Geoxis Supabase (`ncifprfgastofurrlsko`).
+- Also: Pinixis redeployed from GitHub `main` (`5102a50`, READY); the live site was two merges behind.
+- Why: owner asked for every agent in sync, one source of truth, no duplicates.
