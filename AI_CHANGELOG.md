@@ -43,3 +43,9 @@ Entry format:
 ## 2026-10-02 (evening) — Claude (Claude Code)
 - Changed: `docs/OWNER_CHECKLIST.md` — Deduxis support-form fix and Pinixis database (applied live, see those repos' changelogs) marked done; Pinixis steps rewritten.
 - Why: keep the owner's to-do list matching what is live.
+
+## 2026-10-02 (night) — Claude (Claude Code)
+- Added: launch kit — `scripts/launch/{companies,plan,kit}.ts`, `.env.launch.example`, `npm run launch` / `launch:check`, `docs/LAUNCH_KIT.md`, `test/launch-kit.test.ts` (12 tests, fake Vercel + Supabase). Owner fills one file; the kit finds each Vercel project by repo, adds only missing env vars (never replaces, never prints values), generates secrets in each site's format, fetches Supabase keys, mints Wallet keys only for sites with no active client, issues world keys + merges `APIXIS_WORLD_KEYS`, runs the hub SQL, turns on leaked-password protection, redeploys changed projects. Owner approved building it.
+- Changed: `scripts/family-sites.ts` now holds the site list (shared by family-keys and the kit).
+- Decision D17 (owner): Pinixis takes card payments through its own Stripe — AGENTS.md §0c, second exception to D14.
+- Changed: `docs/OWNER_CHECKLIST.md` rewritten around the kit; `docs/FAMILY_STATUS.md` Pinixis row.

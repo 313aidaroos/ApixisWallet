@@ -1,6 +1,6 @@
 # Apixis family — status board (one page, every AI reads this first)
 
-**Owner:** Awad (313aidaroos). **Rules:** `AGENTS.md` §0 (D1–D16). **Last updated: 2026-10-02 (Claude).** Owner to-do, company by company: **`docs/OWNER_CHECKLIST.md`**. Previous brief: `docs/MORNING_BRIEF_2026-10-01.md`.
+**Owner:** Awad (313aidaroos). **Rules:** `AGENTS.md` §0 (D1–D16). **Last updated: 2026-10-02 night (Claude).** Owner to-do: **`docs/OWNER_CHECKLIST.md`**. Keys go in with the launch kit: **`docs/LAUNCH_KIT.md`** (`npm run launch`). Previous brief: `docs/MORNING_BRIEF_2026-10-01.md`.
 
 This is the only family-wide status board (D15). Per-repo `NOTES/*.md`, `JUNOAI_NOTES.md`, `WORKBOARD.md`
 and `LAUNCH_NOTES.md` are archives. If you change family status, change it here. Every code change: `AI_CHANGELOG.md` in that repo.
@@ -53,7 +53,7 @@ Legend: **Sell** = can take Ixis for something today once its `WALLET_API_KEY` i
 | Wattixis | Apixis ID sign-in (`/auth/apixis/*`), `api/wallet/balance`, `drafts`/`listings`/`requests` APIs validated + RLS verified; callback `type: "email"`; Cixy on shared core. | After key (no SKUs yet) | — (UI tests red on main: Codex's async draft work pending) | Wattixis keys in Vercel; SKUs are Awad's call. |
 | awad-command | Internal tool; dead SDK copy removed. | n/a | — (pnpm) | — |
 | AwadBot | `AWADBOT_ON_SALE=false`; Cixy on shared core. 32 tests. | Off | ✓ (added) | Never run trading commands from an AI. |
-| Pinixis (new 2026-10-01) | Build/quote/marketplace app; only arcade migration live, main `schema.sql` not applied. Own Stripe (needs a D14 decision). Not a Wallet client yet. | Off | — | Awad: D14 decision, then schema + env. |
+| Pinixis (new 2026-10-01) | Build/quote/marketplace app. Full schema live 2026-10-02 (`decrement_listing` service-role only). Own Stripe approved (D17); payment routes answer 503 until `STRIPE_*`. Not a Wallet client. | After Stripe keys | — | Stripe webhook + Connect; Vercel project + domain. |
 | github-actions | Shared `node-ci.yml`, Node 22. | n/a | — | — |
 | afccommand / thenightexchange | Empty / trading-pit sim without Wallet. | n/a | — | — |
 
