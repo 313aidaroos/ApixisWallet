@@ -69,3 +69,10 @@ Entry format:
 - Changed: `lib/checkout/return-url.ts` — Geoxis's live host `spatial-dashboard-xi.vercel.app` added to the code list (was only in env).
 - Changed: `docs/FAMILY_STATUS.md` (what was filled, what is still missing, how the family connects — checked live), `docs/OWNER_CHECKLIST.md`.
 - Why: Awad asked to take care of everything marked missing, check how all sites connect, and keep notes so no one gets confused.
+
+## 2026-10-02 (late night, launch prep) — Claude
+- Added: `docs/TESTER_MATRIX.md`, `scripts/launch/smoke.ts` + `npm run launch:smoke` + `test/launch-smoke.test.ts` (read-only live check: every site up and its Apixis ID start route hands off to `/sso/authorize` with the right client).
+- Added: `docs/legal/TERMS_DRAFT.md`, `docs/legal/PRIVACY_DRAFT.md` — drafts from what the code does, with questions for counsel. Not published; `TERMS_VERSION` unchanged.
+- Changed: `docs/FAMILY_STATUS.md` (launch-prep section: merges across the family, 51 PRs closed, what stays open and why, what is blocked), `docs/OWNER_CHECKLIST.md`.
+- Live (other repos, each logged in its own AI_CHANGELOG): Ominix #6 merged + its migration applied; 1,000 starter-Ixis wording on 9 repos; Socixis greeting rule + 5% cut; Wattixis async bugs + CI.
+- Why: Awad — "do everything across the board and merge and deploy … create notes", "I need these ready for launch".

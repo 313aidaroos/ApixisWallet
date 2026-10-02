@@ -1,4 +1,4 @@
-# Awad's checklist (updated 2026-10-02, night)
+# Awad's checklist (updated 2026-10-02, late night)
 
 Backend is done. Keys now go in through the **launch kit**: one file, one command (`docs/LAUNCH_KIT.md`).
 
@@ -28,11 +28,17 @@ Wallet keys, every site's world key, ContentBot durable jobs, Supabase keys, red
   - Qahwah World (coffee): `https://qahwahworld.vercel.app/api/stripe/webhook`
   - Pinixis: `https://<pinixis domain>/api/stripe/webhook` — and turn on **Stripe Connect** (sellers get paid out)
 - [ ] **Pinixis:** point pinixis.com at the `pinixis` Vercel project when ready (it now deploys from GitHub `main`).
-- [ ] **Cleanup (say yes and Claude does it):** delete Vercel projects `aw-live`, `temporary-turbo-sienna-p6yqsjd` (and `contraxis-design-demo`, `workspace` if unused); remove unused Stripe secrets on Stripe-off sites. List: `docs/FAMILY_STATUS.md` → Duplicates.
+- [ ] **Cleanup (2 minutes, only you can — Claude's delete was blocked):** Vercel → each project → Settings → bottom →
+      Delete: `aw-live`, `temporary-turbo-sienna-p6yqsjd`, `contraxis-design-demo`, `workspace` (Claude checked: no
+      code or domain uses them). Optional: remove `STRIPE_*` on Stripe-off sites (list in `docs/FAMILY_STATUS.md`).
+- [ ] **Daily health check:** claude.ai → Routines → "Apixis family daily health check" → attach Vercel, Supabase,
+      GitHub and the ApixisWallet repo (it was created without them, so it can't check anything yet).
+- [ ] **Design calls waiting on you** (open PRs): footer "Other Ixis companies" on 12 sites (say "merge footers"),
+      Socixis #47, Apixis.dev #58/#59, Lyrixis #16 Release Tool, Contraxis #21, Ominix #1, awad-command #17.
 - [ ] Optional: Google OAuth client for Renoxis (redirect `https://renoxis.dev/api/connections/google/callback`),
       Meta app for Socixis.
 
-## Step 4 — Test one thing per company (5 minutes each)
+## Step 4 — Test one thing per company (5 minutes each; full list: `docs/TESTER_MATRIX.md`, quick check: `npm run launch:smoke`)
 | Company | Test |
 |---|---|
 | Wallet | Buy the Spark pack → balance +1,000 |
@@ -43,7 +49,7 @@ Wallet keys, every site's world key, ContentBot durable jobs, Supabase keys, red
 | Deduxis | Buy seat → upload a receipt photo → it appears → export CSV |
 | Lyrixis | Upload a song → transcript (needs `REDIS_URL` + transcription key + a worker host) |
 | Rawixis | Buyer seat via Apixis |
-| Ominix | Award a bid → complete → seller gets amount − 5% |
+| Ominix | Post a job → second account quotes → hire → **Complete order** → seller gets amount − 5% |
 | ContentBot | Render a clip → click again → charged once |
 | Pinixis | Request a build → pay the deposit by card; list an item → buy it |
 | Any site | Ask Cixy something |
@@ -58,10 +64,8 @@ D11 starter 1,000 Ixis · D12 fee 5% · D13 Ominix Ixis-only · D14 Stripe only 
 
 ## Still your call (no rush)
 - Halaxis / Launchixis / Geoxis / NurseryToons: what to sell (all intentionally off).
-- Ominix: merge Codex's job-feed branch? A "Complete order" button (backend ready).
 - Wattixis: what it sells; Codex's draft-UI work from your Mac.
-- Terms / Privacy pages with a lawyer (Claude can draft).
-- ~70 old PRs: say "close them".
+- Terms / Privacy: drafts ready in `docs/legal/` — send to a lawyer, then Claude publishes and bumps `TERMS_VERSION`.
 
 ## Done by Claude on 2026-10-02
 - Wallet: key script can't re-mint (that would have broken sign-in everywhere); the database enforces it.
@@ -70,3 +74,5 @@ D11 starter 1,000 Ixis · D12 fee 5% · D13 Ominix Ixis-only · D14 Stripe only 
 - Every repo: `.env.example` lists every key the code reads.
 - Launch kit built and tested.
 - Late night: filled every missing setting that didn't need a new account (list in `docs/FAMILY_STATUS.md`), redeployed those 6 sites, and checked every sign-in/return address matches.
+- Late night (2): Ominix jobs feed + Complete order merged and live; "1,000 starter Ixis" wording fixed on 9 sites;
+  Wattixis Save-draft / Cixy / Delete bugs fixed; 51 old PRs closed; tester matrix, smoke test, Terms/Privacy drafts.

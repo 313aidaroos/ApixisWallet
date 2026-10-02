@@ -14,7 +14,8 @@
     "check": "npm run lint && npm run typecheck && npm test && npm run build",
     "family-keys": "tsx scripts/create-family-keys.ts",
     "launch": "tsx scripts/launch/kit.ts",
-    "launch:check": "tsx scripts/launch/kit.ts check"
+    "launch:check": "tsx scripts/launch/kit.ts check",
+    "launch:smoke": "tsx scripts/launch/smoke.ts"
   },
   "dependencies": {
     "@supabase/ssr": "0.12.7",
