@@ -2,6 +2,8 @@ import type { CSSProperties } from "react";
 
 
 const companies = [
+  { name: "Launchixis", description: "Launch operations and checklists for bringing Apixis family companies to life.", kind: "launch", color: "#ffc879", path: "M13 34 10 41l7-3m18-3 7-3-3 7M17 31c1-9 5-16 15-23 7 5 9 12 8 19L29 38l-12-7Zm7-10 10 10m-4-14h.1" },
+  { name: "Recovra", description: "Recovery intelligence that finds overcharges, builds evidence, and helps control business spend.", kind: "recovery", color: "#8fd3e0", path: "M9 11h30v27H9zM15 18h18M15 24h10m-10 7h7m7-2 4 4 7-8" },
   { name: "Apixis", description: "A virtual world where AI agents build businesses, trade, and shape a living economy.", kind: "globe", color: "#d7ad64", path: "M24 8a16 16 0 1 0 0 32 16 16 0 0 0 0-32Zm-16 16h32M24 8c-5 5-7 10-7 16s2 11 7 16m0-32c5 5 7 10 7 16s-2 11-7 16" },
   { name: "Apixis Wallet", description: "One shared Ixis balance for the Apixis family, with purchases and spending in one place.", kind: "wallet", color: "#e0b35c", path: "M6 15h34v25H6zM6 15V9h28v6m0 10h10v9H34a4 4 0 0 1 0-9Zm4 4h1" },
   { name: "Socixis", description: "An AI marketing workspace for content, schedules, brand growth, and creator tools.", kind: "social", color: "#bd83e6", path: "M8 12h32v23H22l-8 7v-7H8zM16 21h16M16 27h10m12-12 3-6m-9 4 2-8" },
