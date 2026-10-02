@@ -39,3 +39,7 @@ Entry format:
 - Changed: `scripts/create-family-keys.ts` now requires `--only <sites>` (plus `--list`); geoxis callback host fixed. New `supabase/migrations/012_unique_active_client_name.sql` (applied live): one ACTIVE Wallet client per name.
 - Why: running the script for all sites would have inserted duplicate client names; `/sso/authorize` looks clients up by name, so every already-registered site's "Sign in with Apixis" would have failed. Corrected every doc that said to run it for all sites (morning brief, LAUNCH_KEYS, LAUNCH_NOTES, BOT_UPDATE, AGENTS.md) and the wrong hub project ref (`myfclypikkcvfurkbzmj`).
 - Changed: new `docs/OWNER_CHECKLIST.md` (Awad's to-do, company by company); `docs/FAMILY_STATUS.md` updated (Deduxis tables, Pinixis row).
+
+## 2026-10-02 (evening) — Claude (Claude Code)
+- Changed: `docs/OWNER_CHECKLIST.md` — Deduxis support-form fix and Pinixis database (applied live, see those repos' changelogs) marked done; Pinixis steps rewritten.
+- Why: keep the owner's to-do list matching what is live.

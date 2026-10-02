@@ -1,4 +1,4 @@
-# Awad's checklist — one company at a time (2026-10-02)
+# Awad's checklist — one company at a time (updated 2026-10-02 evening)
 
 Everything here is **yours** to do (keys, dashboards, decisions). Backend code is done and on `main`.
 Where it says "Vercel env", that means: Vercel → that project → Settings → Environment Variables →
@@ -73,8 +73,8 @@ Status board: `docs/FAMILY_STATUS.md`. Rules: `AGENTS.md` §0.
 3. Test: Apixis sign-in → paid plan → receipt shows.
 
 ## 7. Deduxis
-1. ~~Database~~ **done today by me**: the receipts tables + private file storage were missing (uploads would
-   have failed). Created live with owner-only security.
+1. ~~Database~~ **done by me (Oct 2)**: the receipts tables + private file storage were missing (uploads would
+   have failed). Created live with owner-only security. The support form no longer crashes without the email key.
 2. Vercel env: `ANTHROPIC_API_KEY` (it reads the receipts), `APIXIS_WORLD_KEY`, `RESEND_API_KEY`.
 3. Test: Apixis sign-in → buy seat → upload a receipt photo → it appears → export CSV.
 
@@ -127,13 +127,16 @@ Status board: `docs/FAMILY_STATUS.md`. Rules: `AGENTS.md` §0.
 1. Vercel env: `ANTHROPIC_API_KEY`, `APIXIS_WORLD_KEY`, `OWNER_ADMIN_EMAIL`. Family plan paused — your call.
 
 ## 18. Pinixis (new, 2026-10-01)
-1. Supabase `jxtzdylmkulhbvpmkwsp`: only the arcade migration is live. The main `supabase/schema.sql`
-   (profiles, build requests, quotes, payments, sellers, listings, orders) is **not** — say go and I apply it.
-2. **Decision first:** Pinixis takes card payments through its own Stripe. Family rule D14 says only the Wallet
-   runs Stripe (qahwahworld's physical coffee is the one exception). Physical builds = second exception? Yes/no.
-3. Then Vercel env: `NEXT_PUBLIC_SUPABASE_URL/ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `STRIPE_SECRET_KEY`,
-   `STRIPE_WEBHOOK_SECRET`, `RESEND_API_KEY`, `ANTHROPIC_API_KEY`, `ADMIN_EMAIL`, `FACTORY_EMAILS`, `QUOTES_EMAIL`, `SUPPORT_EMAIL`.
-4. Not yet a Wallet client; add with `npm run family-keys` once its domain is set (I add it to the list).
+1. ~~Database~~ **done by me (Oct 2)**: all tables, file storage and security are live. I also locked a stock
+   function that any visitor could have used to mark listings sold out.
+2. Optional paste (Supabase `jxtzdylmkulhbvpmkwsp` → SQL editor): the sign-up trigger from
+   `pinixis/supabase/migrations/20261002000000_marketplace_foundation.sql` (the 4 lines starting `drop trigger if exists
+   on_auth_user_created`). Not required: the site now creates the profile itself on first sign-in.
+3. **Decision:** Pinixis takes card payments through its own Stripe. Family rule D14 says only the Wallet runs
+   Stripe (coffee is the one exception). Physical builds = second exception? Until `STRIPE_*` are set, every payment
+   button answers "Payments aren't set up yet" instead of crashing.
+4. Vercel env: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `ANTHROPIC_API_KEY`,
+   `RESEND_API_KEY`, `ADMIN_EMAIL`, `FACTORY_EMAILS`, `QUOTES_EMAIL`, `SUPPORT_EMAIL`; after the decision `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`.
 5. Legal review (selling physical goods).
 
 ## 19. AwadBot
