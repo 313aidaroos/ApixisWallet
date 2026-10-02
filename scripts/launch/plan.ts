@@ -138,7 +138,12 @@ export function pickProject(c: Company, projects: ProjectRef[], override?: strin
   const repos = c.repos.map((r) => r.toLowerCase());
   const linked = projects.filter((p) => p.repo && repos.includes(p.repo.toLowerCase()) && !p.name.startsWith("temporary-"));
   if (linked.length === 1) return { project: linked[0] };
-  if (linked.length === 0) return { problem: `no Vercel project linked to GitHub repo ${c.repos[0]}` };
+  if (linked.length === 0) {
+    // Projects deployed by hand (not connected to GitHub) are matched by name instead, e.g. Pinixis.
+    const named = projects.filter((p) => !p.repo && [c.id, ...repos].includes(p.name.toLowerCase()));
+    if (named.length === 1) return { project: named[0] };
+    return { problem: `no Vercel project linked to GitHub repo ${c.repos[0]} (or named "${c.id}")` };
+  }
   return {
     problem: `several Vercel projects use repo ${c.repos[0]} (${linked.map((p) => p.name).join(", ")}); add "${c.id}=<project>" under [vercel] in .env.launch`,
   };

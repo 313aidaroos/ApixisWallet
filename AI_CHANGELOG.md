@@ -53,3 +53,7 @@ Entry format:
 ## 2026-10-02 (night, later) — Claude (Claude Code)
 - Changed: `.env.launch.example` names `wallet=apixis-wallet` under `[vercel]`; checklist notes the second Vercel project `aw-live`.
 - Why: GitHub shows this repo deploying to two Vercel projects, so the kit would otherwise stop and ask which is the Wallet.
+
+## 2026-10-02 (night, Pinixis) — Claude (Claude Code)
+- Changed: launch kit matches a Vercel project by name when it is not connected to GitHub (Pinixis is deployed by hand as `pinixis`); test added. Checklist: connect the Pinixis Vercel project to its repo so merges deploy.
+- Why: owner pointed out Pinixis has a Vercel project; it has no GitHub link, so the kit could not find it and merges never reached pinixis.vercel.app.
