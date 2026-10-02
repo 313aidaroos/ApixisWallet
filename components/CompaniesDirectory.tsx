@@ -2,8 +2,6 @@ import type { CSSProperties } from "react";
 
 
 const companies = [
-  { name: "Launchixis", description: "Launch operations and checklists for bringing Apixis family companies to life.", kind: "launch", color: "#ffc879", path: "M13 34 10 41l7-3m18-3 7-3-3 7M17 31c1-9 5-16 15-23 7 5 9 12 8 19L29 38l-12-7Zm7-10 10 10m-4-14h.1" },
-  { name: "Recovra", description: "Recovery intelligence that finds overcharges, builds evidence, and helps control business spend.", kind: "recovery", color: "#8fd3e0", path: "M9 11h30v27H9zM15 18h18M15 24h10m-10 7h7m7-2 4 4 7-8" },
   { name: "Apixis", description: "A virtual world where AI agents build businesses, trade, and shape a living economy.", kind: "globe", color: "#d7ad64", path: "M24 8a16 16 0 1 0 0 32 16 16 0 0 0 0-32Zm-16 16h32M24 8c-5 5-7 10-7 16s2 11 7 16m0-32c5 5 7 10 7 16s-2 11-7 16" },
   { name: "Apixis Wallet", description: "One shared Ixis balance for the Apixis family, with purchases and spending in one place.", kind: "wallet", color: "#e0b35c", path: "M6 15h34v25H6zM6 15V9h28v6m0 10h10v9H34a4 4 0 0 1 0-9Zm4 4h1" },
   { name: "Socixis", description: "An AI marketing workspace for content, schedules, brand growth, and creator tools.", kind: "social", color: "#bd83e6", path: "M8 12h32v23H22l-8 7v-7H8zM16 21h16M16 27h10m12-12 3-6m-9 4 2-8" },
@@ -14,6 +12,8 @@ const companies = [
   { name: "Deduxis", description: "Receipt intelligence that extracts line items and organizes deductions for tax time.", kind: "receipt", color: "#8bdbca", path: "M12 6h24v36l-4-3-4 3-4-3-4 3-4-3-4 3zM18 17h12M18 24h12M18 31h7" },
   { name: "Rawixis", description: "A private B2B market for critical materials, rare earths, and industrial feedstock.", kind: "crystal", color: "#d6b476", path: "m24 6 16 16-16 20L8 22 24 6Zm-16 16h32M24 6l-6 16 6 20 6-20-6-16Z" },
   { name: "Halaxis", description: "A faith-aligned investment vision and Shariah screening tools, currently in formation.", kind: "arch", color: "#c78d9e", path: "M10 41V24c0-12 14-18 14-18s14 6 14 18v17M10 41h28M18 41V26c0-5 6-9 6-9s6 4 6 9v15" },
+  { name: "Launchixis", description: "Launch operations and checklists for bringing Apixis family companies to life.", kind: "launch", color: "#ffc879", path: "M13 34 10 41l7-3m18-3 7-3-3 7M17 31c1-9 5-16 15-23 7 5 9 12 8 19L29 38l-12-7Zm7-10 10 10m-4-14h.1" },
+  { name: "Recovra", description: "Recovery intelligence that finds overcharges, builds evidence, and helps control business spend.", kind: "recovery", color: "#8fd3e0", path: "M9 11h30v27H9zM15 18h18M15 24h10m-10 7h7m7-2 4 4 7-8" },
   { name: "Geoxis", description: "A live spatial view of fleets, assets, and movement on a 3D globe.", kind: "map", color: "#75d9bd", path: "M24 6a18 18 0 1 0 0 36 18 18 0 0 0 0-36Zm-18 18h36M24 6c-6 6-8 12-8 18s2 12 8 18m0-36c6 6 8 12 8 18s-2 12-8 18m-4-18 4-4 4 4-4 6z" },
   { name: "Ominix", description: "The marketplace and transaction layer where humans and AI agents do business.", kind: "network", color: "#77b7f7", path: "M9 24h10m10 0h10M24 9v10m0 10v10M24 19a5 5 0 1 0 0 10 5 5 0 0 0 0-10ZM8 20a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm32 0a4 4 0 1 0 0 8 4 4 0 0 0 0-8ZM20 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm0 32a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z" },
   { name: "Wattixis", description: "Energy commerce connecting producers, buyers, storage operators, and project partners.", kind: "energy", color: "#f4c65b", path: "M27 5 12 27h12l-3 16 17-24H26z" },
