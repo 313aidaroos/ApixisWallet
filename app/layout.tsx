@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Special_Elite } from "next/font/google";
 import "./globals.css";
+import "./companies.css";
 
 const specialElite = Special_Elite({ weight: "400", subsets: ["latin"] });
 

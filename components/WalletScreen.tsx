@@ -9,12 +9,13 @@ import { returnHost } from "@/lib/checkout/return-url";
 import { last24h, productTape, xpTape } from "@/lib/market";
 import { bulletins, ticker } from "@/lib/news";
 import { Tape } from "@/components/Tape";
+import { CompaniesDirectory } from "@/components/CompaniesDirectory";
 import { fetchBalance, fetchHistory, redeemProduct, WalletClientError, type HistoryItem } from "@/lib/wallet-client";
 
-type Tab = "home" | "buy" | "redeem" | "shop" | "market" | "news" | "activity";
+type Tab = "companies" | "home" | "buy" | "redeem" | "shop" | "market" | "news" | "activity";
 type ShopFilter = "all" | ShopCategory;
 
-const TABS: readonly Tab[] = ["home", "buy", "redeem", "shop", "market", "news", "activity"];
+const TABS: readonly Tab[] = ["home", "companies", "buy", "redeem", "shop", "market", "news", "activity"];
 
 function isTab(value: string | null): value is Tab {
   return TABS.includes(value as Tab);
@@ -180,7 +181,7 @@ export function WalletScreen({ lockTab, unitLabel = "Ixis" }: { lockTab?: Tab; u
   const shopItems = shopFilter === "all" ? shopCatalog : shopCatalog.filter((item) => item.category === shopFilter);
 
   const title = useMemo(
-    () => ({ home: "HQ", buy: "BUY", redeem: "REDEEM", shop: "SHOP", market: "TAPE", news: "NEWS", activity: "LOG" })[tab],
+    () => ({ companies: "COMPANIES", home: "HQ", buy: "BUY", redeem: "REDEEM", shop: "SHOP", market: "TAPE", news: "NEWS", activity: "LOG" })[tab],
     [tab],
   );
 
@@ -196,6 +197,7 @@ export function WalletScreen({ lockTab, unitLabel = "Ixis" }: { lockTab?: Tab; u
         </div>
         <nav>
           <button className={tab === "home" ? "active" : ""} onClick={() => setTab("home")}><LayoutGrid />HQ</button>
+          <button className={tab === "companies" ? "active" : ""} onClick={() => setTab("companies")}><LayoutGrid />Companies</button>
           <button className={tab === "buy" ? "active" : ""} onClick={() => setTab("buy")}><WalletCards />Buy</button>
           <button className={tab === "redeem" ? "active" : ""} onClick={() => setTab("redeem")}><Coins />Redeem</button>
           <button className={tab === "shop" ? "active" : ""} onClick={() => setTab("shop")}><ShoppingBag />Shop</button>
@@ -219,6 +221,7 @@ export function WalletScreen({ lockTab, unitLabel = "Ixis" }: { lockTab?: Tab; u
           </div>
         )}
 
+        {tab === "companies" && <CompaniesDirectory host="wallet" />}
         {tab === "home" && (
           <div className="dash">
             <article className="balance-card">
