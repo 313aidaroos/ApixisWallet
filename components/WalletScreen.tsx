@@ -181,7 +181,7 @@ export function WalletScreen({ lockTab, unitLabel = "Ixis" }: { lockTab?: Tab; u
   const shopItems = shopFilter === "all" ? shopCatalog : shopCatalog.filter((item) => item.category === shopFilter);
 
   const title = useMemo(
-    () => ({ companies: "COMPANIES", home: "HQ", buy: "BUY", redeem: "REDEEM", shop: "SHOP", market: "TAPE", news: "NEWS", activity: "LOG" })[tab],
+    () => ({ companies: "APIXIS COMPANIES", home: "HQ", buy: "BUY", redeem: "REDEEM", shop: "SHOP", market: "TAPE", news: "NEWS", activity: "LOG" })[tab],
     [tab],
   );
 
@@ -197,7 +197,7 @@ export function WalletScreen({ lockTab, unitLabel = "Ixis" }: { lockTab?: Tab; u
         </div>
         <nav>
           <button className={tab === "home" ? "active" : ""} onClick={() => setTab("home")}><LayoutGrid />HQ</button>
-          <button className={tab === "companies" ? "active" : ""} onClick={() => setTab("companies")}><LayoutGrid />Companies</button>
+          <button className={tab === "companies" ? "active" : ""} onClick={() => setTab("companies")}><LayoutGrid />Apixis Companies</button>
           <button className={tab === "buy" ? "active" : ""} onClick={() => setTab("buy")}><WalletCards />Buy</button>
           <button className={tab === "redeem" ? "active" : ""} onClick={() => setTab("redeem")}><Coins />Redeem</button>
           <button className={tab === "shop" ? "active" : ""} onClick={() => setTab("shop")}><ShoppingBag />Shop</button>
