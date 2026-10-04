@@ -164,3 +164,15 @@ The entries below record the day's observed commits and merged PRs. Existing det
 - PR #39, merge `9b8d52c`, `grok/feed-tip-min-order` → `main`, merged 2026-10-04 CT by 313aidaroos: Marketplace: kind "tip" with a 10 Ixis minimum for feed tips. Undo: `git revert 9b8d52c`.
 - PR #38, merge `cf0c526`, `grok/socixis-avatar-render-45s-60s` → `main`, merged 2026-10-04 CT by 313aidaroos: Catalog: Socixis 45s/60s avatar render SKUs (free videos capped at 30s). Undo: `git revert cf0c526`.
 - PR #37, merge `87734cd`, `grok/socixis-avatar-render-skus` → `main`, merged 2026-10-04 CT by 313aidaroos: Catalog: Socixis 90s/120s avatar render SKUs; avatar base + website packs free. Undo: `git revert 87734cd`.
+
+
+## 2026-10-04 18:25 (CT) — Grok (Wallet Lead): second master/owner account `alaidaroosawad@gmail.com`
+- What: Awad's 2026-10-04 rule — `awad@apixis.dev` AND `alaidaroosawad@gmail.com` are both master/owner admins with full control. The master check used `ALLOWED_EMAIL` only (and that env is not set on Vercel, so it fell back to `awad@apixis.dev`). Now it is an owner list: the two emails as a code constant (`OWNER_EMAILS`), plus `ALLOWED_EMAIL` (legacy, kept) and optional comma-separated `ALLOWED_EMAILS`, which can only ADD owners. Comparison is trimmed + lower-cased.
+- Gate: `isMasterUser(user)` = server-verified Supabase session user (`getAuthenticatedUser()` → `auth.getUser()`, never a decoded/client token or a form/query email) AND `emailConfirmed === true` (`auth.users.email_confirmed_at` set; Supabase sets it on confirmed signup, magic link/OTP and verified OAuth) AND email on the owner list. `masterAccess()` → 401 no session / 403 not a confirmed owner / ok. An unconfirmed signup for an owner address gets nothing until confirmed.
+- Where (every owner/admin email check found): `lib/owners.ts` (rewritten), `app/api/admin/audit/route.ts` (the only master-gated route; now `masterAccess`), `app/login/actions.ts` (signup wording only, not access), `app/login/page.tsx` (master-password hint names both emails). `/api/v1/admin/summary` (stats) is gated by `WALLET_STATS_KEY`, not by email — unchanged. No middleware/proxy in this repo. SQL/RLS: none of the 14 migrations nor the live DB (4 public policies, all `auth.uid()` owner-row checks; no function mentions an owner email / `auth.jwt()` / `auth.email()`) references an owner email → no migration.
+- Auth users (read-only, 6:20 PM CT): `awad@apixis.dev` exists, confirmed 2026-09-22. `alaidaroosawad@gmail.com` has NO Supabase auth user yet; it becomes master the first time it signs in with a magic link (or confirms a password signup).
+- Env: none needed. Out of scope: awad-command's own `ALLOWED_EMAIL` (scripts/launch/companies.ts lists it for that repo) — its hub admin check needs the same change there.
+- Tests: `test/owners.test.ts` (both emails, case/whitespace, unconfirmed denied, other/look-alike emails denied, 401/403/ok, ALLOWED_EMAIL + ALLOWED_EMAILS additive).
+- Who: Wallet Lead (Grok). Branch `grok/wallet-second-owner`.
+- Undo: `git revert <merge sha>` (restores the single `ALLOWED_EMAIL` check). No DB or env to undo.
+

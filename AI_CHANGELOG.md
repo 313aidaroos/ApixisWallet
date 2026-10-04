@@ -106,3 +106,8 @@ Entry format:
 ## 2026-10-04 — Grok (Wallet Lead)
 - Changed: `app/layout.tsx` — main UI font Special Elite → Inter (`next/font/google`, system sans fallback); `NOTES/GROK.md`, `WORKBOARD.md`.
 - Why: Awad asked for a different font on the Wallet site and left the choice to us. Layout, colours and the "Apixis Wallet" name are unchanged.
+
+## 2026-10-04 — Grok (Wallet Lead)
+- Changed: `lib/owners.ts` (owner list `OWNER_EMAILS` = awad@apixis.dev + alaidaroosawad@gmail.com, plus `ALLOWED_EMAIL` / optional `ALLOWED_EMAILS`; `isMasterUser` / `masterAccess` require a confirmed email), `app/api/admin/audit/route.ts`, `app/login/actions.ts`, `app/login/page.tsx` (hint text), new `test/owners.test.ts`, `AGENTS.md`, `NOTES/GROK.md`, `WORKBOARD.md`.
+- Why: Awad's 2026-10-04 rule — both emails are master/owner admins with full control. Unverified signups for either address get nothing. No SQL, RLS or env change.
+
