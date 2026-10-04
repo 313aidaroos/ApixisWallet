@@ -76,3 +76,7 @@ Entry format:
 - Changed: `docs/FAMILY_STATUS.md` (launch-prep section: merges across the family, 51 PRs closed, what stays open and why, what is blocked), `docs/OWNER_CHECKLIST.md`.
 - Live (other repos, each logged in its own AI_CHANGELOG): Ominix #6 merged + its migration applied; 1,000 starter-Ixis wording on 9 repos; Socixis greeting rule + 5% cut; Wattixis async bugs + CI.
 - Why: Awad — "do everything across the board and merge and deploy … create notes", "I need these ready for launch".
+
+## 2026-10-04 — Grok (Wallet Lead)
+- Changed: `lib/catalog.ts` — added `socixis.avatar.render.90s` (3,000 Ixis) and `socixis.avatar.render.120s` (4,000 Ixis) to `redeemCatalog`; replaced `heldCatalog` with `freeCatalog` (price 0, not quotable): Socixis avatar base, 6 `socixis.site.*` packs, and `shop.template.site.saas` / `.shop` (removed from `shopCatalog`). Tests `test/held-catalog.test.ts`; docs `INTEGRATION.md`, `LAUNCH_NOTES.md`; `NOTES/GROK.md`, `WORKBOARD.md`.
+- Why: Awad's 2026-10-04 decisions (Socixis request, Socixis NOTES @ fc8950e): website packs and avatar base free; paid 90s/120s avatar videos at 5× HeyGen cost.

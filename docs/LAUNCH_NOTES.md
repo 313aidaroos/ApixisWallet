@@ -53,9 +53,17 @@ No pending changes.
 ## Open items
 
 - AwadBot is not in `create-family-keys.ts` or the catalog on purpose: AwadBot does not deliver anything yet (see AwadBot notes). Add both when it does.
-- Socixis avatar base and site packs are in `heldCatalog`. Move each back into `redeemCatalog` once Socixis gates on it.
+- Socixis avatar base and site packs (and the two `shop.template.site.*` Shop rows) are free since 2026-10-04 (`freeCatalog`, not quotable). Paid 90s/120s avatar renders (`socixis.avatar.render.90s` 3,000 / `.120s` 4,000 Ixis) are redeemable; Socixis keeps them locked until it wires reserve/capture/release.
 
 ## What changed, file by file
+
+### 2026-10-04: Socixis avatar render SKUs + free site packs / avatar base (Grok, Socixis request, Awad approved)
+
+| File | Change |
+|---|---|
+| `lib/catalog.ts` | Added `socixis.avatar.render.90s` (3,000) and `socixis.avatar.render.120s` (4,000) to `redeemCatalog`. `heldCatalog` replaced by `freeCatalog` (price 0, not quotable): avatar base, 6 `socixis.site.*` packs, and `shop.template.site.saas` / `.shop` (removed from `shopCatalog`). |
+| `test/held-catalog.test.ts` | Covers the new SKUs, the free list and that free items can't be quoted. |
+| `docs/INTEGRATION.md`, `docs/LAUNCH_NOTES.md` | Catalog tables updated. |
 
 ### 2026-09-27: dashboard-driven payment methods + async credit
 
