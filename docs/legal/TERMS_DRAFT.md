@@ -69,8 +69,8 @@ our AI providers into chats.
 
 ## 9. Acceptable use
 No fraud, money laundering, chargeback abuse, attempts to mint or move Ixis outside the Services, scraping, attacking
-the Services, or illegal content. Halal-conscious product rules in our AI (no alcohol, gambling, interest-based
-lending or adult content recommendations) are product choices, not a limit on your lawful use.
+the Services, or illegal content. Our AI's recommendation rules (no gambling or adult content recommendations) are product
+choices, not a limit on your lawful use.
 
 ## 10. Changes, availability and liability
 - We may change the Services or these terms; we will show the new version and the date. Continued use after a change

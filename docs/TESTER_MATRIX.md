@@ -30,7 +30,7 @@ Use a new address (e.g. `you+launch1@…`). Prices are in Ixis; buy the Spark pa
 | 14 | Wattixis | Save a listing draft; ask Cixy "What is the 5% fee?" | Draft opens; Cixy answers | draft row (signed in) |
 | 15 | Qahwah World | Roaster seat via Ixis; coffee by card | Seat via Wallet; coffee via its own Stripe | — |
 | 16 | Pinixis | Request a build → pay deposit by card; list an item → buy it | Stripe checkout works; seller onboarding via Connect | needs Pinixis Stripe keys + webhook |
-| 17 | Any site | Ask Cixy "Salam" then "Hi" | Answers "Salam" to salaam, "Hi" to hi; never opens with salaam itself | needs Anthropic credits |
+| 17 | Any site except Halaxis | Say "Hi" to Cixy | Plain friendly hello; no religious greeting or phrase; never calls itself a Muslim assistant | needs Anthropic credits |
 | 18 | Wallet | Try to buy with a declined test card / cancel checkout | No Ixis added | no `credit_xp` |
 
 ## 3. After it passes (Claude, on Awad's "go")

@@ -115,3 +115,7 @@ Entry format:
 ## 2026-10-04 — Claude (Claude Code, full-portfolio review)
 - Changed: `NOTES/CLAUDE.md` — this repo's slice of the 24-repo review (what is live, what is open, who owns each item, drift found). `docs/FAMILY_STATUS.md` — new section "Full-portfolio review — 2026-10-04" (findings the board did not have, verification table, owner list). No code, env, database or deploy changes.
 - Why: Awad asked for every repo to be read twice with a done / to-do / owner status, and for the notes in each repo to be updated. Notes only; Awad approved the merge on 2026-10-04.
+
+## 2026-10-04 — Grok (Wallet Lead): Cixy persona text aligned with Awad's religion lock
+- Changed: `sdk/apixis-cixy.ts` / `.js` (`CIXY_CORE` v2: removed the Arab/Muslim-culture line, "Salam"/"As-salamu alaykum"/"Insha'Allah"/"alhamdulillah" guidance, pork/interest-lending and religious-ruling lines), `docs/CIXY.md` (lock text; Halaxis is the only exception), `docs/legal/TERMS_DRAFT.md` §9 (no "halal-conscious" wording), `docs/TESTER_MATRIX.md` row 17.
+- Why: Claude's #23 (2026-09-30) codified Islamic greetings and said "Halaxis is not an exception any more", against Awad's lock (no religious/halal content or Islamic greetings outside Halaxis; Cixy is not a "Muslim AI assistant"). No runtime code in the Wallet imports this file; site copies must be re-copied by their leads / Developer Bot. Undo: `git revert` this PR's squash commit.
