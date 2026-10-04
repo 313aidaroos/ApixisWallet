@@ -1,18 +1,47 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { findCatalogProduct, heldCatalog, redeemCatalog } from "../lib/catalog";
+import { findCatalogProduct, freeCatalog, redeemCatalog, shopCatalog } from "../lib/catalog";
 import { productsForDestination } from "../lib/checkout/destinations";
 
-describe("held catalog", () => {
-  it("never sells a held product", () => {
-    assert.equal(heldCatalog.length, 7);
-    for (const item of heldCatalog) {
+// 2026-10-04 (Grok, Socixis request, Awad approved): avatar base + website packs free; paid 90s/120s renders.
+describe("Socixis catalog", () => {
+  it("lists the avatar base and every website pack as free and never quotes them", () => {
+    assert.deepEqual(
+      freeCatalog.map((item) => item.key).sort(),
+      [
+        "shop.template.site.saas",
+        "shop.template.site.shop",
+        "socixis.avatar.base",
+        "socixis.site.agency",
+        "socixis.site.local",
+        "socixis.site.portfolio",
+        "socixis.site.restaurant",
+        "socixis.site.saas",
+        "socixis.site.shop",
+      ],
+    );
+    for (const item of freeCatalog) {
+      assert.equal(item.xp, 0, item.key);
+      // reserve_xp rejects a zero amount, so a free item must never reach quote/reserve.
       assert.equal(findCatalogProduct(item.key), undefined, item.key);
       assert.ok(!redeemCatalog.some((p) => (p.key as string) === item.key), item.key);
+      assert.ok(!shopCatalog.some((p) => (p.key as string) === item.key), item.key);
     }
   });
 
-  it("sells the Socixis products Socixis delivers: Autopilot, skins and the all-skins pack", () => {
+  it("sells the paid avatar renders at 3,000 and 4,000 Ixis as one-time consumables", () => {
+    const socixis: string[] = productsForDestination("socixis").map((p) => p.key);
+    for (const [key, xp] of [["socixis.avatar.render.90s", 3000], ["socixis.avatar.render.120s", 4000]] as const) {
+      const product = findCatalogProduct(key);
+      assert.ok(product, key);
+      assert.equal(product.xp, xp);
+      assert.equal(product.app, "Socixis");
+      assert.equal((product as { days?: number }).days, undefined, `${key} is per render, not a period`);
+      assert.ok(socixis.includes(key), key);
+    }
+  });
+
+  it("still sells the Socixis products Socixis delivers: Autopilot, skins and the all-skins pack", () => {
     const socixis: string[] = productsForDestination("socixis").map((p) => p.key);
     for (const key of [
       "socixis.autopilot.monthly",
@@ -24,9 +53,7 @@ describe("held catalog", () => {
     }
   });
 
-  it("keeps the avatar base and site packs held", () => {
-    for (const key of ["socixis.avatar.base", "socixis.site.saas", "socixis.site.agency"]) {
-      assert.equal(findCatalogProduct(key), undefined, key);
-    }
+  it("every paid catalog price is positive (reserve_xp rejects 0)", () => {
+    for (const item of [...redeemCatalog, ...shopCatalog]) assert.ok(item.xp > 0, item.key);
   });
 });

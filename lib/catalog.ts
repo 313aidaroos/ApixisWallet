@@ -1,4 +1,4 @@
-// Change note (Claude, Sep 2026): Socixis avatar base and site packs held (not for sale); skins and the all-skins pack sell again now that Socixis checks them. See docs/LAUNCH_NOTES.md.
+// Change note (Grok, Oct 2026): Socixis paid avatar renders (90s/120s) added; Socixis avatar base and site packs are free (freeCatalog, no Wallet charge) per Awad 2026-10-04. Skins and the all-skins pack still sell. See docs/LAUNCH_NOTES.md.
 /** 100 Ixis = $1. Same SKU prices on every apple. */
 export const pointPacks = [
   { id: "spark", name: "Spark", price: 10, xp: 1000, bonus: 0 },
@@ -27,6 +27,9 @@ export const redeemCatalog = [
   { key: "socixis.avatar.skin.character", app: "Socixis", name: "Skin: 3D character", xp: UNIT_XP, color: "#ff8a3d", includes: "Look unlock" },
   { key: "socixis.avatar.skin.digital", app: "Socixis", name: "Skin: Digital", xp: UNIT_XP, color: "#ff8a3d", includes: "Look unlock" },
   { key: "socixis.avatar.pack.all", app: "Socixis", name: "Skin pack: All skins", xp: 5000, color: "#ff8a3d", includes: "Every current skin · $50" },
+  // Paid avatar video renders (consumable, no `days`): one reserve → capture per video. Price = 5× HeyGen cost (Awad, 2026-09-28 / 2026-10-04).
+  { key: "socixis.avatar.render.90s", app: "Socixis", name: "Avatar video: 90s render", xp: 3000, color: "#ff8a3d", includes: "One avatar video up to 90s · $30" },
+  { key: "socixis.avatar.render.120s", app: "Socixis", name: "Avatar video: 120s render", xp: 4000, color: "#ff8a3d", includes: "One avatar video up to 120s · $40" },
   { key: "recovra.intel.monthly", app: "Recovra", name: "Recovery Intelligence · Starter", xp: 22000, color: "#58c8ff", includes: "Seat + 120 extracts · $220/mo", days: 30 },
   { key: "recovra.intel.growth", app: "Recovra", name: "Recovery Intelligence · Growth", xp: 44000, color: "#58c8ff", includes: "Multi-module · workflows · reporting · $440/mo", days: 30 },
   { key: "deduxis.receipts.monthly", app: "Deduxis", name: "Receipt Intelligence", xp: 15000, color: "#ffbd59", includes: "Seat + 200 receipts", days: 30 },
@@ -78,20 +81,22 @@ export const redeemCatalog = [
 ] as const;
 
 /**
- * Held back: not for sale. Socixis does not gate on these yet: the avatar base ("+1 restyle")
- * and site packs (its AI assigns one of these templates to every website, so gating them is a
- * pricing decision). findCatalogProduct() ignores this list, so reservations and the Wallet
- * redeem tab refuse them. Move an item back into redeemCatalog once Socixis gates on it.
- * Skins and the all-skins pack were released on 2026-09-26: Socixis checks them in setAvatarStyle.
+ * Free: no Wallet charge (Awad, 2026-10-04: Socixis website packs and the avatar base are free, no paywall).
+ * reserve_xp rejects a zero amount (WA400), so free items are not quotable or redeemable at all:
+ * findCatalogProduct() ignores this list, quotes and reservations return 404, and the Wallet redeem tab
+ * and Shop don't show them. Sites unlock these without calling the Wallet. `xp: 0` is the price on record.
+ * (Before 2026-10-04 the socixis.* rows were held at 1,000 Ixis and the two shop.template.site.* rows sold in the Shop at 1,000 Ixis.)
  */
-export const heldCatalog = [
-  { key: "socixis.avatar.base", app: "Socixis", name: "Avatar base", xp: UNIT_XP, color: "#ff8a3d", includes: "Photo → real me + 1 restyle" },
-  { key: "socixis.site.saas", app: "Socixis", name: "Site pack: SaaS", xp: UNIT_XP, color: "#2563eb", includes: "Animated interactive pack" },
-  { key: "socixis.site.restaurant", app: "Socixis", name: "Site pack: Restaurant", xp: UNIT_XP, color: "#2563eb", includes: "Menu-first pack" },
-  { key: "socixis.site.portfolio", app: "Socixis", name: "Site pack: Portfolio", xp: UNIT_XP, color: "#2563eb", includes: "Work pack" },
-  { key: "socixis.site.local", app: "Socixis", name: "Site pack: Local service", xp: UNIT_XP, color: "#2563eb", includes: "Geo pack" },
-  { key: "socixis.site.shop", app: "Socixis", name: "Site pack: Shop lite", xp: UNIT_XP, color: "#2563eb", includes: "Catalog pack" },
-  { key: "socixis.site.agency", app: "Socixis", name: "Site pack: Agency", xp: UNIT_XP, color: "#2563eb", includes: "Case-study pack" },
+export const freeCatalog = [
+  { key: "socixis.avatar.base", app: "Socixis", name: "Avatar base", xp: 0, color: "#ff8a3d", includes: "Photo → real me + 1 restyle" },
+  { key: "socixis.site.saas", app: "Socixis", name: "Site pack: SaaS", xp: 0, color: "#2563eb", includes: "Animated interactive pack" },
+  { key: "socixis.site.restaurant", app: "Socixis", name: "Site pack: Restaurant", xp: 0, color: "#2563eb", includes: "Menu-first pack" },
+  { key: "socixis.site.portfolio", app: "Socixis", name: "Site pack: Portfolio", xp: 0, color: "#2563eb", includes: "Work pack" },
+  { key: "socixis.site.local", app: "Socixis", name: "Site pack: Local service", xp: 0, color: "#2563eb", includes: "Geo pack" },
+  { key: "socixis.site.shop", app: "Socixis", name: "Site pack: Shop lite", xp: 0, color: "#2563eb", includes: "Catalog pack" },
+  { key: "socixis.site.agency", app: "Socixis", name: "Site pack: Agency", xp: 0, color: "#2563eb", includes: "Case-study pack" },
+  { key: "shop.template.site.saas", app: "Socixis", name: "Site pack: SaaS", xp: 0, color: "#2563eb", includes: "Animated interactive site pack" },
+  { key: "shop.template.site.shop", app: "Socixis", name: "Site pack: Shop lite", xp: 0, color: "#2563eb", includes: "Catalog pack for a small storefront" },
 ] as const;
 
 /**
@@ -112,8 +117,6 @@ export type ShopCategory = (typeof shopCategories)[number]["id"];
 
 export const shopCatalog = [
   { key: "shop.template.file.unit", category: "templates", app: "Family", name: "File / template unit", xp: UNIT_XP, color: "#9dff4a", blurb: "Any file, template, or skin. Same $10 unit on every site." },
-  { key: "shop.template.site.saas", category: "templates", app: "Socixis", name: "Site pack: SaaS", xp: UNIT_XP, color: "#2563eb", blurb: "Animated interactive site pack." },
-  { key: "shop.template.site.shop", category: "templates", app: "Socixis", name: "Site pack: Shop lite", xp: UNIT_XP, color: "#2563eb", blurb: "Catalog pack for a small storefront." },
   { key: "shop.template.listing", category: "templates", app: "Renoxis", name: "Listing file", xp: UNIT_XP, color: "#c8ff63", blurb: "One listing template." },
   { key: "shop.template.offer", category: "templates", app: "Renoxis", name: "Offer file", xp: UNIT_XP, color: "#c8ff63", blurb: "One offer template." },
 
