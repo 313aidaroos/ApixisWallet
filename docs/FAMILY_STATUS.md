@@ -18,6 +18,7 @@ and `LAUNCH_NOTES.md` are archives. If you change family status, change it here.
 
 ## Wallet welcome grant + bonus-safe payouts — 2026-10-04 (Grok, Wallet executor)
 - **What shipped:** Wallet migration `013_signup_grant` (`signup_grants` table; `grant_signup_xp`, `revoke_signup_grant`, `settle_marketplace_payout`, all service_role-only) and `lib/signup-grant.ts`, called from `/auth/callback`, the password login and `POST /api/sso/token`. 1,000 bonus Ixis once per Apixis ID; confirmed email + real sign-in; disposable-domain block; per-IP/domain/global limits; mint-ceiling check and `signup_grant` audit row in SQL. Details: `AGENTS.md` §4.
+- **Live state:** PR #41 (`f65b362`) deployed (`dpl_gWUTGjPi6HCW6HAyBgg98hk8eR4h` READY); migration 013 applied to `kzneeksminozmhnqaaun` 2026-10-04 5:37 PM CT. Flag OFF, 0 grants issued.
 - **Cutover (hub):** set `SIGNUP_GRANT_ENABLED=true` on Vercel project `apixis-wallet` (Production) **at the same moment** Apixis.dev's in-world visitor starter goes to 0. Until then the grant is OFF (unset = OFF) and no grant is issued.
 - **Marketplace:** bonus-funded orders now pay the seller as bonus. Rule `proportional_paid_floor_v1`: `paid = floor(payout × held_paid / held_total)`, rest bonus. Products need no change; the settle response adds `payoutPaid` / `payoutBonus`.
 - **Products:** nothing to change. The balance pill already shows `available` (paid + bonus).
