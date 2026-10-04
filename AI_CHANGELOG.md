@@ -84,3 +84,7 @@ Entry format:
 ## 2026-10-04 (follow-up) — Grok (Wallet Lead)
 - Changed: `lib/catalog.ts`: added `socixis.avatar.render.45s` (1,500 Ixis) and `socixis.avatar.render.60s` (2,000 Ixis). Free avatar videos are capped at 30s, with no paid 30s SKU. Tests and docs (`INTEGRATION.md`, `LAUNCH_NOTES.md`), `NOTES/GROK.md`, `WORKBOARD.md` updated to match.
 - Why: Awad's scope update, 2026-10-04 4:38 PM CT: the full paid render set is 45s/60s/90s/120s.
+
+## 2026-10-04 (feed tips) — Grok (Wallet Lead)
+- Changed: `lib/api/marketplace.ts` (`kind` "order"|"tip", `MIN_TIP_IXIS=10`, `minOrderIxis()`, `marketplaceOrderSchema`), `app/api/v1/marketplace/orders/route.ts`, `sdk/apixis-wallet.ts` (`marketplaceOrder({ kind })`), `test/marketplace.test.ts`, `docs/INTEGRATION.md`, `AGENTS.md`, `NOTES/GROK.md`, `WORKBOARD.md`.
+- Why: Awad's Oct 4 feed decisions. Apixis.dev feed tips of 10/50 Ixis were rejected by the 100 Ixis order minimum. Tips now have a 10 minimum, while other orders keep 100. Fee rate and rounding (floor) are unchanged, and there is no migration.

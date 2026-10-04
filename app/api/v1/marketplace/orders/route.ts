@@ -1,30 +1,15 @@
 import { NextResponse } from "next/server";
-import { z } from "zod";
 import { createServiceSupabase } from "@/lib/supabase/service";
 import { authenticateService, callerMayUseApp } from "@/lib/api/service-auth";
 import { ownerForCaller } from "@/lib/api/caller-owner";
 import { ledgerErrorResponse } from "@/lib/api/errors";
 import { recordAudit, requestContext } from "@/lib/audit";
-import { IDEMPOTENCY_KEY, ledgerIdempotencyKey } from "@/lib/api/reserve";
+import { ledgerIdempotencyKey } from "@/lib/api/reserve";
 import { LIMITS, checkLimits } from "@/lib/api/rate-limit";
-import { DEFAULT_HOLD_DAYS, MAX_HOLD_DAYS, MAX_ORDER_IXIS, MIN_ORDER_IXIS, holdSeconds, orderDescription } from "@/lib/api/marketplace";
+import { DEFAULT_HOLD_DAYS, MAX_ORDER_IXIS, MIN_ORDER_IXIS, MIN_TIP_IXIS, holdSeconds, marketplaceOrderSchema, minOrderIxis, orderDescription } from "@/lib/api/marketplace";
 import { canonicalAppSlug } from "@/lib/checkout/destinations";
 
-const bodySchema = z
-  .object({
-    /** Which family app the order belongs to. Optional when the key is scoped to exactly one app. */
-    app: z.string().min(1).max(40).optional(),
-    amount: z.number().int().min(MIN_ORDER_IXIS).max(MAX_ORDER_IXIS),
-    idempotencyKey: z.string().regex(IDEMPOTENCY_KEY),
-    /** Your order / job id, for the ledger description and the audit trail. */
-    reference: z.string().min(1).max(80).optional(),
-    description: z.string().min(1).max(120).optional(),
-    holdDays: z.number().int().min(1).max(MAX_HOLD_DAYS).optional(),
-    // The buyer: Apixis ID `sub` (preferred) or verified email (legacy).
-    buyer_id: z.string().uuid().optional(),
-    buyer_email: z.string().email().max(320).optional(),
-  })
-  .refine((b) => b.buyer_id || b.buyer_email, { message: "buyer_id or buyer_email required" });
+const bodySchema = marketplaceOrderSchema;
 
 /**
  * Open a marketplace order: hold `amount` Ixis on the buyer until the seller delivers.
@@ -38,10 +23,16 @@ export async function POST(request: Request) {
   const limited = checkLimits([{ key: `client:${auth.caller.clientId ?? auth.caller.actor}`, ...LIMITS.clientReserve }]);
   if (limited) return limited;
 
-  const parsed = bodySchema.safeParse(await request.json().catch(() => null));
+  const raw = await request.json().catch(() => null);
+  const kind = (raw as { kind?: unknown } | null)?.kind === "tip" ? "tip" : "order";
+  const parsed = bodySchema.safeParse(raw);
   if (!parsed.success) {
     return NextResponse.json(
-      { error: `Invalid order (amount ${MIN_ORDER_IXIS}–${MAX_ORDER_IXIS} Ixis, idempotencyKey 8–80 chars, buyer_id or buyer_email)` },
+      {
+        error: `Invalid order (amount ${MIN_ORDER_IXIS}–${MAX_ORDER_IXIS} Ixis, or ${MIN_TIP_IXIS}+ with kind "tip"; idempotencyKey 8–80 chars, buyer_id or buyer_email)`,
+        code: "invalid_order",
+        min_ixis: minOrderIxis(kind),
+      },
       { status: 400 },
     );
   }
@@ -96,6 +87,7 @@ export async function POST(request: Request) {
     ...requestContext(request),
     details: {
       marketplace: true,
+      kind: parsed.data.kind ?? "order",
       reference: parsed.data.reference ?? null,
       idempotency_key: parsed.data.idempotencyKey,
       hold_days: parsed.data.holdDays ?? DEFAULT_HOLD_DAYS,

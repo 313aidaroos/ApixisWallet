@@ -258,6 +258,23 @@ You may still keep your own seat dates (e.g. Renoxis `seat_period_end`), but the
 
 ---
 
+## 8. Marketplace orders and feed tips
+
+Person → person payments (Ominix jobs, the shared Apixis.dev feed) use `POST /api/v1/marketplace/orders`, then `POST /api/v1/marketplace/orders/:id/settle` (or `/api/v1/reservations/:id/release` to cancel). Full field list: AGENTS.md §5.
+
+- `kind` (optional): `"order"` (default) has a **100 Ixis** minimum. `"tip"` has a **10 Ixis** minimum and is meant for feed tips. Both kinds share the same hold, settle and fee behavior.
+- A 400 for a too-small amount returns `{ code: "invalid_order", min_ixis }`, where `min_ixis` is 100 or 10.
+- Settle takes `feeBps` (default 500 = 5%). The fee is `floor(amount × feeBps / 10000)` and the recipient gets `amount − fee`, all in whole Ixis. The fee stays in clearing.
+
+| Payment (5%) | Fee | Recipient |
+|---|---|---|
+| tip 10 | **0** (0.5 rounds down) | 10 |
+| tip 50 | 2 (2.5 → 2) | 48 |
+| tip 100 | 5 | 95 |
+| order 250 settled to a seller | 12 (12.5 → 12) | 238 |
+
+Tips of 10–19 Ixis pay no platform fee under the existing floor rounding. The Apixis.dev feed opens each tip with `holdDays: 1` and settles it right away, so it lands instantly. A feed boost (250 Ixis/day, `kind` omitted) is an order that the feed **captures** (`/api/v1/reservations/:id/capture`). There's no recipient, so the whole 250 goes to clearing.
+
 ## Catalog
 
 Current SKUs (as of 2026-09-21):
