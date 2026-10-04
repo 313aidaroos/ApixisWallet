@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createServiceSupabase } from "@/lib/supabase/service";
 import { authenticateService, callerMayUseApp } from "@/lib/api/service-auth";
-import { ownerForCaller } from "@/lib/api/caller-owner";
+import { ownerForCaller, ownerLinkAudit } from "@/lib/api/caller-owner";
 import { ledgerErrorResponse } from "@/lib/api/errors";
 import { recordAudit, requestContext } from "@/lib/audit";
 import { ledgerIdempotencyKey } from "@/lib/api/reserve";
@@ -50,9 +50,9 @@ export async function POST(request: Request) {
     supabase,
     auth.caller,
     { ownerId: parsed.data.buyer_id, ownerEmail: parsed.data.buyer_email },
-    { create: true },
+    { create: true, marketplace: true },
   );
-  if ("error" in buyer) return NextResponse.json({ error: buyer.error }, { status: buyer.status });
+  if ("error" in buyer) return NextResponse.json({ error: buyer.error, ...(buyer.code ? { code: buyer.code } : {}) }, { status: buyer.status });
   const buyerId = buyer.ownerId;
   if (!buyerId) return NextResponse.json({ error: "buyer_email required" }, { status: 400 });
 
@@ -91,6 +91,7 @@ export async function POST(request: Request) {
       reference: parsed.data.reference ?? null,
       idempotency_key: parsed.data.idempotencyKey,
       hold_days: parsed.data.holdDays ?? DEFAULT_HOLD_DAYS,
+      ...ownerLinkAudit(buyer, "buyer"),
       ...(error ? { code: error.code ?? null } : { usd_equivalent: parsed.data.amount / 100 }),
     },
   });

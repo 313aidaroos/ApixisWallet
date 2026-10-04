@@ -275,6 +275,13 @@ Person → person payments (Ominix jobs, the shared Apixis.dev feed) use `POST /
 
 Tips of 10–19 Ixis pay no platform fee under the existing floor rounding. The Apixis.dev feed opens each tip with `holdDays: 1` and settles it right away, so it lands instantly. A feed boost (250 Ixis/day, `kind` omitted) is an order that the feed **captures** (`/api/v1/reservations/:id/capture`). There's no recipient, so the whole 250 goes to clearing.
 
+**Who may be named (`buyer_id` / `seller_id`, 2026-10-04).** These are the Apixis ID `sub`, which is the Wallet user id.
+- Normal rule (every per-site key, every route): the person must have signed in to **your** site with Apixis ID (an `sso_links` row for your client). Otherwise you get a 403 "has not signed in to your site".
+- Feed exception (`FEED_CLIENTS = ["apixis"]` in `lib/api/caller-owner.ts`): on these two marketplace routes only (`POST /api/v1/marketplace/orders` for tips and boosts, and `.../:id/settle`), the `apixis` key may also name anyone who signed in with Apixis ID on **any active** family client (Socixis, Renoxis, ...). One Apixis ID = one Wallet. An `sso_links` row also proves the Wallet user exists, so nothing is created.
+- No sign-in on any active family client (or an id that isn't a Wallet user) gets **403 `{ code: "apixis_id_not_linked" }`**. A non-UUID still gets 400.
+- The audit row records the cross-site link: `details.buyer_link` on the order's `reserve` event and `details.seller_link` on the settle `payout` event, as `{ cross_site: true, feed_client: "apixis", linked_client: "<site>" }`.
+- Unchanged: every other client; the `apixis` key on `/api/v1/balance`, `/redeem`, `/reservations` (including capture/release) and `/entitlements`; the legacy service key; the `buyer_email` / `seller_email` path. No `sso_links` row is written for `apixis`, so this exception never grants balance or redeem access.
+
 ## Catalog
 
 Current SKUs (as of 2026-09-21):

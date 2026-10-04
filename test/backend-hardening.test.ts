@@ -111,7 +111,7 @@ describe("service auth", () => {
   });
 
   it("scopes per-site callers to their apps", () => {
-    const renoxis = { actor: "key:renoxis", apps: ["renoxis"], legacy: false, clientId: "c1", requireSso: false };
+    const renoxis = { actor: "key:renoxis", apps: ["renoxis"], legacy: false, clientId: "c1", clientName: "renoxis", requireSso: false };
     assert.ok(callerMayUseApp(renoxis, "renoxis"));
     assert.ok(!callerMayUseApp(renoxis, "socixis"));
   });
@@ -359,7 +359,7 @@ describe("apixis id", async () => {
         }),
       }),
     } as unknown as Parameters<typeof ownerForCaller>[0];
-    const site = { actor: "key:renoxis", apps: ["renoxis"], legacy: false, clientId: "c1", requireSso: true };
+    const site = { actor: "key:renoxis", apps: ["renoxis"], legacy: false, clientId: "c1", clientName: "renoxis", requireSso: true };
     assert.deepEqual(await ownerForCaller(supabase, site, { ownerId: "11111111-1111-4111-8111-111111111111" }, { create: false }), {
       ownerId: "11111111-1111-4111-8111-111111111111",
     });
@@ -367,7 +367,7 @@ describe("apixis id", async () => {
     assert.ok("error" in stranger && stranger.status === 403);
     const byEmail = await ownerForCaller(supabase, site, { ownerEmail: "a@b.co" }, { create: false });
     assert.ok("error" in byEmail && byEmail.status === 403);
-    const legacy = { actor: "legacy", apps: null, legacy: true, clientId: null, requireSso: false };
+    const legacy = { actor: "legacy", apps: null, legacy: true, clientId: null, clientName: null, requireSso: false };
     assert.deepEqual(await ownerForCaller(supabase, legacy, { ownerId: "22222222-2222-4222-8222-222222222222" }, { create: false }), {
       ownerId: "22222222-2222-4222-8222-222222222222",
     });
