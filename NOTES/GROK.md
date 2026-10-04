@@ -1,4 +1,10 @@
 Grok Bot (Developer Bot hub + product leads) notes. Every change Grok Bot makes to this product (code, env, database, deploys) gets a dated entry here so Claude, Hermes and Codex stay on the same page.
+## 2026-10-04 summary
+
+- **Grok:** shipped the Socixis catalog SKUs/free packs, feed-tip and cross-site-ID support, the 1,000-Ixis signup grant, world-order contract, font update, and rollout notes.
+- **Wallet lead:** coordinated the signup-grant and world-economy cutovers; the world switch remains off.
+- **Claude/Codex/Hermes/Juno:** Claude, Hermes, and Juno had no commits or merged PRs in this repo on 2026-10-04 CT.
+
 
 ## 2026-09-27 (CT) — Developer Bot (hub)
 - Wallet database: added 12 client rows in Supabase project `kzneeksminozmhnqaaun`, all with `require_sso=false`.
@@ -105,3 +111,69 @@ _Backfilled 2026-10-02 by Grok (Wallet Lead), read from git history._ Sources: `
 - Not touched: Stripe, checkout, webhook, Apixis.dev, other products, env. No real users created, no grant issued on prod.
 - Merged: PR #41, squash `f65b362` (5:36 PM CT); prod `dpl_gWUTGjPi6HCW6HAyBgg98hk8eR4h` READY. Migration `013_signup_grant` applied to `kzneeksminozmhnqaaun` at 5:37 PM CT (version `20261004223743`) from the exact repo file; verified by SELECT: 3 functions SECURITY DEFINER, anon/authenticated/public cannot execute, service_role can; `signup_grants` RLS on, no anon/authenticated access; 0 grants, 0 `signup_grant` ledger/audit rows, 0 bonus entries, 0 unbalanced transactions. `SIGNUP_GRANT_ENABLED` absent on Vercel (OFF).
 - Undo: (1) hub unsets `SIGNUP_GRANT_ENABLED` (or sets `false`) and redeploys → no new grants; (2) `git revert f65b362` → settle goes back to `credit_xp` paid; (3) DB: `revoke execute` on (or `drop function`) `grant_signup_xp`, `revoke_signup_grant`, `settle_marketplace_payout`; keep `signup_grants` (it references ledger rows). Grants already issued stay unless clawed back one by one with `revoke_signup_grant` (append-only ledger).
+
+## 2026-10-04 (CT) — Grok (hub): welcome grant switched ON (`SIGNUP_GRANT_ENABLED=true`, Production)
+- What: added `SIGNUP_GRANT_ENABLED=true` (Production only, env id `iWtrbeNpo9HJ7sjo`) on Vercel `apixis-wallet` at 5:50:17 PM CT, then redeployed production: `dpl_7xwFM2u8PS1aRhycTfesTz1qgd9r` (redeploy of `dpl_HXc4b6SM1VZKM7FtW4FAX429d3ae`, `5aba8ef`), READY 5:50:54 PM CT. Wallet code untouched.
+- Order: done right after Apixis.dev PR #75 (`9fdd57b`, in-world visitor starter 1000 → 0) reached prod READY (`dpl_7n5mB6RZqFLL4kJr6jp5dtpvVrhD`, 5:50 PM CT), so nobody gets both. Anyone who signed up in the ~1-minute gap is still eligible, because the grant backfills lazily on the next confirmed sign-in.
+- State at switch-on: 0 rows in `signup_grants`. Lazy backfill applies, so existing Apixis IDs also get 1,000 bonus on their next confirmed sign-in (hub decision in #41).
+- Undo: delete `SIGNUP_GRANT_ENABLED` (or set it to `false`) on `apixis-wallet` Production and redeploy production. That stops new grants. Grants already issued stay unless clawed back one by one with `revoke_signup_grant`. Also revert Apixis.dev `9fdd57b` so new agents get the in-world starter again.
+
+## 2026-10-04 (CT) — Grok (Wallet Lead): Apixis.dev in-world spending on the shared Wallet (`world_trade`, `world_purchase`, migration 014)
+- Who/why: Grok (Wallet Lead), hub request. Since 5:50 PM CT new agents start at 0 in-world Ixis and get 1,000 bonus in the Wallet, but Apixis.dev in-world spending (`shared/deals.js`, `economy_action`, businesses) still debits `apixis.agents.ixix_balance`, so new agents can't pay. Developer Bot changes Apixis.dev; this is the Wallet side + contract.
+- Grant check (SELECT only, 5:54 PM CT): `signup_grants` 0 rows since 5:50 PM CT (0 total), 0 `signup_grant:%` ledger rows, 0 `signup_grant` audit rows.
+- What: two marketplace order kinds through the SAME hold → settle/release path. `world_trade` (agent → agent, min 20 so the floor 5% fee is ≥ 1): `seller_id` pinned at open, settle pays only that Apixis ID, fee locked at 500 bps (`fee_locked` / `seller_mismatch`). `world_purchase` (agent → platform, min 1): no seller, settle = `capture_xp` to clearing, nobody paid. Both: app `apixis` only, `buyer_id` required, PR #40 link rule on buyer AND seller (403 `apixis_id_not_linked`), idempotent per key, bonus stays bonus (013 payout). Plain orders/tips unchanged.
+- Where: `lib/api/marketplace.ts` (`WORLD_KINDS`, `checkWorldOrder`, `planSettle`, `recordOrderTerms`, `loadOrderTerms`), order + settle routes, `sdk/apixis-wallet.ts` 3.2, migration `014_world_orders.sql` (new table `marketplace_order_terms`, write-once, service_role select/insert only; no function changed), `supabase/tests/60_world_orders_test.sql`, `test/world-orders.test.ts`, `docs/WORLD_ECONOMY_CUTOVER.md` (contract, movement inventory, reconciliation plan), INTEGRATION §8b, AGENTS §5.
+- NOT built (mints, Awad decides): rewards / in-world credits into agents, seat "+N in-world Ixis", NPC wallets. NOT done: any reconciliation of the 105,720 in-world Ixis (plan only; recommended option (b) zero without credit).
+- Merged: PR #43, squash `61ebf0a` (6:05 PM CT); prod `dpl_4u4W7y9wkPmKoNqWAEYwNaq9rvUs` READY 6:05 PM CT (unauthenticated POST → 401 as expected). Migration `014_world_orders` applied to `kzneeksminozmhnqaaun` at 6:04 PM CT (version `20261004230449`) from the exact repo file; verified: table empty, RLS on, anon/authenticated no access, service_role select+insert only (no update/delete). CI app + ledger-sql green.
+- Undo: `git revert 61ebf0a` (world kinds rejected again as `invalid_order`); DB: `drop table if exists public.marketplace_order_terms;` (after the revert; open world holds stay ordinary holds and expire/release normally).
+
+## 2026-10-04 18:15 (CT) — Grok (Wallet Lead): main UI font Special Elite → Inter
+- What: Awad asked for a different font on the Wallet site and left the pick to us; we picked Inter. The body font was Special Elite (`next/font/google`, `body` className in `app/layout.tsx`), which overrode the `globals.css` body stack ("IBM Plex Mono", ui-monospace, monospace). It is now Inter via `next/font/google` (`subsets: ["latin"]`, `display: "swap"`, fallback `system-ui, -apple-system, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif`). The name "Apixis Wallet" is unchanged.
+- Where: `app/layout.tsx` only. `app/globals.css` is untouched (its Google Fonts `@import` of Press Start 2P + IBM Plex Mono and the body mono stack stay; no rule applies a separate mono font to numbers/code). No layout, size or colour changes. No Tailwind in this repo.
+- Who: Wallet Lead (Grok). Branch `grok/wallet-font-inter`.
+- Shipped: PR #45, squash `459100c0646a2004a77dd89aaca63607807f6434` merged 6:17 PM CT; prod `dpl_9JHfWUHqgVYJQPR1BPgiNwM4YyUZ` READY 6:17 PM CT (verified live: Inter class served on apixis-wallet.vercel.app).
+- Undo: `git revert 459100c0646a2004a77dd89aaca63607807f6434`, or set `app/layout.tsx` back to `import { Special_Elite } from "next/font/google"` + `const specialElite = Special_Elite({ weight: "400", subsets: ["latin"] })` + `<body className={specialElite.className}>`.
+## 2026-10-04 catch-up provenance (CT)
+
+The entries below record the day's observed commits and merged PRs. Existing detailed entries above remain the change descriptions; this section supplies exact provenance and undo pointers.
+
+### Commits
+- `459100c` (2026-10-04T18:17:04-05:00, 313aidaroos; alaidaroosawad@gmail.com) — Wallet: main UI font Special Elite → Inter (next/font/google) (#45). Undo: undo via the merged PR below: git revert 459100c.
+- `5054500` (2026-10-04T16:34:59-05:00, 313aidaroos; alaidaroosawad@gmail.com) — feat(catalog): Socixis 90s/120s avatar render SKUs; avatar base + website packs free. Undo: no main change; close/delete the branch (or revert the branch commit before reuse).
+- `5aba8ef` (2026-10-04T17:39:57-05:00, 313aidaroos; alaidaroosawad@gmail.com) — notes: signup_grant #41 merged (f65b362), migration 013 applied, undo sha (#42). Undo: undo via the merged PR below: git revert 5aba8ef.
+- `61ebf0a` (2026-10-04T18:05:10-05:00, 313aidaroos; alaidaroosawad@gmail.com) — Wallet: world_trade / world_purchase order kinds for Apixis.dev in-world money (migration 014, additive) (#43). Undo: undo via the merged PR below: git revert 61ebf0a.
+- `6882846` (2026-10-04T17:51:50-05:00, 313aidaroos; 313aidaroos@users.noreply.github.com) — docs(notes): welcome grant switched ON, deploy ids, undo (notes only). Undo: git revert 6882846.
+- `87734cd` (2026-10-04T16:37:29-05:00, 313aidaroos; alaidaroosawad@gmail.com) — Catalog: Socixis 90s/120s avatar render SKUs; avatar base + website packs free (#37). Undo: undo via the merged PR below: git revert 87734cd.
+- `8879da0` (2026-10-04T17:38:24-05:00, Grok (Wallet executor); 313aidaroos@users.noreply.github.com) — notes: signup_grant #41 merged (f65b362), migration 013 applied, undo sha. Undo: no main change; close/delete the branch (or revert the branch commit before reuse).
+- `8ba548f` (2026-10-04T12:05:44-05:00, 313aidaroos; alaidaroosawad@gmail.com) — docs(status): shared ANTHROPIC_API_KEY across all projects (2026-10-04, Developer Bot). Undo: git revert 8ba548f.
+- `9b8d52c` (2026-10-04T17:16:59-05:00, 313aidaroos; alaidaroosawad@gmail.com) — Marketplace: kind "tip" with a 10 Ixis minimum for feed tips (other orders keep 100) (#39). Undo: undo via the merged PR below: git revert 9b8d52c.
+- `a016cd1` (2026-10-04T17:34:26-05:00, Grok (Wallet executor); 313aidaroos@users.noreply.github.com) — Wallet: Apixis ID welcome grant (1,000 bonus Ixis once per Apixis ID, OFF by default) + bonus-safe marketplace payouts (migration 013). Undo: no main change; close/delete the branch (or revert the branch commit before reuse).
+- `b27182a` (2026-10-04T16:40:21-05:00, 313aidaroos; alaidaroosawad@gmail.com) — feat(catalog): Socixis 45s/60s avatar render SKUs; free videos capped at 30s. Undo: no main change; close/delete the branch (or revert the branch commit before reuse).
+- `cdffc8a` (2026-10-04T17:32:53-05:00, 313aidaroos; alaidaroosawad@gmail.com) — Marketplace: apixis feed key may name Apixis IDs linked on any family site (#40). Undo: undo via the merged PR below: git revert cdffc8a.
+- `cf0c526` (2026-10-04T16:41:57-05:00, 313aidaroos; alaidaroosawad@gmail.com) — Catalog: Socixis 45s/60s avatar render SKUs; free videos capped at 30s (#38). Undo: undo via the merged PR below: git revert cf0c526.
+- `d7977d7` (2026-10-04T18:09:03-05:00, 313aidaroos; alaidaroosawad@gmail.com) — notes: world_trade/world_purchase #43 merged (61ebf0a), migration 014 applied, undo sha (#44). Undo: undo via the merged PR below: git revert d7977d7.
+- `f65b362` (2026-10-04T17:36:36-05:00, 313aidaroos; alaidaroosawad@gmail.com) — Wallet: Apixis ID welcome grant (1,000 bonus Ixis, OFF by default) + bonus-safe marketplace payouts (migration 013) (#41). Undo: undo via the merged PR below: git revert f65b362.
+
+### Merged PRs
+- PR #45, merge `459100c`, `grok/wallet-font-inter` → `main`, merged 2026-10-04 CT by 313aidaroos: Wallet: switch main UI font to Inter. Undo: `git revert 459100c`.
+- PR #44, merge `d7977d7`, `grok/world-transfer-notes` → `main`, merged 2026-10-04 CT by 313aidaroos: notes: #43 merged (61ebf0a), migration 014 applied, undo sha. Undo: `git revert d7977d7`.
+- PR #43, merge `61ebf0a`, `grok/world-transfer` → `main`, merged 2026-10-04 CT by 313aidaroos: Wallet: world_trade / world_purchase for Apixis.dev in-world money (migration 014, additive). Undo: `git revert 61ebf0a`.
+- PR #42, merge `5aba8ef`, `grok/signup-grant-notes` → `main`, merged 2026-10-04 CT by 313aidaroos: notes: signup_grant #41 done (f65b362, migration 013 applied). Undo: `git revert 5aba8ef`.
+- PR #41, merge `f65b362`, `grok/signup-grant` → `main`, merged 2026-10-04 CT by 313aidaroos: Wallet: Apixis ID welcome grant (1,000 bonus Ixis, OFF by default) + bonus-safe marketplace payouts (migration 013). Undo: `git revert f65b362`.
+- PR #40, merge `cdffc8a`, `grok/feed-apixis-id-owner` → `main`, merged 2026-10-04 CT by 313aidaroos: Marketplace: apixis feed key may name Apixis IDs linked on any family site. Undo: `git revert cdffc8a`.
+- PR #39, merge `9b8d52c`, `grok/feed-tip-min-order` → `main`, merged 2026-10-04 CT by 313aidaroos: Marketplace: kind "tip" with a 10 Ixis minimum for feed tips. Undo: `git revert 9b8d52c`.
+- PR #38, merge `cf0c526`, `grok/socixis-avatar-render-45s-60s` → `main`, merged 2026-10-04 CT by 313aidaroos: Catalog: Socixis 45s/60s avatar render SKUs (free videos capped at 30s). Undo: `git revert cf0c526`.
+- PR #37, merge `87734cd`, `grok/socixis-avatar-render-skus` → `main`, merged 2026-10-04 CT by 313aidaroos: Catalog: Socixis 90s/120s avatar render SKUs; avatar base + website packs free. Undo: `git revert 87734cd`.
+
+
+## 2026-10-04 18:25 (CT) — Grok (Wallet Lead): second master/owner account `alaidaroosawad@gmail.com`
+- What: Awad's 2026-10-04 rule — `awad@apixis.dev` AND `alaidaroosawad@gmail.com` are both master/owner admins with full control. The master check used `ALLOWED_EMAIL` only (and that env is not set on Vercel, so it fell back to `awad@apixis.dev`). Now it is an owner list: the two emails as a code constant (`OWNER_EMAILS`), plus `ALLOWED_EMAIL` (legacy, kept) and optional comma-separated `ALLOWED_EMAILS`, which can only ADD owners. Comparison is trimmed + lower-cased.
+- Gate: `isMasterUser(user)` = server-verified Supabase session user (`getAuthenticatedUser()` → `auth.getUser()`, never a decoded/client token or a form/query email) AND `emailConfirmed === true` (`auth.users.email_confirmed_at` set; Supabase sets it on confirmed signup, magic link/OTP and verified OAuth) AND email on the owner list. `masterAccess()` → 401 no session / 403 not a confirmed owner / ok. An unconfirmed signup for an owner address gets nothing until confirmed.
+- Where (every owner/admin email check found): `lib/owners.ts` (rewritten), `app/api/admin/audit/route.ts` (the only master-gated route; now `masterAccess`), `app/login/actions.ts` (signup wording only, not access), `app/login/page.tsx` (master-password hint names both emails). `/api/v1/admin/summary` (stats) is gated by `WALLET_STATS_KEY`, not by email — unchanged. No middleware/proxy in this repo. SQL/RLS: none of the 14 migrations nor the live DB (4 public policies, all `auth.uid()` owner-row checks; no function mentions an owner email / `auth.jwt()` / `auth.email()`) references an owner email → no migration.
+- Auth users (read-only, 6:20 PM CT): `awad@apixis.dev` exists, confirmed 2026-09-22. `alaidaroosawad@gmail.com` has NO Supabase auth user yet; it becomes master the first time it signs in with a magic link (or confirms a password signup).
+- Env: none needed. Out of scope: awad-command's own `ALLOWED_EMAIL` (scripts/launch/companies.ts lists it for that repo) — its hub admin check needs the same change there.
+- Tests: `test/owners.test.ts` (both emails, case/whitespace, unconfirmed denied, other/look-alike emails denied, 401/403/ok, ALLOWED_EMAIL + ALLOWED_EMAILS additive).
+- Who: Wallet Lead (Grok). Branch `grok/wallet-second-owner`.
+- Shipped: PR #47, squash `54ac0015f3adecd7bf59dd3ab5154f2dbc6c2e47` merged 6:27 PM CT (CI app + ledger-sql green); prod `dpl_GaThXhK3iCRhudRzymgU7rqhyvXA` READY 6:27:55 PM CT (live: unauthenticated `/api/admin/audit` → 401).
+- Undo: `git revert 54ac0015f3adecd7bf59dd3ab5154f2dbc6c2e47` (restores the single `ALLOWED_EMAIL` check). No DB or env to undo.
+

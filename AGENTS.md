@@ -185,7 +185,7 @@ The ledger is the accounting truth. `audit_events` is the evidence around it.
 | `redeem` | `POST /api/v1/redeem` | user, email, product, Ixis, IP |
 | `hold_expiry_sweep` | cron | count released |
 
-- **Export (master account only, confirmed email = `ALLOWED_EMAIL`):**
+- **Export (master accounts only: confirmed email on the owner list in `lib/owners.ts` = `awad@apixis.dev`, `alaidaroosawad@gmail.com`, plus optional `ALLOWED_EMAIL` / comma-separated `ALLOWED_EMAILS`):**
   `GET /api/admin/audit?from=2026-09-01&to=2026-10-01&type=purchase&email=…&app=…&format=csv` (10,000 rows per page; page with `before_id`).
 - **Invoices:**
   - Stripe email receipts are free: turn on Stripe → Settings → Customer emails → Successful payments. Receipt URLs are stored either way.
@@ -230,6 +230,7 @@ Base URL: `https://apixis-wallet.vercel.app`. Contract detail and curl examples:
 | `POST /api/sso/token` | site's own `apx_` key (the legacy key is refused) | `{ code, redirect_uri }` → `{ sub, email, email_verified }`; records the `sso_links` row |
 | `GET /api/v1/balance?owner_id=<sub>&history=N` | service key | The shared balance a site shows. A per-site key only sees people who signed in there with Apixis ID. |
 | `POST /api/v1/marketplace/orders` | service key | Person → person (Ominix jobs). `{ amount (100–10,000,000 Ixis; 10+ with `kind:"tip"`), kind? ("order"\|"tip", default "order"), idempotencyKey, buyer_id\|buyer_email, reference?, description?, holdDays? (1–30, default 14), app? }` → 201 `{ reservationId, status:"held", app, ixis }`. A product-less hold: no entitlement row. Cancel = `/api/v1/reservations/:id/release`. Migration 011 (applied live 2026-09-30) allows holds up to 30 days. Tip minimum (2026-10-04) is TS-only (`minOrderIxis()` in `lib/api/marketplace.ts`); `reserve_xp` only needs amount > 0. |
+| `POST /api/v1/marketplace/orders` with `kind:"world_trade"\|"world_purchase"` | `apixis` key | Apixis.dev in-world money (2026-10-04, migration 014). App `apixis`, `buyer_id` required. `world_trade` (20+) needs `seller_id`, pinned; settle pays only them at the locked 500 bps. `world_purchase` (1+) has no seller; settle = capture to clearing. Terms in `marketplace_order_terms` (write-once). No mint kind. See `docs/WORLD_ECONOMY_CUTOVER.md`. |
 | `POST /api/v1/marketplace/orders/:id/settle` | service key | `{ seller_id\|seller_email, feeBps? (default 500 = 5%, D12), description? }` → capture the buyer's hold, credit the seller `amount − fee` (`paid` bucket, idempotent by `<hold external id>:payout`). The fee stays in clearing. 500 `payout_pending` = buyer charged, retry the same call. Audit: `capture` + `payout`. SDK: `marketplaceOrder()` / `marketplaceSettle()` (v3.1). |
 | `GET /api/v1/admin/summary?days=30` | `Bearer $WALLET_STATS_KEY` (read-only, ≥32 chars) | Owner business summary for AWAD COMMAND: daily cash in / refunds / Ixis sold / Ixis redeemed, redemptions by site, customer holdings, active entitlements, last 25 events (no IP / user agent). 503 until the key is set. Not a money key. |
 
@@ -306,7 +307,7 @@ const r = await redeemProduct("renoxis.agent.monthly"); // { ok } | { ok:false, 
      ```
    - Known hits: 12 hand-credited test/seed `purchase` rows from 2026-09-22/23 (79,300 Ixis), all on Awad's or test accounts. Kept, not clawed back; listed in `docs/FAMILY_STATUS.md` → "Hand-credited test/seed Ixis". **Revenue** = `purchase` rows whose `external_id` starts `evt_` only; never count these, payouts or welcome grants.
 4. [ ] **Vercel env:** set `CRON_SECRET` and `TERMS_VERSION`, and make sure all `STRIPE_*` and Supabase vars are set in Production. The Stripe restricted key needs Checkout Sessions (write), PaymentIntents and Charges (read), and Invoices (write, only if `STRIPE_CREATE_INVOICES=true`).
-4b. [ ] **Supabase Auth:** email confirmation ON, so nobody can register an unverified `ALLOWED_EMAIL` or someone else's address.
+4b. [ ] **Supabase Auth:** email confirmation ON, so nobody can register an unverified owner email (`lib/owners.ts`) or someone else's address.
 5. [ ] **Stripe webhook events:** `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `checkout.session.async_payment_failed`, `charge.refunded`, `charge.dispute.closed`.
 6. [ ] **Per-site keys:** issue one per sister site (`npm run api-key`), put it in that site's `WALLET_API_KEY`, copy SDK v2 into each site. When all are moved, set `WALLET_ALLOW_LEGACY_SERVICE_KEY=false` and rotate the Supabase secret key (the old one was shared with every site).
 7. [ ] **Test-mode rehearsal** end to end: buy Spark → credited once → redeem → entitlement → refund → Ixis removed.

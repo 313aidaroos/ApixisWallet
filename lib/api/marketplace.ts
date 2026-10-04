@@ -36,13 +36,41 @@ export const MAX_ORDER_IXIS = 10_000_000;
  * 10 / 50 Ixis preset buttons work: minimum MIN_TIP_IXIS. Same hold, settle, fee and rounding as any
  * order. Note: with the 5% fee rounded down, a 10–19 Ixis tip carries a 0 fee (creator gets it all).
  */
-export const ORDER_KINDS = ["order", "tip"] as const;
+export const ORDER_KINDS = ["order", "tip", "world_trade", "world_purchase"] as const;
 export type OrderKind = (typeof ORDER_KINDS)[number];
 export const MIN_TIP_IXIS = 10;
 
-export function minOrderIxis(kind: OrderKind = "order") {
-  return kind === "tip" ? MIN_TIP_IXIS : MIN_ORDER_IXIS;
+/**
+ * World kinds (2026-10-04, Grok / Wallet Lead): Apixis.dev in-world money on the ONE shared Wallet.
+ *   world_trade    agent → agent (deals, business offers, agent-to-agent pay). The counterparty is
+ *                  named and PINNED when the order opens; settle pays only that Apixis ID. The fee is
+ *                  locked at WORLD_FEE_BPS (5%, floor); min 20 so every trade pays at least 1 Ixis fee.
+ *   world_purchase agent → the Apixis platform (founding a business, in-world items/upgrades). Settle
+ *                  captures the hold to clearing; nobody is paid, so nothing new is ever created.
+ * Both are app `apixis` only and remembered in marketplace_order_terms (migration 014).
+ * There is deliberately NO world kind that credits an agent from nowhere (rewards, in-world credits):
+ * that would be a mint and is Awad's decision (see NOTES/GROK.md 2026-10-04 world-transfer entry).
+ */
+export const WORLD_KINDS = ["world_trade", "world_purchase"] as const;
+export type WorldKind = (typeof WORLD_KINDS)[number];
+export const WORLD_APP = "apixis";
+export const WORLD_FEE_BPS = DEFAULT_FEE_BPS;
+export const MIN_WORLD_TRADE_IXIS = 20;
+export const MIN_WORLD_PURCHASE_IXIS = 1;
+
+export function isWorldKind(kind: unknown): kind is WorldKind {
+  return typeof kind === "string" && (WORLD_KINDS as readonly string[]).includes(kind);
 }
+
+export function minOrderIxis(kind: OrderKind = "order") {
+  if (kind === "tip") return MIN_TIP_IXIS;
+  if (kind === "world_trade") return MIN_WORLD_TRADE_IXIS;
+  if (kind === "world_purchase") return MIN_WORLD_PURCHASE_IXIS;
+  return MIN_ORDER_IXIS;
+}
+
+/** Smallest amount any kind allows (the zod floor); each kind's own minimum is refined on top. */
+export const MIN_ANY_ORDER_IXIS = Math.min(...ORDER_KINDS.map((kind) => minOrderIxis(kind)));
 
 export type Split = { amount: number; fee: number; payout: number; feeBps: number };
 
@@ -81,7 +109,7 @@ export const marketplaceOrderSchema = z
     app: z.string().min(1).max(40).optional(),
     /** `order` (default, min 100 Ixis) or `tip` (min 10 Ixis, for feed tips). Same hold, settle and fee. */
     kind: z.enum(ORDER_KINDS).optional(),
-    amount: z.number().int().min(MIN_TIP_IXIS).max(MAX_ORDER_IXIS),
+    amount: z.number().int().min(MIN_ANY_ORDER_IXIS).max(MAX_ORDER_IXIS),
     idempotencyKey: z.string().regex(IDEMPOTENCY_KEY),
     /** Your order / job id, for the ledger description and the audit trail. */
     reference: z.string().min(1).max(80).optional(),
@@ -90,9 +118,100 @@ export const marketplaceOrderSchema = z
     // The buyer: Apixis ID `sub` (preferred) or verified email (legacy).
     buyer_id: z.string().uuid().optional(),
     buyer_email: z.string().email().max(320).optional(),
+    // world_trade only: the counterparty (Apixis ID `sub`), pinned for settle. Email is not accepted.
+    seller_id: z.string().uuid().optional(),
   })
   .refine((b) => b.buyer_id || b.buyer_email, { message: "buyer_id or buyer_email required" })
   .refine((b) => b.amount >= minOrderIxis(b.kind ?? "order"), { message: "amount below the minimum for this kind" });
+
+export type WorldOrderCheck = { ok: true } | { ok: false; status: number; code: string; error: string };
+
+/**
+ * Extra rules for world kinds at order time (pure, so tests cover it). Plain orders/tips: always ok,
+ * and they may not send seller_id (unchanged behaviour: their seller is named at settle).
+ */
+export function checkWorldOrder(input: { kind?: OrderKind; app: string; buyerId?: string | null; sellerId?: string | null }): WorldOrderCheck {
+  const kind = input.kind ?? "order";
+  if (!isWorldKind(kind)) {
+    if (input.sellerId) return { ok: false, status: 400, code: "seller_not_allowed", error: "seller_id is only accepted on world_trade orders; name the seller at settle" };
+    return { ok: true };
+  }
+  if (input.app !== WORLD_APP) return { ok: false, status: 403, code: "world_kind_app", error: `${kind} orders are only for app ${WORLD_APP}` };
+  if (!input.buyerId) return { ok: false, status: 400, code: "buyer_id_required", error: `${kind} orders need buyer_id (Apixis ID), not an email` };
+  if (kind === "world_trade") {
+    if (!input.sellerId) return { ok: false, status: 400, code: "seller_id_required", error: "world_trade needs seller_id (the counterparty's Apixis ID)" };
+    if (input.sellerId.toLowerCase() === input.buyerId.toLowerCase()) return { ok: false, status: 400, code: "self_trade", error: "An agent cannot trade with itself" };
+  } else if (input.sellerId) {
+    return { ok: false, status: 400, code: "seller_not_allowed", error: "world_purchase pays the Apixis platform; do not send seller_id" };
+  }
+  return { ok: true };
+}
+
+/** A row of marketplace_order_terms (migration 014). */
+export type OrderTerms = { external_id: string; kind: WorldKind; app_slug: string; buyer_id: string; seller_id: string | null; fee_bps: number };
+
+/** Does a replayed order (same idempotency key) ask for exactly what the first one did? */
+export function sameTerms(a: Pick<OrderTerms, "kind" | "app_slug" | "buyer_id" | "seller_id">, b: Pick<OrderTerms, "kind" | "app_slug" | "buyer_id" | "seller_id">) {
+  return a.kind === b.kind && a.app_slug === b.app_slug && a.buyer_id.toLowerCase() === b.buyer_id.toLowerCase()
+    && (a.seller_id ?? "").toLowerCase() === (b.seller_id ?? "").toLowerCase();
+}
+
+export type SettlePlan =
+  | { mode: "payout"; sellerId: string | null; sellerEmail: string | null; feeBps: number; kind: OrderKind }
+  | { mode: "sink"; kind: "world_purchase" }
+  | { mode: "error"; status: number; code: string; error: string };
+
+/**
+ * How to settle a hold (pure). No terms = a plain order or tip: unchanged (seller required, caller fee).
+ * world_trade: pays only the pinned seller, fee locked at 5%. world_purchase: capture only (sink).
+ */
+export function planSettle(terms: Pick<OrderTerms, "kind" | "seller_id" | "fee_bps"> | null, body: { seller_id?: string; seller_email?: string; feeBps?: number }): SettlePlan {
+  if (!terms) {
+    if (!body.seller_id && !body.seller_email) return { mode: "error", status: 400, code: "seller_required", error: "seller_id or seller_email required" };
+    return { mode: "payout", sellerId: body.seller_id ?? null, sellerEmail: body.seller_email ?? null, feeBps: body.feeBps ?? DEFAULT_FEE_BPS, kind: "order" };
+  }
+  if (body.feeBps !== undefined && body.feeBps !== terms.fee_bps) {
+    return { mode: "error", status: 400, code: "fee_locked", error: `World orders pay the family fee of ${terms.fee_bps} bps; feeBps cannot change it` };
+  }
+  if (terms.kind === "world_purchase") {
+    if (body.seller_id || body.seller_email) return { mode: "error", status: 400, code: "seller_not_allowed", error: "world_purchase pays the Apixis platform; do not send a seller" };
+    return { mode: "sink", kind: "world_purchase" };
+  }
+  if (body.seller_email) return { mode: "error", status: 400, code: "seller_id_required", error: "world_trade settles to the pinned seller_id, not an email" };
+  if (body.seller_id && body.seller_id.toLowerCase() !== (terms.seller_id ?? "").toLowerCase()) {
+    return { mode: "error", status: 409, code: "seller_mismatch", error: "This world_trade is pinned to a different counterparty" };
+  }
+  return { mode: "payout", sellerId: terms.seller_id, sellerEmail: null, feeBps: terms.fee_bps, kind: "world_trade" };
+}
+
+const MISSING_TABLE = new Set(["42P01", "PGRST205"]);
+
+/** Terms for a hold, or null for plain orders. `unavailable` when the lookup itself failed. */
+export async function loadOrderTerms(supabase: SupabaseClient, externalId: string): Promise<{ terms: OrderTerms | null } | { unavailable: true; missingTable: boolean }> {
+  const { data, error } = await supabase
+    .from("marketplace_order_terms")
+    .select("external_id, kind, app_slug, buyer_id, seller_id, fee_bps")
+    .eq("external_id", externalId)
+    .maybeSingle();
+  if (error) return { unavailable: true, missingTable: MISSING_TABLE.has(error.code ?? "") };
+  return { terms: (data as OrderTerms | null) ?? null };
+}
+
+/**
+ * Write-once terms for a world order, BEFORE the hold is placed (so a crash between the two leaves
+ * at most an unused terms row, never an unpinned hold). A replay with identical terms is fine;
+ * anything else is a 409, mirroring reserve_xp's own idempotency check.
+ */
+export async function recordOrderTerms(supabase: SupabaseClient, terms: OrderTerms & { reference: string | null; actor: string }): Promise<{ ok: true } | { ok: false; status: number; code: string; error: string }> {
+  const insert = await supabase.from("marketplace_order_terms").insert(terms);
+  if (!insert.error) return { ok: true };
+  if (MISSING_TABLE.has(insert.error.code ?? "")) return { ok: false, status: 503, code: "world_orders_unavailable", error: "World orders are not enabled yet (migration 014)" };
+  if (insert.error.code !== "23505") return { ok: false, status: 503, code: "terms_unavailable", error: "Could not record the order terms" };
+  const existing = await loadOrderTerms(supabase, terms.external_id);
+  if ("unavailable" in existing || !existing.terms) return { ok: false, status: 503, code: "terms_unavailable", error: "Could not record the order terms" };
+  if (!sameTerms(existing.terms, terms)) return { ok: false, status: 409, code: "idempotency_conflict", error: "Idempotency key already used for a different request" };
+  return { ok: true };
+}
 
 /** Documented in audit rows, so a reader can tell which rule produced a payout. */
 export const PAYOUT_RULE = "proportional_paid_floor_v1";

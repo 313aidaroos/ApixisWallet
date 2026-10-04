@@ -5,7 +5,7 @@ import { authenticateService } from "@/lib/api/service-auth";
 import { ownerForCaller, ownerLinkAudit } from "@/lib/api/caller-owner";
 import { ledgerErrorResponse } from "@/lib/api/errors";
 import { recordAudit, requestContext } from "@/lib/audit";
-import { DEFAULT_FEE_BPS, MAX_FEE_BPS, PAYOUT_RULE, marketplaceSplit, settlePayout } from "@/lib/api/marketplace";
+import { MAX_FEE_BPS, PAYOUT_RULE, loadOrderTerms, marketplaceSplit, planSettle, settlePayout } from "@/lib/api/marketplace";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -16,14 +16,18 @@ const bodySchema = z
     /** Apixis Bank fee in basis points. Family default 500 (5%, D12). */
     feeBps: z.number().int().min(0).max(MAX_FEE_BPS).optional(),
     description: z.string().min(1).max(120).optional(),
-  })
-  .refine((b) => b.seller_id || b.seller_email, { message: "seller_id or seller_email required" });
+  });
+// Seller is required for plain orders/tips (planSettle); world_trade uses its pinned seller,
+// world_purchase has none.
 
 /**
  * Settle a marketplace order: capture the buyer's hold, pay the seller `amount − fee`.
  * Idempotent: a retry after a lost response returns the same receipt and never pays twice.
  * If the capture succeeded but the payout failed, the response says `captured: true` — retry
  * the same call; the buyer is already charged and the payout is keyed to this order.
+ *
+ * World orders (migration 014): world_trade pays ONLY the seller pinned at order time, fee locked
+ * at 5%; world_purchase captures to the platform and pays nobody (`payout: 0`, `fee: amount`).
  */
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const auth = await authenticateService(request);
@@ -56,18 +60,54 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   const amount = (reserved.data ?? []).reduce((sum, row) => sum + Number(row.amount), 0);
   if (amount <= 0) return NextResponse.json({ error: "Order not found", code: "not_found" }, { status: 404 });
 
+  // World order terms. A missing table (014 not applied) means no world orders exist yet, so plain
+  // orders keep working; any other lookup failure stops the settle rather than guess the kind.
+  const loaded = await loadOrderTerms(supabase, hold.data.external_id as string);
+  if ("unavailable" in loaded && !loaded.missingTable) return NextResponse.json({ error: "Service unavailable" }, { status: 503 });
+  const terms = "terms" in loaded ? loaded.terms : null;
+  const plan = planSettle(terms, parsed.data);
+  if (plan.mode === "error") return NextResponse.json({ error: plan.error, code: plan.code }, { status: plan.status });
+
+  if (plan.mode === "sink") {
+    // world_purchase: the buyer pays the Apixis platform. Capture moves the hold to clearing; no payee.
+    const description = parsed.data.description?.trim() || "World purchase";
+    const sunk = await supabase.rpc("capture_xp", {
+      p_reservation_id: id,
+      p_description: description,
+      p_actor: auth.caller.actor,
+      p_allowed_apps: auth.caller.apps,
+    });
+    await recordAudit(supabase, {
+      event_type: "capture",
+      dedupe_key: sunk.error ? null : `capture:${id}`,
+      actor: auth.caller.actor,
+      app_slug: app,
+      reservation_id: id,
+      ledger_transaction_id: sunk.error ? null : sunk.data,
+      amount_ixis: amount,
+      outcome: sunk.error ? "rejected" : "ok",
+      ...requestContext(request),
+      details: { marketplace: true, world: true, kind: "world_purchase", platform_ixis: amount, ...(sunk.error ? { code: sunk.error.code ?? null } : {}) },
+    });
+    if (sunk.error) return ledgerErrorResponse(sunk.error, "Settle");
+    return NextResponse.json({
+      reservationId: id, status: "settled", kind: "world_purchase", receiptId: sunk.data, payoutId: null, app,
+      ixis: amount, fee: amount, feeBps: 10_000, payout: 0, payoutPaid: 0, payoutBonus: 0,
+    });
+  }
+
   // Sellers are people who have a Wallet through this site; reads never create accounts.
   const seller = await ownerForCaller(
     supabase,
     auth.caller,
-    { ownerId: parsed.data.seller_id, ownerEmail: parsed.data.seller_email },
+    { ownerId: plan.sellerId, ownerEmail: plan.sellerEmail },
     { create: true, marketplace: true },
   );
   if ("error" in seller) return NextResponse.json({ error: seller.error, ...(seller.code ? { code: seller.code } : {}) }, { status: seller.status });
   const sellerId = seller.ownerId;
   if (!sellerId) return NextResponse.json({ error: "seller_email required" }, { status: 400 });
 
-  const split = marketplaceSplit(amount, parsed.data.feeBps ?? DEFAULT_FEE_BPS);
+  const split = marketplaceSplit(amount, plan.feeBps);
   const description = parsed.data.description?.trim() || "Marketplace order settled";
 
   const captured = await supabase.rpc("capture_xp", {
@@ -86,7 +126,11 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     amount_ixis: amount,
     outcome: captured.error ? "rejected" : "ok",
     ...requestContext(request),
-    details: captured.error ? { code: captured.error.code ?? null, marketplace: true } : { marketplace: true, fee_bps: split.feeBps, fee_ixis: split.fee, payout_ixis: split.payout },
+    details: {
+      marketplace: true,
+      ...(terms ? { world: true, kind: terms.kind } : {}),
+      ...(captured.error ? { code: captured.error.code ?? null } : { fee_bps: split.feeBps, fee_ixis: split.fee, payout_ixis: split.payout }),
+    },
   });
   if (captured.error) return ledgerErrorResponse(captured.error, "Settle");
 
@@ -131,6 +175,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   return NextResponse.json({
     reservationId: id,
     status: "settled",
+    ...(terms ? { kind: terms.kind, sellerId } : {}),
     receiptId: captured.data,
     payoutId: payoutTx,
     app,

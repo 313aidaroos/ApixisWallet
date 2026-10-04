@@ -98,6 +98,20 @@ Entry format:
 - Why: Awad's lock — 1,000 Ixis per Apixis ID in the one shared Wallet (bonus bucket, once, lazy backfill on next confirmed sign-in) behind `SIGNUP_GRANT_ENABLED` (default OFF; hub flips it with Apixis.dev's in-world starter → 0); bonus-funded marketplace orders pay sellers as bonus so free Ixis never become paid; 79,300 hand-credited test/seed Ixis documented and excluded from revenue.
 - Follow-up (notes only): recorded merge `f65b362`, prod deploy, migration 013 apply + verification; undo line now `git revert f65b362`.
 
+## 2026-10-04 — Grok (Wallet Lead)
+- Changed: `lib/api/marketplace.ts`, `app/api/v1/marketplace/orders/route.ts`, `app/api/v1/marketplace/orders/[id]/settle/route.ts`, `sdk/apixis-wallet.ts` (3.2), new `supabase/migrations/014_world_orders.sql`, `supabase/tests/60_world_orders_test.sql`, `test/world-orders.test.ts`, `docs/WORLD_ECONOMY_CUTOVER.md`, `docs/INTEGRATION.md` §8b, `AGENTS.md` §5, `NOTES/GROK.md`, `WORKBOARD.md`.
+- Why: Apixis.dev in-world spending must use the one shared Wallet. Adds `world_trade` (agent → agent, pinned counterparty, 5% fee locked) and `world_purchase` (agent → platform sink) on the existing hold/settle/release path. No path that creates Ixis; reconciliation of in-world balances is a plan only, awaiting Awad.
+
+
+## 2026-10-04 — Grok (Wallet Lead)
+- Changed: `app/layout.tsx` — main UI font Special Elite → Inter (`next/font/google`, system sans fallback); `NOTES/GROK.md`, `WORKBOARD.md`.
+- Why: Awad asked for a different font on the Wallet site and left the choice to us. Layout, colours and the "Apixis Wallet" name are unchanged.
+
+## 2026-10-04 — Grok (Wallet Lead)
+- Changed: `lib/owners.ts` (owner list `OWNER_EMAILS` = awad@apixis.dev + alaidaroosawad@gmail.com, plus `ALLOWED_EMAIL` / optional `ALLOWED_EMAILS`; `isMasterUser` / `masterAccess` require a confirmed email), `app/api/admin/audit/route.ts`, `app/login/actions.ts`, `app/login/page.tsx` (hint text), new `test/owners.test.ts`, `AGENTS.md`, `NOTES/GROK.md`, `WORKBOARD.md`.
+- Why: Awad's 2026-10-04 rule — both emails are master/owner admins with full control. Unverified signups for either address get nothing. No SQL, RLS or env change.
+- Follow-up (notes only): recorded #47 merge `54ac001`, prod deploy READY, undo `git revert 54ac001`.
+
 ## 2026-10-04 — Claude (Claude Code, full-portfolio review)
 - Changed: `NOTES/CLAUDE.md` — this repo's slice of the 24-repo review (what is live, what is open, who owns each item, drift found). `docs/FAMILY_STATUS.md` — new section "Full-portfolio review — 2026-10-04" (findings the board did not have, verification table, owner list). No code, env, database or deploy changes.
 - Why: Awad asked for every repo to be read twice with a done / to-do / owner status, and for the notes in each repo to be updated. Notes only; Awad approved the merge on 2026-10-04.
