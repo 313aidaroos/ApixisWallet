@@ -111,3 +111,7 @@ Entry format:
 - Changed: `lib/owners.ts` (owner list `OWNER_EMAILS` = awad@apixis.dev + alaidaroosawad@gmail.com, plus `ALLOWED_EMAIL` / optional `ALLOWED_EMAILS`; `isMasterUser` / `masterAccess` require a confirmed email), `app/api/admin/audit/route.ts`, `app/login/actions.ts`, `app/login/page.tsx` (hint text), new `test/owners.test.ts`, `AGENTS.md`, `NOTES/GROK.md`, `WORKBOARD.md`.
 - Why: Awad's 2026-10-04 rule — both emails are master/owner admins with full control. Unverified signups for either address get nothing. No SQL, RLS or env change.
 - Follow-up (notes only): recorded #47 merge `54ac001`, prod deploy READY, undo `git revert 54ac001`.
+
+## 2026-10-04 — Claude (Claude Code, full-portfolio review)
+- Changed: `NOTES/CLAUDE.md` — this repo's slice of the 24-repo review (what is live, what is open, who owns each item, drift found). `docs/FAMILY_STATUS.md` — new section "Full-portfolio review — 2026-10-04" (findings the board did not have, verification table, owner list). No code, env, database or deploy changes.
+- Why: Awad asked for every repo to be read twice with a done / to-do / owner status, and for the notes in each repo to be updated. Notes only; Awad approved the merge on 2026-10-04.

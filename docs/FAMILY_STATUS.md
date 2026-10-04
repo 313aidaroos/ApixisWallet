@@ -1,6 +1,6 @@
 # Apixis family — status board (one page, every AI reads this first)
 
-**Owner:** Awad (313aidaroos). **Rules:** `AGENTS.md` §0 (D1–D16). **Last updated: 2026-10-04 evening CT, family catch-up.** Owner to-do: **`docs/OWNER_CHECKLIST.md`**. Keys go in with the launch kit: **`docs/LAUNCH_KIT.md`** (`npm run launch`). Previous brief: `docs/MORNING_BRIEF_2026-10-01.md`.
+**Owner:** Awad (313aidaroos). **Rules:** `AGENTS.md` §0 (D1–D16). **Last updated: 2026-10-04 night, full-portfolio review (Claude); before that 2026-10-04 evening CT, family catch-up.** Owner to-do: **`docs/OWNER_CHECKLIST.md`**. Keys go in with the launch kit: **`docs/LAUNCH_KIT.md`** (`npm run launch`). Previous brief: `docs/MORNING_BRIEF_2026-10-01.md`.
 
 This is the only family-wide status board (D15). Per-repo `NOTES/*.md`, `JUNOAI_NOTES.md`, `WORKBOARD.md`
 and `LAUNCH_NOTES.md` are archives. If you change family status, change it here. Every code change: `AI_CHANGELOG.md` in that repo.
@@ -63,6 +63,33 @@ Shared status: the Socixis Social Feed tab is live on exactly seven sites — Ai
 - **qahwahworld:** Owner admin and roaster-seat bypass are live; no Feed tab was merged. Open: none recorded.
 - **awad-command:** Internal HQ subscriptions are owner-only and the owner allowlist is live; no Feed tab applies. Open: none recorded.
 - **AwadBot:** Paper-only trading configuration was updated; no Feed tab applies. Open: keep live trading disabled.
+
+## Full-portfolio review — 2026-10-04 night (Claude, read-only)
+
+Awad asked for all 24 repos to be read twice and for a plain status (done / not done / who does what). Every repo now has a `NOTES/CLAUDE.md` entry with its own slice (Awad's instruction of 2026-10-04 — for Claude's notes it supersedes D15's "notes are archives" until Awad settles the rule). **This review changed no code, env, database or deploy.** Awad approved merging the notes on 2026-10-04; they are on `main` in every repo (read `NOTES/CLAUDE.md` there for the repo's own slice).
+
+**Verified locally (Node 22, 2026-10-04 22:39–22:53Z):** lint / typecheck / tests / production build all pass on ApixisWallet, Qahwah World, Rawixis, Apixis.dev, Contraxis, Wattixis, Aidaroos Holding, Pinixis, Ominix (incl. marketplace RLS tests), Lyrixis, PersonalContentBot, Deduxis, Launchixis, Recovra, Halaxis, Renoxis, Geoxis, AwadBot (dashboard + 336 pytest), AWAD COMMAND (pnpm; app + worker) and Nursery Toons (6 node tests by hand). Socixis: typecheck + build pass; the 2 root-test failures on `e4ebeea` were the hard-coded date that #59 fixed; `socixis-app`'s `next lint` has no ESLint config and CI never runs it. thenightexchange: lockfile out of sync, `npm ci` fails — not verifiable.
+
+**Live cross-check (Vercel, Supabase, GitHub — read-only):**
+- Every real site's production deployment is READY on the latest `main`. Vercel `awadbot`: last two production deployments **BLOCKED**. `temporary-turbo-sienna-p6yqsjd` ERRORs on every Contraxis merge. `aw-live`, `workspace`, `contraxis-design-demo` are duplicates (Awad to delete).
+- Supabase advisors: no ERROR level anywhere. Hub `myfclypikkcvfurkbzmj` still shows `handle_new_user` / `rls_auto_enable` callable by anon and 5 mutable-`search_path` functions → `docs/security/2026-09-30-hub-project-lint.sql` is **still not applied**; `pcb_jobs_durable.sql` is not applied either. Leaked-password protection is OFF on every project except renoxis.
+- Wallet DB: 16 clients, all `require_sso=false`; money functions closed to anon/authenticated (0 rows); ledger = QA only (last purchase 09-28); migration 013 live, `SIGNUP_GRANT_ENABLED` unset (OFF).
+
+**Findings this board did not have (all fixable by Claude on Awad's go):**
+1. "1,000 starter Ixis wording everywhere" is not true on 4 sites. User-facing "200 Ixis" is live on Qahwah World (`components/world-welcome-card.tsx`), Renoxis (`components/ApixisWorldWelcome.tsx`, `app/login/page.tsx`), Deduxis and Contraxis (`ApixisWorldWelcome.tsx`); also in Apixis.dev README / `APIXIS_FAMILY.md` / `LAUNCH_READY.md` and the Wattixis + Geoxis `PROVISION_KIT.md`.
+2. The copied "Apixis Companies" directory on 12 sites (Wallet `CompaniesDirectory.tsx`, Ominix's own page, Lyrixis, Pinixis, Wattixis footer, Recovra, Halaxis, Renoxis, Deduxis, Socixis, Contraxis, Rawixis, Geoxis `companies.html`, Apixis.dev `companies.html` + `apixis-clients.js` fallback) links Ominix to the retired `nexxis-tau.vercel.app` instead of `ominix-app.vercel.app`.
+3. World-kit drift: `apixis-world.ts` on all 15 sites is one revision behind Apixis.dev (missing `aidaroosholding`); `apixis-world-agent.ts` on Deduxis, Halaxis and Contraxis is the old 200-Ixis variant. Wallet SDK copies are byte-identical everywhere ✓; the Launchixis and Rawixis login copies differ on purpose; Geoxis, Wattixis and Apixis.dev carry three different hand-written JS ports because no canonical JS SDK exists in `sdk/`.
+4. CI gaps: aidaroosholding and awad-command have no CI at all; Deduxis and Halaxis have no `test` script; Nursery Toons has no `package.json`; AwadBot's bot `tests/` (23 files, 336 tests) run in no workflow (`ci/bot-tests.yml` is not under `.github/workflows`); the shared `node-ci`'s `--if-present` hides all of this.
+5. Rule misses: aidaroosholding had no `AI_CHANGELOG.md` (created by this review); Renoxis #37 / #38 merged without entries; Grok keeps updating WORKBOARD / NOTES despite D15.
+6. Doc drift: AGENTS.md header date (09-23) and §6 (WalletScreen is no longer demo), README "migrations 001–007", the 09-30 changelog entry and the PCB SQL header name a hub ref that does not exist (`myfclypikkcvfurrlsko`), the Ominix / Socixis / Contraxis / Qahwah World READMEs still describe Stripe or "preview" states, Nursery Toons `APIXIS_FAMILY.md` says "no Apixis sign-in yet".
+7. Two Supabase homes: Rawixis data sits in its own project AND in hub schema `rawixis`; the hub also still holds Contraxis's original `public.*` schema (9 profiles). Legacy copies to drop or document.
+8. Function grants: Wattixis `enroll_wattixis_admins` / `is_staff` / `review_queue` executable by anon or authenticated (low — trigger fn / null-uid safe); Geoxis `is_admin_user` / `is_member` still anon-executable (open since 09-23); Lyrixis `current_app_user_id` / `current_org_ids` anon-executable.
+9. PersonalContentBot's `maxDuration: 300` needs a Vercel plan that allows it; its `.env.example` and `env.example` differ.
+10. Nursery Toons now has accounts, an LLM chat and a world-agent card on a site for 2–4-year-olds — COPPA / parental-consent is Awad's decision before testers with children.
+
+**Open PRs at 22:40Z:** Wallet #21 · Socixis #60 (DO NOT MERGE) · Apixis.dev #70, #59 (DO NOT MERGE), #58, #57 · Rawixis #43 · Wattixis #20 · Contraxis #21 (draft) · Ominix #1 (draft) · Nursery Toons #8 · Qahwah World #11 · awad-command #55, #52, #17 (draft) · thenightexchange #2; footer PRs on Renoxis #32, Recovra #13, Deduxis #10, Lyrixis #14 (+ #16 Release Tool), Halaxis #12, Geoxis #7 per the earlier board.
+
+**Only Awad can (summary; detail per repo in `NOTES/CLAUDE.md`):** the keys and tokens in `docs/OWNER_CHECKLIST.md` (Anthropic credits, Vercel + Supabase tokens, Stripe live key / prices / webhooks for the Wallet, Qahwah World coffee and Pinixis), Recovra `SUPABASE_SERVICE_ROLE_KEY`, Lyrixis Redis + transcription key + worker host, Apixis.dev KV, Halaxis Tavily, the four Vercel project deletions, leaked-password toggles, the hub lint SQL (or a Supabase token for the kit), lawyer review of Terms / Privacy, the design PRs, the `SIGNUP_GRANT_ENABLED` cutover, what Wattixis / Geoxis / Launchixis / Nursery Toons sell, keep-or-archive for thenightexchange and afccommand.
 
 ## Wallet welcome grant + bonus-safe payouts — 2026-10-04 (Grok, Wallet executor)
 - **What shipped:** Wallet migration `013_signup_grant` (`signup_grants` table; `grant_signup_xp`, `revoke_signup_grant`, `settle_marketplace_payout`, all service_role-only) and `lib/signup-grant.ts`, called from `/auth/callback`, the password login and `POST /api/sso/token`. 1,000 bonus Ixis once per Apixis ID; confirmed email + real sign-in; disposable-domain block; per-IP/domain/global limits; mint-ceiling check and `signup_grant` audit row in SQL. Details: `AGENTS.md` §4.
