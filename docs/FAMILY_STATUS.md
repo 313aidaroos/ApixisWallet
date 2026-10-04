@@ -15,6 +15,9 @@ and `LAUNCH_NOTES.md` are archives. If you change family status, change it here.
 - **World kit:** Apixis.dev `sdk/apixis-world*.ts` + `POST /api/agent/provision`. Every sign-up gets a wallet + avatar agent + 1,000 starter Ixis (D11).
 - **Cixy:** one persona, `sdk/apixis-cixy.*` (`docs/CIXY.md`). Product role is the only site-specific text. Brain down → calm 503, never a vendor error.
 
+## Shared Anthropic key — 2026-10-04 (Developer Bot)
+On Awad's ask, every project's `ANTHROPIC_API_KEY` in Vercel is now set to one shared key (production, preview, development), and each project's production was redeployed (all READY). 22 projects: aidaroosholding, apixis-dev, apixis-wallet, awad-command, awadbot, contraxis-dev, deduxis, halaxis, launchixis, lyrixis, nurserytoons, ominix, personalcontentbot, pinixis, qahwahworld, rawixis, recovra, renoxis, socixis, spatial-dashboard, wattixis, workspace. Existing entries were updated in place (Socixis branch-scoped preview entries kept); entries already marked Sensitive stay Sensitive because Vercel cannot change their type. Missing development (and Socixis all-branch preview) entries were added as Encrypted. `ANTHROPIC_MODEL` and other variables unchanged. Undo: set the old key back in Vercel for the project, then redeploy.
+
 ## Launch-prep pass — 2026-10-02 late night (Claude)
 
 **Merged and deployed (Vercel deploys each `main` automatically):**
