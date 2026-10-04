@@ -119,3 +119,7 @@ Entry format:
 ## 2026-10-04 — Grok (Wallet Lead): Cixy persona text aligned with Awad's religion lock
 - Changed: `sdk/apixis-cixy.ts` / `.js` (`CIXY_CORE` v2: removed the Arab/Muslim-culture line, "Salam"/"As-salamu alaykum"/"Insha'Allah"/"alhamdulillah" guidance, pork/interest-lending and religious-ruling lines), `docs/CIXY.md` (lock text; Halaxis is the only exception), `docs/legal/TERMS_DRAFT.md` §9 (no "halal-conscious" wording), `docs/TESTER_MATRIX.md` row 17.
 - Why: Claude's #23 (2026-09-30) codified Islamic greetings and said "Halaxis is not an exception any more", against Awad's lock (no religious/halal content or Islamic greetings outside Halaxis; Cixy is not a "Muslim AI assistant"). No runtime code in the Wallet imports this file; site copies must be re-copied by their leads / Developer Bot. Undo: `git revert` this PR's squash commit.
+
+## 2026-10-04 — Grok (Wallet Lead): Claude-changes audit notes (backfill)
+- Changed: `NOTES/GROK.md` (backfilled entry for Claude #48 + the #23 religion-lock finding fixed in #50; today's summary line corrected), `WORKBOARD.md` (task line, done). Notes only; no code, env, DB or deploy change.
+- Why: Awad asked at 6:43 PM CT for everything Claude did recently in this repo to be found, verified and logged. Undo: revert this PR's squash commit.
