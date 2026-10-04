@@ -64,4 +64,12 @@ _Backfilled 2026-10-02 by Grok (Wallet Lead), read from git history._ Sources: `
   - Free (new `freeCatalog`, price 0 on record, replaces `heldCatalog`): `socixis.avatar.base`, `socixis.site.{saas,restaurant,portfolio,local,shop,agency}` (were held at 1,000) and `shop.template.site.saas` / `shop.template.site.shop` (were sold in the Shop at 1,000; removed from `shopCatalog`). Not quotable, because `reserve_xp` rejects amount 0 (WA400). Quote/reserve return 404, and sites unlock these without calling the Wallet.
   - No fee logic changed: plain redeem/capture applies no platform fee; only marketplace settle applies `DEFAULT_FEE_BPS=500`.
 - Also: `test/held-catalog.test.ts` (Socixis catalog tests), `docs/INTEGRATION.md`, `docs/LAUNCH_NOTES.md`, `WORKBOARD.md`, `AI_CHANGELOG.md`. Not touched: Stripe, checkout, webhook, ledger SQL, env, DB, other products' items.
-- Undo: `git revert <squash sha>` (puts the 7 socixis items back in `heldCatalog`, the 2 Shop rows back at 1,000, and removes the render SKUs). Existing entitlement rows are unaffected either way.
+- Merged: PR #37, squash `87734cd` (merged 4:37 PM CT); prod `dpl_GJxkmUJpir7xunSq6djfgUz5CB39` READY.
+- Undo: `git revert 87734cd` (puts the 7 socixis items back in `heldCatalog`, the 2 Shop rows back at 1,000, and removes the 90s/120s SKUs). Existing entitlement rows are unaffected either way.
+
+## 2026-10-04 (CT) — Grok (Wallet Lead): follow-up, 45s and 60s avatar render SKUs
+- Why: Awad's scope update at 4:38 PM CT. The full paid set is 45s = 1,500, 60s = 2,000, 90s = 3,000, 120s = 4,000 Ixis. Free avatar videos are capped at 30s, and there is no paid 30s SKU. The Wallet catalog has no free-video item (the cap is enforced in Socixis), so the 30s cap is noted in the catalog comment and docs. Website packs and the avatar base stay free.
+- What: `lib/catalog.ts` adds `socixis.avatar.render.45s` (1,500) and `socixis.avatar.render.60s` (2,000) to `redeemCatalog`, as consumables like 90s/120s. Also updated: `test/held-catalog.test.ts`, `docs/INTEGRATION.md`, `docs/LAUNCH_NOTES.md`, `AI_CHANGELOG.md`, `WORKBOARD.md`. Not touched: Stripe, checkout, webhook, ledger SQL, env, DB, other products.
+- Note for Socixis: its `renderPriceIxis()` / `PAID_RENDERS_LIVE` currently treat ≤60s as free. Its side must move to the 30s free cap before 45s/60s are charged.
+- Where: branch `grok/socixis-avatar-render-45s-60s` (follow-up PR to #37).
+- Undo: `git revert <follow-up squash sha>` (removes only the 45s/60s SKUs).

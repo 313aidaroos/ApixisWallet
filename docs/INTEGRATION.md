@@ -277,11 +277,13 @@ Current SKUs (as of 2026-09-21):
 | `apixis.file.unit`                | Family      | File / template / skin    | 1,000   | $10      |
 | `socixis.avatar.skin.*`           | Socixis     | Avatar skin (various)     | 1,000   | $10/each |
 | `socixis.avatar.pack.all`         | Socixis     | Skin pack: All skins      | 5,000   | $50      |
+| `socixis.avatar.render.45s`       | Socixis     | Avatar video: 45s render  | 1,500   | $15/video |
+| `socixis.avatar.render.60s`       | Socixis     | Avatar video: 60s render  | 2,000   | $20/video |
 | `socixis.avatar.render.90s`       | Socixis     | Avatar video: 90s render  | 3,000   | $30/video |
 | `socixis.avatar.render.120s`      | Socixis     | Avatar video: 120s render | 4,000   | $40/video |
 | `renoxis.file.*`                  | Renoxis     | Listing/offer file        | 1,000   | $10/each |
 
-**Free (no Wallet charge, 2026-10-04):** `socixis.avatar.base`, `socixis.site.*` (saas, restaurant, portfolio, local, shop, agency) and `shop.template.site.saas` / `shop.template.site.shop` are free per Awad. They live in `freeCatalog` (price 0 on record); quotes and reservations return 404 for them because `reserve_xp` rejects a zero amount, so sites unlock them without calling the Wallet. The 90s/120s renders are consumables: reserve one per video, capture when the video is ready, release on failure; use the capture receipt, not the entitlement row, to track renders.
+**Free (no Wallet charge, 2026-10-04):** `socixis.avatar.base`, `socixis.site.*` (saas, restaurant, portfolio, local, shop, agency) and `shop.template.site.saas` / `shop.template.site.shop` are free per Awad. They live in `freeCatalog` (price 0 on record); quotes and reservations return 404 for them because `reserve_xp` rejects a zero amount, so sites unlock them without calling the Wallet. Free avatar videos are capped at 30s (Socixis-side, no Wallet SKU; there is no paid 30s SKU). The 45s/60s/90s/120s renders are consumables: reserve one per video, capture when the video is ready, release on failure; use the capture receipt, not the entitlement row, to track renders.
 
 `renoxis.agent.monthly` is the only Renoxis month seat. `renoxis.monthly` and `renoxis-monthly` are aliases of that key. `renoxis-activate` is an alias of `renoxis.activate`. The old 30,000 Ixis ($300) price is retired. Buy and redeem steps: [docs/RENOXIS.md](RENOXIS.md).
 

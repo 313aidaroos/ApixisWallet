@@ -1,4 +1,4 @@
-// Change note (Grok, Oct 2026): Socixis paid avatar renders (90s/120s) added; Socixis avatar base and site packs are free (freeCatalog, no Wallet charge) per Awad 2026-10-04. Skins and the all-skins pack still sell. See docs/LAUNCH_NOTES.md.
+// Change note (Grok, Oct 2026): Socixis paid avatar renders (45s/60s/90s/120s) added; free avatar videos are capped at 30s (no paid 30s SKU); Socixis avatar base and site packs are free (freeCatalog, no Wallet charge) per Awad 2026-10-04. Skins and the all-skins pack still sell. See docs/LAUNCH_NOTES.md.
 /** 100 Ixis = $1. Same SKU prices on every apple. */
 export const pointPacks = [
   { id: "spark", name: "Spark", price: 10, xp: 1000, bonus: 0 },
@@ -27,7 +27,10 @@ export const redeemCatalog = [
   { key: "socixis.avatar.skin.character", app: "Socixis", name: "Skin: 3D character", xp: UNIT_XP, color: "#ff8a3d", includes: "Look unlock" },
   { key: "socixis.avatar.skin.digital", app: "Socixis", name: "Skin: Digital", xp: UNIT_XP, color: "#ff8a3d", includes: "Look unlock" },
   { key: "socixis.avatar.pack.all", app: "Socixis", name: "Skin pack: All skins", xp: 5000, color: "#ff8a3d", includes: "Every current skin · $50" },
-  // Paid avatar video renders (consumable, no `days`): one reserve → capture per video. Price = 5× HeyGen cost (Awad, 2026-09-28 / 2026-10-04).
+  // Paid avatar video renders (consumable, no `days`): one reserve → capture per video. Free avatar videos are capped at 30s
+  // (Socixis-side, no Wallet SKU); anything longer bills the smallest tier that covers it. Price = 5× HeyGen cost (Awad, 2026-10-04).
+  { key: "socixis.avatar.render.45s", app: "Socixis", name: "Avatar video: 45s render", xp: 1500, color: "#ff8a3d", includes: "One avatar video up to 45s · $15" },
+  { key: "socixis.avatar.render.60s", app: "Socixis", name: "Avatar video: 60s render", xp: 2000, color: "#ff8a3d", includes: "One avatar video up to 60s · $20" },
   { key: "socixis.avatar.render.90s", app: "Socixis", name: "Avatar video: 90s render", xp: 3000, color: "#ff8a3d", includes: "One avatar video up to 90s · $30" },
   { key: "socixis.avatar.render.120s", app: "Socixis", name: "Avatar video: 120s render", xp: 4000, color: "#ff8a3d", includes: "One avatar video up to 120s · $40" },
   { key: "recovra.intel.monthly", app: "Recovra", name: "Recovery Intelligence · Starter", xp: 22000, color: "#58c8ff", includes: "Seat + 120 extracts · $220/mo", days: 30 },

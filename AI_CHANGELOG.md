@@ -80,3 +80,7 @@ Entry format:
 ## 2026-10-04 — Grok (Wallet Lead)
 - Changed: `lib/catalog.ts` — added `socixis.avatar.render.90s` (3,000 Ixis) and `socixis.avatar.render.120s` (4,000 Ixis) to `redeemCatalog`; replaced `heldCatalog` with `freeCatalog` (price 0, not quotable): Socixis avatar base, 6 `socixis.site.*` packs, and `shop.template.site.saas` / `.shop` (removed from `shopCatalog`). Tests `test/held-catalog.test.ts`; docs `INTEGRATION.md`, `LAUNCH_NOTES.md`; `NOTES/GROK.md`, `WORKBOARD.md`.
 - Why: Awad's 2026-10-04 decisions (Socixis request, Socixis NOTES @ fc8950e): website packs and avatar base free; paid 90s/120s avatar videos at 5× HeyGen cost.
+
+## 2026-10-04 (follow-up) — Grok (Wallet Lead)
+- Changed: `lib/catalog.ts`: added `socixis.avatar.render.45s` (1,500 Ixis) and `socixis.avatar.render.60s` (2,000 Ixis). Free avatar videos are capped at 30s, with no paid 30s SKU. Tests and docs (`INTEGRATION.md`, `LAUNCH_NOTES.md`), `NOTES/GROK.md`, `WORKBOARD.md` updated to match.
+- Why: Awad's scope update, 2026-10-04 4:38 PM CT: the full paid render set is 45s/60s/90s/120s.
