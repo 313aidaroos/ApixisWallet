@@ -11,7 +11,7 @@
  *   APIXIS_WALLET_API_URL   https://apixis-wallet.vercel.app
  *   APIXIS_CLIENT_ID        this site's Apixis ID client name (e.g. "renoxis") — for "Sign in with Apixis"
  *
- * SDK version: 3.1 (2026-09-30: marketplace orders). Replace older copies with this file.
+ * SDK version: 3.1 (2026-09-30: marketplace orders; 2026-10-04: optional `kind: "tip"`, min 10 Ixis). Replace older copies with this file.
  *
  * WHO a call is about (`owner` below): pass the Apixis ID `sub` (a Wallet user id, from
  * exchangeLoginCode) — preferred — or, until your site uses Apixis ID, the user's VERIFIED email.
@@ -165,6 +165,8 @@ export type MarketplaceSettlement = {
  */
 export async function marketplaceOrder(opts: {
   buyer: Owner; amount: number; idempotencyKey: string; reference?: string; description?: string; holdDays?: number; app?: string;
+  /** "tip" allows 10+ Ixis (feed tips); default "order" needs 100+. Same hold, settle and 5% fee (rounded down). */
+  kind?: "order" | "tip";
 }): Promise<MarketplaceOrder> {
   const { buyer, ...rest } = opts;
   const fields = ownerFields(buyer);
