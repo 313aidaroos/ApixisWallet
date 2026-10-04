@@ -29,9 +29,14 @@ describe("Socixis catalog", () => {
     }
   });
 
-  it("sells the paid avatar renders at 3,000 and 4,000 Ixis as one-time consumables", () => {
+  it("sells the four paid avatar render tiers (45s/60s/90s/120s) as one-time consumables, no paid 30s", () => {
     const socixis: string[] = productsForDestination("socixis").map((p) => p.key);
-    for (const [key, xp] of [["socixis.avatar.render.90s", 3000], ["socixis.avatar.render.120s", 4000]] as const) {
+    for (const [key, xp] of [
+      ["socixis.avatar.render.45s", 1500],
+      ["socixis.avatar.render.60s", 2000],
+      ["socixis.avatar.render.90s", 3000],
+      ["socixis.avatar.render.120s", 4000],
+    ] as const) {
       const product = findCatalogProduct(key);
       assert.ok(product, key);
       assert.equal(product.xp, xp);
@@ -39,6 +44,8 @@ describe("Socixis catalog", () => {
       assert.equal((product as { days?: number }).days, undefined, `${key} is per render, not a period`);
       assert.ok(socixis.includes(key), key);
     }
+    // Free avatar videos are capped at 30s on the Socixis side; there is no paid 30s SKU.
+    assert.equal(findCatalogProduct("socixis.avatar.render.30s"), undefined);
   });
 
   it("still sells the Socixis products Socixis delivers: Autopilot, skins and the all-skins pack", () => {

@@ -53,9 +53,17 @@ No pending changes.
 ## Open items
 
 - AwadBot is not in `create-family-keys.ts` or the catalog on purpose: AwadBot does not deliver anything yet (see AwadBot notes). Add both when it does.
-- Socixis avatar base and site packs (and the two `shop.template.site.*` Shop rows) are free since 2026-10-04 (`freeCatalog`, not quotable). Paid 90s/120s avatar renders (`socixis.avatar.render.90s` 3,000 / `.120s` 4,000 Ixis) are redeemable; Socixis keeps them locked until it wires reserve/capture/release.
+- Socixis avatar base and site packs (and the two `shop.template.site.*` Shop rows) are free since 2026-10-04 (`freeCatalog`, not quotable). Paid avatar renders `socixis.avatar.render.45s` 1,500 / `.60s` 2,000 / `.90s` 3,000 / `.120s` 4,000 Ixis are redeemable (free videos capped at 30s, no paid 30s SKU); Socixis keeps them locked until it wires reserve/capture/release.
 
 ## What changed, file by file
+
+### 2026-10-04 (follow-up): 45s and 60s avatar render SKUs (Grok, Awad scope update 4:38 PM CT)
+
+| File | Change |
+|---|---|
+| `lib/catalog.ts` | Added `socixis.avatar.render.45s` (1,500) and `socixis.avatar.render.60s` (2,000). Free avatar videos capped at 30s (Socixis-side); no paid 30s SKU. |
+| `test/held-catalog.test.ts` | All four render tiers; no `.30s` SKU. |
+| `docs/INTEGRATION.md` | Table rows. |
 
 ### 2026-10-04: Socixis avatar render SKUs + free site packs / avatar base (Grok, Socixis request, Awad approved)
 
