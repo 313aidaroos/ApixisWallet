@@ -92,4 +92,4 @@ _Backfilled 2026-10-02 by Grok (Wallet Lead), read from git history._ Sources: `
 - Settle route: only the `ownerForCaller` options, the 403 body (`code`) and the payout audit `details` changed. Capture/payout logic is untouched (`grok/signup-grant` is in flight there).
 - DB (SELECT only, 5:30 PM CT): 23 Wallet users. 5 have an sso_links row on an active client, 4 of them on `apixis`, and 1 is linked elsewhere but not on apixis (deduxis/renoxis each have 1 link; every other client has 0). No migration, Stripe, checkout, webhook or env changes.
 - Tests: `test/feed-owner.test.ts`.
-- Branch `grok/feed-apixis-id-owner`. Undo: `git revert <squash sha>` (the feed falls back to own-site links only; no data to undo).
+- Branch `grok/feed-apixis-id-owner`, PR #40. Undo: `git revert <squash sha of #40>` (the feed falls back to own-site links only; no data to undo).
