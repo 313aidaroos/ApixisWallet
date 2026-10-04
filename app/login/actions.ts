@@ -2,10 +2,12 @@
 
 import { createServerClient } from "@supabase/ssr";
 import { createClient } from "@supabase/supabase-js";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { safeLocalRedirect } from "@/lib/apixis-redirect";
 import { resetRedirectUrl } from "@/lib/auth-reset";
 import { isMasterEmail, MASTER_EMAIL } from "@/lib/owners";
+import { createServiceSupabase } from "@/lib/supabase/service";
+import { clientContext, ensureSignupGrant } from "@/lib/signup-grant";
 
 /**
  * Result of a login form action. `redirectTo` is always a same-origin path (safeLocalRedirect).
@@ -46,11 +48,15 @@ export async function login(form: FormData): Promise<LoginResult> {
   const password = String(form.get("password") ?? "");
   const next = safeLocalRedirect(form.get("next"));
   const supabase = await client();
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) {
     if (error.code === "invalid_credentials") return { message: "Invalid email or password." };
     if (error.code === "email_not_confirmed") return { message: "Confirm your email first: open the link we sent you, then log in again." };
     return { message: error.message };
+  }
+  // Apixis ID welcome grant (1,000 bonus Ixis, once). No-op unless SIGNUP_GRANT_ENABLED; never blocks sign-in.
+  if (data.user?.id) {
+    await ensureSignupGrant(createServiceSupabase(), data.user.id, { source: "password_login", ...clientContext(await headers()) });
   }
   return { redirectTo: next };
 }

@@ -5,7 +5,7 @@ import { authenticateService } from "@/lib/api/service-auth";
 import { ownerForCaller, ownerLinkAudit } from "@/lib/api/caller-owner";
 import { ledgerErrorResponse } from "@/lib/api/errors";
 import { recordAudit, requestContext } from "@/lib/audit";
-import { DEFAULT_FEE_BPS, MAX_FEE_BPS, marketplaceSplit } from "@/lib/api/marketplace";
+import { DEFAULT_FEE_BPS, MAX_FEE_BPS, PAYOUT_RULE, marketplaceSplit, settlePayout } from "@/lib/api/marketplace";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -91,24 +91,28 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   if (captured.error) return ledgerErrorResponse(captured.error, "Settle");
 
   let payoutTx: string | null = null;
+  let payoutMix: { paid: number; bonus: number } | null = null;
   if (split.payout > 0) {
-    const payout = await supabase.rpc("credit_xp", {
-      p_owner_id: sellerId,
-      p_amount: split.payout,
-      p_bucket: "paid",
-      p_description: `${description} · payout`,
-      p_external_id: `${hold.data.external_id}:payout`,
-      p_app_slug: app,
-      p_expires_at: null,
+    // Bonus stays bonus (migration 013): the seller is paid in the same paid/bonus ratio the buyer's
+    // hold was funded, paid share rounded down. See payoutSplit in lib/api/marketplace.ts.
+    const payout = await settlePayout(supabase, {
+      reservationId: id,
+      sellerId,
+      payout: split.payout,
+      description: `${description} · payout`,
+      externalId: `${hold.data.external_id}:payout`,
+      app,
+      actor: auth.caller.actor,
     });
-    if (payout.error) {
-      console.error("marketplace payout failed", { code: payout.error.code, reservation: id });
+    if ("error" in payout) {
+      console.error("marketplace payout failed", { code: payout.error, reservation: id });
       return NextResponse.json(
         { error: "Buyer charged, seller payout pending — retry this settle", code: "payout_pending", captured: true, receiptId: captured.data },
         { status: 500 },
       );
     }
-    payoutTx = payout.data as string;
+    payoutMix = { paid: payout.paid, bonus: payout.bonus };
+    payoutTx = payout.transactionId;
     await recordAudit(supabase, {
       event_type: "payout",
       dedupe_key: `payout:${id}`,
@@ -120,7 +124,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       ledger_transaction_id: payoutTx,
       amount_ixis: split.payout,
       ...requestContext(request),
-      details: { marketplace: true, payout_for: captured.data, fee_bps: split.feeBps, fee_ixis: split.fee, ...ownerLinkAudit(seller, "seller") },
+      details: { marketplace: true, payout_for: captured.data, fee_bps: split.feeBps, fee_ixis: split.fee, payout_paid_ixis: payout.paid, payout_bonus_ixis: payout.bonus, payout_rule: PAYOUT_RULE, ...ownerLinkAudit(seller, "seller") },
     });
   }
 
@@ -134,5 +138,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     fee: split.fee,
     feeBps: split.feeBps,
     payout: split.payout,
+    payoutPaid: payoutMix?.paid ?? 0,
+    payoutBonus: payoutMix?.bonus ?? 0,
   });
 }

@@ -1,6 +1,6 @@
 # Apixis family — status board (one page, every AI reads this first)
 
-**Owner:** Awad (313aidaroos). **Rules:** `AGENTS.md` §0 (D1–D16). **Last updated: 2026-10-02 late night, launch-prep pass (Claude).** Owner to-do: **`docs/OWNER_CHECKLIST.md`**. Keys go in with the launch kit: **`docs/LAUNCH_KIT.md`** (`npm run launch`). Previous brief: `docs/MORNING_BRIEF_2026-10-01.md`.
+**Owner:** Awad (313aidaroos). **Rules:** `AGENTS.md` §0 (D1–D16). **Last updated: 2026-10-04 evening, Wallet welcome grant (Grok).** Owner to-do: **`docs/OWNER_CHECKLIST.md`**. Keys go in with the launch kit: **`docs/LAUNCH_KIT.md`** (`npm run launch`). Previous brief: `docs/MORNING_BRIEF_2026-10-01.md`.
 
 This is the only family-wide status board (D15). Per-repo `NOTES/*.md`, `JUNOAI_NOTES.md`, `WORKBOARD.md`
 and `LAUNCH_NOTES.md` are archives. If you change family status, change it here. Every code change: `AI_CHANGELOG.md` in that repo.
@@ -12,8 +12,33 @@ and `LAUNCH_NOTES.md` are archives. If you change family status, change it here.
 - **One SDK:** `sdk/apixis-wallet.ts` (v3.1), `sdk/apixis-login-next.ts`, `sdk/apixis-redirect.ts`, `sdk/apixis-cixy.ts`. Sites carry byte-identical copies as `lib/apixis-*.ts`. Change here, then copy.
 - **Redeem contract:** reserve → provision → capture (or release). `409 already_captured` = charged, keep access. Idempotency key `<app>:<key>`, 8–80 chars. Owner = Apixis ID `sub` first, verified email only as legacy.
 - **Marketplace orders (v3.1):** `marketplaceOrder()` holds the buyer's Ixis up to 30 days; `marketplaceSettle()` pays the seller amount − 5% (D12). Used by Ominix.
-- **World kit:** Apixis.dev `sdk/apixis-world*.ts` + `POST /api/agent/provision`. Every sign-up gets a wallet + avatar agent + 1,000 starter Ixis (D11).
+- **World kit:** Apixis.dev `sdk/apixis-world*.ts` + `POST /api/agent/provision`. Every sign-up gets a wallet + avatar agent. **Correction (2026-10-04):** the "1,000 starter Ixis" provision gave went to the agent's *in-world* balance (`apixis.agents.ixix_balance` / `apixis.ixix_ledger`), not the shared Wallet. That in-world starter is going to 0 (hub, Apixis.dev). The real grant is the Wallet's welcome grant below.
+- **Welcome grant (D11, Wallet migration 013):** 1,000 free Ixis per Apixis ID, once, in the shared Wallet's bonus bucket, on the first confirmed sign-in (lazy backfill, no cutoff). Shows on every balance pill via `/api/v1/balance`. Behind `SIGNUP_GRANT_ENABLED` (**OFF until the hub flips it**, together with Apixis.dev's in-world starter → 0).
 - **Cixy:** one persona, `sdk/apixis-cixy.*` (`docs/CIXY.md`). Product role is the only site-specific text. Brain down → calm 503, never a vendor error.
+
+## Wallet welcome grant + bonus-safe payouts — 2026-10-04 (Grok, Wallet executor)
+- **What shipped:** Wallet migration `013_signup_grant` (`signup_grants` table; `grant_signup_xp`, `revoke_signup_grant`, `settle_marketplace_payout`, all service_role-only) and `lib/signup-grant.ts`, called from `/auth/callback`, the password login and `POST /api/sso/token`. 1,000 bonus Ixis once per Apixis ID; confirmed email + real sign-in; disposable-domain block; per-IP/domain/global limits; mint-ceiling check and `signup_grant` audit row in SQL. Details: `AGENTS.md` §4.
+- **Cutover (hub):** set `SIGNUP_GRANT_ENABLED=true` on Vercel project `apixis-wallet` (Production) **at the same moment** Apixis.dev's in-world visitor starter goes to 0. Until then the grant is OFF (unset = OFF) and no grant is issued.
+- **Marketplace:** bonus-funded orders now pay the seller as bonus. Rule `proportional_paid_floor_v1`: `paid = floor(payout × held_paid / held_total)`, rest bonus. Products need no change; the settle response adds `payoutPaid` / `payoutBonus`.
+- **Products:** nothing to change. The balance pill already shows `available` (paid + bonus).
+
+### Hand-credited test/seed Ixis (79,300) — documented, not clawed back
+Twelve `purchase` rows on 2026-09-22/23 CT were credited by hand during launch QA (not by the Stripe webhook). Decision (hub, Awad's locks): keep them, never count them as revenue (revenue = `purchase` rows with an `evt_…` external id only). Checked 2026-10-04: **none sit on a real customer account**. All are on Awad's own `awad@` / `awad+…@apixis.dev` addresses or on `victim-…` / `e2e-…@apixis.dev` test users. None of these accounts has ever signed in to the Wallet.
+
+| external_id | Ixis | account (masked) | kind of account |
+|---|---|---|---|
+| `seed_d856ce` | 5,000 | v•••••-d856ce@apixis.dev | security test user |
+| `seed_1ec576` | 5,000 | v•••••-1ec576@apixis.dev | security test user |
+| `e2e-top-657a78` | 6,000 | e2e-•••@apixis.dev | e2e test user |
+| `awad-test-grant-1790062430` | 5,000 | a•••@apixis.dev | Awad |
+| `awad-test-grant-2-1790062899` | 5,000 | a•••@apixis.dev | Awad |
+| `recovra-test-1790091549` | 22,000 | a•••+recovra@apixis.dev | Awad (Recovra QA) |
+| `qa-lyrixis-1790094477.050110` | 300 | a•••+lyrixis@apixis.dev | Awad (Lyrixis QA) |
+| `qa-nursery-1790095044.424794` | 1,000 | a•••+nursery@apixis.dev | Awad (Nursery QA) |
+| `qa-qw-1790095749.602540` | 10,000 | a•••+qahwah@apixis.dev | Awad (Qahwah QA) |
+| `qa-rx-1790128415.995162` | 10,000 | a•••+renoxis@apixis.dev | Awad (Renoxis QA) |
+| `qa-rx2-1790128567.732469` | 5,000 | a•••+renoxis@apixis.dev | Awad (Renoxis QA) |
+| `qa-rx3-1790128653.088279` | 5,000 | a•••+renoxis@apixis.dev | Awad (Renoxis QA) |
 
 ## Shared Anthropic key — 2026-10-04 (Developer Bot)
 On Awad's ask, every project's `ANTHROPIC_API_KEY` in Vercel is now set to one shared key (production, preview, development), and each project's production was redeployed (all READY). 22 projects: aidaroosholding, apixis-dev, apixis-wallet, awad-command, awadbot, contraxis-dev, deduxis, halaxis, launchixis, lyrixis, nurserytoons, ominix, personalcontentbot, pinixis, qahwahworld, rawixis, recovra, renoxis, socixis, spatial-dashboard, wattixis, workspace. Existing entries were updated in place (Socixis branch-scoped preview entries kept); entries already marked Sensitive stay Sensitive because Vercel cannot change their type. Missing development (and Socixis all-branch preview) entries were added as Encrypted. `ANTHROPIC_MODEL` and other variables unchanged. Undo: set the old key back in Vercel for the project, then redeploy.

@@ -22,6 +22,8 @@ create table if not exists auth.users (
   raw_app_meta_data jsonb,
   raw_user_meta_data jsonb
 );
+-- GoTrue sets this on every real sign-in (password, magic link, OTP). 013's grant requires it.
+alter table auth.users add column if not exists last_sign_in_at timestamptz;
 create or replace function auth.uid() returns uuid language sql stable as $$
   select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid
 $$;

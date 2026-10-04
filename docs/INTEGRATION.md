@@ -195,6 +195,8 @@ Call this if provisioning **failed** or the user cancelled. The Ixis returns to 
 }
 ```
 
+`available` = `paid` + `bonus`. `bonus` includes the Apixis ID welcome grant (1,000 Ixis once per Apixis ID, migration 013, when `SIGNUP_GRANT_ENABLED` is on). Show `available` on the balance pill; nothing else is needed. The grant appears in history as kind `bonus`, app `wallet`, "Welcome grant · 1,000 free Ixis for your Apixis ID" (visible on every site, same as `GET /api/v1/balance?history=N`).
+
 ---
 
 ## 6. List entitlements
@@ -254,7 +256,7 @@ You may still keep your own seat dates (e.g. Renoxis `seat_period_end`), but the
 }
 ```
 
-`amount` = change to spendable Ixis, `held` = change to held Ixis. Kinds: `purchase`, `bonus`, `reserve`, `spend`, `release`, `refund`.
+`amount` = change to spendable Ixis, `held` = change to held Ixis. Kinds: `purchase`, `bonus` (promos, welcome grant, bonus-funded marketplace payouts), `reserve`, `spend`, `release`, `refund`, `adjustment` (e.g. a welcome-grant claw-back).
 
 ---
 
@@ -272,6 +274,8 @@ Person → person payments (Ominix jobs, the shared Apixis.dev feed) use `POST /
 | tip 50 | 2 (2.5 → 2) | 48 |
 | tip 100 | 5 | 95 |
 | order 250 settled to a seller | 12 (12.5 → 12) | 238 |
+
+**Bonus stays bonus (migration 013).** The seller's payout is split in the ratio the buyer's hold was funded (bonus is spent first at reserve): `payoutPaid = floor(payout × held_paid / held_total)`, `payoutBonus = payout − payoutPaid` (rule `proportional_paid_floor_v1`). Example: a 1,000 hold funded 300 bonus + 700 paid, 5% fee → payout 950 = 665 paid + 285 bonus. Free Ixis (welcome grant, promos) never turn into paid Ixis through a sale. The settle response adds `payoutPaid` and `payoutBonus`.
 
 Tips of 10–19 Ixis pay no platform fee under the existing floor rounding. The Apixis.dev feed opens each tip with `holdDays: 1` and settles it right away, so it lands instantly. A feed boost (250 Ixis/day, `kind` omitted) is an order that the feed **captures** (`/api/v1/reservations/:id/capture`). There's no recipient, so the whole 250 goes to clearing.
 
