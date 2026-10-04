@@ -1,4 +1,10 @@
 Grok Bot (Developer Bot hub + product leads) notes. Every change Grok Bot makes to this product (code, env, database, deploys) gets a dated entry here so Claude, Hermes and Codex stay on the same page.
+## 2026-10-04 summary
+
+- **Grok:** shipped the Socixis catalog SKUs/free packs, feed-tip and cross-site-ID support, the 1,000-Ixis signup grant, world-order contract, font update, and rollout notes.
+- **Wallet lead:** coordinated the signup-grant and world-economy cutovers; the world switch remains off.
+- **Claude/Codex/Hermes/Juno:** Claude, Hermes, and Juno had no commits or merged PRs in this repo on 2026-10-04 CT.
+
 
 ## 2026-09-27 (CT) — Developer Bot (hub)
 - Wallet database: added 12 client rows in Supabase project `kzneeksminozmhnqaaun`, all with `require_sso=false`.
@@ -127,3 +133,34 @@ _Backfilled 2026-10-02 by Grok (Wallet Lead), read from git history._ Sources: `
 - Who: Wallet Lead (Grok). Branch `grok/wallet-font-inter`.
 - Shipped: PR #45, squash `459100c0646a2004a77dd89aaca63607807f6434` merged 6:17 PM CT; prod `dpl_9JHfWUHqgVYJQPR1BPgiNwM4YyUZ` READY 6:17 PM CT (verified live: Inter class served on apixis-wallet.vercel.app).
 - Undo: `git revert 459100c0646a2004a77dd89aaca63607807f6434`, or set `app/layout.tsx` back to `import { Special_Elite } from "next/font/google"` + `const specialElite = Special_Elite({ weight: "400", subsets: ["latin"] })` + `<body className={specialElite.className}>`.
+## 2026-10-04 catch-up provenance (CT)
+
+The entries below record the day's observed commits and merged PRs. Existing detailed entries above remain the change descriptions; this section supplies exact provenance and undo pointers.
+
+### Commits
+- `459100c` (2026-10-04T18:17:04-05:00, 313aidaroos; alaidaroosawad@gmail.com) — Wallet: main UI font Special Elite → Inter (next/font/google) (#45). Undo: undo via the merged PR below: git revert 459100c.
+- `5054500` (2026-10-04T16:34:59-05:00, 313aidaroos; alaidaroosawad@gmail.com) — feat(catalog): Socixis 90s/120s avatar render SKUs; avatar base + website packs free. Undo: no main change; close/delete the branch (or revert the branch commit before reuse).
+- `5aba8ef` (2026-10-04T17:39:57-05:00, 313aidaroos; alaidaroosawad@gmail.com) — notes: signup_grant #41 merged (f65b362), migration 013 applied, undo sha (#42). Undo: undo via the merged PR below: git revert 5aba8ef.
+- `61ebf0a` (2026-10-04T18:05:10-05:00, 313aidaroos; alaidaroosawad@gmail.com) — Wallet: world_trade / world_purchase order kinds for Apixis.dev in-world money (migration 014, additive) (#43). Undo: undo via the merged PR below: git revert 61ebf0a.
+- `6882846` (2026-10-04T17:51:50-05:00, 313aidaroos; 313aidaroos@users.noreply.github.com) — docs(notes): welcome grant switched ON, deploy ids, undo (notes only). Undo: git revert 6882846.
+- `87734cd` (2026-10-04T16:37:29-05:00, 313aidaroos; alaidaroosawad@gmail.com) — Catalog: Socixis 90s/120s avatar render SKUs; avatar base + website packs free (#37). Undo: undo via the merged PR below: git revert 87734cd.
+- `8879da0` (2026-10-04T17:38:24-05:00, Grok (Wallet executor); 313aidaroos@users.noreply.github.com) — notes: signup_grant #41 merged (f65b362), migration 013 applied, undo sha. Undo: no main change; close/delete the branch (or revert the branch commit before reuse).
+- `8ba548f` (2026-10-04T12:05:44-05:00, 313aidaroos; alaidaroosawad@gmail.com) — docs(status): shared ANTHROPIC_API_KEY across all projects (2026-10-04, Developer Bot). Undo: git revert 8ba548f.
+- `9b8d52c` (2026-10-04T17:16:59-05:00, 313aidaroos; alaidaroosawad@gmail.com) — Marketplace: kind "tip" with a 10 Ixis minimum for feed tips (other orders keep 100) (#39). Undo: undo via the merged PR below: git revert 9b8d52c.
+- `a016cd1` (2026-10-04T17:34:26-05:00, Grok (Wallet executor); 313aidaroos@users.noreply.github.com) — Wallet: Apixis ID welcome grant (1,000 bonus Ixis once per Apixis ID, OFF by default) + bonus-safe marketplace payouts (migration 013). Undo: no main change; close/delete the branch (or revert the branch commit before reuse).
+- `b27182a` (2026-10-04T16:40:21-05:00, 313aidaroos; alaidaroosawad@gmail.com) — feat(catalog): Socixis 45s/60s avatar render SKUs; free videos capped at 30s. Undo: no main change; close/delete the branch (or revert the branch commit before reuse).
+- `cdffc8a` (2026-10-04T17:32:53-05:00, 313aidaroos; alaidaroosawad@gmail.com) — Marketplace: apixis feed key may name Apixis IDs linked on any family site (#40). Undo: undo via the merged PR below: git revert cdffc8a.
+- `cf0c526` (2026-10-04T16:41:57-05:00, 313aidaroos; alaidaroosawad@gmail.com) — Catalog: Socixis 45s/60s avatar render SKUs; free videos capped at 30s (#38). Undo: undo via the merged PR below: git revert cf0c526.
+- `d7977d7` (2026-10-04T18:09:03-05:00, 313aidaroos; alaidaroosawad@gmail.com) — notes: world_trade/world_purchase #43 merged (61ebf0a), migration 014 applied, undo sha (#44). Undo: undo via the merged PR below: git revert d7977d7.
+- `f65b362` (2026-10-04T17:36:36-05:00, 313aidaroos; alaidaroosawad@gmail.com) — Wallet: Apixis ID welcome grant (1,000 bonus Ixis, OFF by default) + bonus-safe marketplace payouts (migration 013) (#41). Undo: undo via the merged PR below: git revert f65b362.
+
+### Merged PRs
+- PR #45, merge `459100c`, `grok/wallet-font-inter` → `main`, merged 2026-10-04 CT by 313aidaroos: Wallet: switch main UI font to Inter. Undo: `git revert 459100c`.
+- PR #44, merge `d7977d7`, `grok/world-transfer-notes` → `main`, merged 2026-10-04 CT by 313aidaroos: notes: #43 merged (61ebf0a), migration 014 applied, undo sha. Undo: `git revert d7977d7`.
+- PR #43, merge `61ebf0a`, `grok/world-transfer` → `main`, merged 2026-10-04 CT by 313aidaroos: Wallet: world_trade / world_purchase for Apixis.dev in-world money (migration 014, additive). Undo: `git revert 61ebf0a`.
+- PR #42, merge `5aba8ef`, `grok/signup-grant-notes` → `main`, merged 2026-10-04 CT by 313aidaroos: notes: signup_grant #41 done (f65b362, migration 013 applied). Undo: `git revert 5aba8ef`.
+- PR #41, merge `f65b362`, `grok/signup-grant` → `main`, merged 2026-10-04 CT by 313aidaroos: Wallet: Apixis ID welcome grant (1,000 bonus Ixis, OFF by default) + bonus-safe marketplace payouts (migration 013). Undo: `git revert f65b362`.
+- PR #40, merge `cdffc8a`, `grok/feed-apixis-id-owner` → `main`, merged 2026-10-04 CT by 313aidaroos: Marketplace: apixis feed key may name Apixis IDs linked on any family site. Undo: `git revert cdffc8a`.
+- PR #39, merge `9b8d52c`, `grok/feed-tip-min-order` → `main`, merged 2026-10-04 CT by 313aidaroos: Marketplace: kind "tip" with a 10 Ixis minimum for feed tips. Undo: `git revert 9b8d52c`.
+- PR #38, merge `cf0c526`, `grok/socixis-avatar-render-45s-60s` → `main`, merged 2026-10-04 CT by 313aidaroos: Catalog: Socixis 45s/60s avatar render SKUs (free videos capped at 30s). Undo: `git revert cf0c526`.
+- PR #37, merge `87734cd`, `grok/socixis-avatar-render-skus` → `main`, merged 2026-10-04 CT by 313aidaroos: Catalog: Socixis 90s/120s avatar render SKUs; avatar base + website packs free. Undo: `git revert 87734cd`.

@@ -1,6 +1,6 @@
 # Apixis family — status board (one page, every AI reads this first)
 
-**Owner:** Awad (313aidaroos). **Rules:** `AGENTS.md` §0 (D1–D16). **Last updated: 2026-10-04 evening, Wallet welcome grant (Grok).** Owner to-do: **`docs/OWNER_CHECKLIST.md`**. Keys go in with the launch kit: **`docs/LAUNCH_KIT.md`** (`npm run launch`). Previous brief: `docs/MORNING_BRIEF_2026-10-01.md`.
+**Owner:** Awad (313aidaroos). **Rules:** `AGENTS.md` §0 (D1–D16). **Last updated: 2026-10-04 evening CT, family catch-up.** Owner to-do: **`docs/OWNER_CHECKLIST.md`**. Keys go in with the launch kit: **`docs/LAUNCH_KIT.md`** (`npm run launch`). Previous brief: `docs/MORNING_BRIEF_2026-10-01.md`.
 
 This is the only family-wide status board (D15). Per-repo `NOTES/*.md`, `JUNOAI_NOTES.md`, `WORKBOARD.md`
 and `LAUNCH_NOTES.md` are archives. If you change family status, change it here. Every code change: `AI_CHANGELOG.md` in that repo.
@@ -13,13 +13,61 @@ and `LAUNCH_NOTES.md` are archives. If you change family status, change it here.
 - **Redeem contract:** reserve → provision → capture (or release). `409 already_captured` = charged, keep access. Idempotency key `<app>:<key>`, 8–80 chars. Owner = Apixis ID `sub` first, verified email only as legacy.
 - **Marketplace orders (v3.1):** `marketplaceOrder()` holds the buyer's Ixis up to 30 days; `marketplaceSettle()` pays the seller amount − 5% (D12). Used by Ominix.
 - **World kit:** Apixis.dev `sdk/apixis-world*.ts` + `POST /api/agent/provision`. Every sign-up gets a wallet + avatar agent. **Correction (2026-10-04):** the "1,000 starter Ixis" provision gave went to the agent's *in-world* balance (`apixis.agents.ixix_balance` / `apixis.ixix_ledger`), not the shared Wallet. That in-world starter is going to 0 (hub, Apixis.dev). The real grant is the Wallet's welcome grant below.
-- **Welcome grant (D11, Wallet migration 013):** 1,000 free Ixis per Apixis ID, once, in the shared Wallet's bonus bucket, on the first confirmed sign-in (lazy backfill, no cutoff). Shows on every balance pill via `/api/v1/balance`. Behind `SIGNUP_GRANT_ENABLED` (**OFF until the hub flips it**, together with Apixis.dev's in-world starter → 0).
+- **Welcome grant (D11, Wallet migration 013):** 1,000 free Ixis per Apixis ID, once, in the shared Wallet's bonus bucket, on the first confirmed sign-in (lazy backfill, no cutoff). Shows on every balance pill via `/api/v1/balance`. Live in Wallet Production with `SIGNUP_GRANT_ENABLED=true`; Apixis.dev's in-world visitor starter is 0.
 - **Cixy:** one persona, `sdk/apixis-cixy.*` (`docs/CIXY.md`). Product role is the only site-specific text. Brain down → calm 503, never a vendor error.
+
+## 2026-10-04 current product status (CT)
+
+Shared status: the Socixis Social Feed tab is live on exactly seven sites — AidaroosHolding, Apixis.dev, Pinixis, Rawixis.dev, Renoxis.dev, Socixis, and Wattixis. Feed fix/preview PRs on the other repos remain pending Awad's OK. The 1,000-Ixis signup grant is live in ApixisWallet Production. The world-economy Wallet switch is built behind `WORLD_WALLET_ECONOMY` and remains **off**. Awad's two emails (`alaidaroosawad@gmail.com` and `awad@apixis.dev`) are the family master-admin allowlist; verified/email-proving sign-in is still required where noted.
+
+- **AidaroosHolding:** Feed live, browse-only; owner admin rule shipped. Open: Supabase sign-in/owner workspace setup and any feed fixes awaiting Awad.
+- **Apixis.dev:** Feed and shared backend live; world starter cutover is live. Open: remaining feed fix approvals.
+- **ApixisWallet:** Signup grant live; world-order contract built behind `WORLD_WALLET_ECONOMY` (off). Open: Awad's economy-switch approval.
+- **Renoxis.dev:** Feed live with shared client and owner seat bypass. Open: feed polish approval if requested.
+- **Rawixis.dev:** Feed live; Ixis seats, RFQs, quotes, and deals shipped. Open: legal review and end-to-end marketplace verification.
+- **Wattixis:** Feed and staff-reviewed marketplace live. Open: final launch/fixture approvals.
+- **Pinixis:** Feed live, browse-only; supplier intake and blueprint flow live. Open: Stripe/Connect keys and acting-feed linkage.
+- **Socixis:** Feed live; free/paid render catalog prepared with paid renders locked. Open: render/feed fix PRs pending Awad.
+- **Contraxis.dev:** Feed preview work is not merged; owner admin/pro bypass shipped. Open: feed approval and Supabase email-confirmation setting.
+- **Halaxis.dev:** Feed preview work is not merged; owner allowlist shipped. Open: feed approval and Tavily key.
+- **Lyrixis:** Feed preview and upload-worker work are not merged; owner bypass shipped. Open: feed approval, Redis, and transcription key.
+- **Deduxis:** Feed preview is not merged; verified-owner receipt/seat bypass shipped. Open: feed approval.
+- **Recovra:** Feed preview is not merged; owner support/plan bypass shipped. Open: feed approval and production service key.
+- **Geoxis:** No live Feed tab recorded; owner-admin row and allowlist are live. Open: none in the 2026-10-04 feed rollout.
+- **Launchixis:** Owner-admin allowlist is live; no Feed tab was merged. Open: none recorded.
+- **Ominix:** Verified-owner helper is live and intentionally bypasses no payment gate; no Feed tab was merged. Open: none recorded.
+- **qahwahworld:** Owner admin and roaster-seat bypass are live; no Feed tab was merged. Open: none recorded.
+- **awad-command:** Internal HQ subscriptions are owner-only and the owner allowlist is live; no Feed tab applies. Open: none recorded.
+- **AwadBot:** Paper-only trading configuration was updated; no Feed tab applies. Open: keep live trading disabled.
+
+## 2026-10-04 current product status (CT)
+
+Shared status: the Socixis Social Feed tab is live on exactly seven sites — AidaroosHolding, Apixis.dev, Pinixis, Rawixis.dev, Renoxis.dev, Socixis, and Wattixis. Feed fix/preview PRs on the other repos remain pending Awad's OK. The 1,000-Ixis signup grant is live in ApixisWallet Production. The world-economy Wallet switch is built behind `WORLD_WALLET_ECONOMY` and remains **off**. Awad's two emails (`alaidaroosawad@gmail.com` and `awad@apixis.dev`) are the family master-admin allowlist; verified/email-proving sign-in is still required where noted.
+
+- **AidaroosHolding:** Feed live, browse-only; owner admin rule shipped. Open: Supabase sign-in/owner workspace setup and any feed fixes awaiting Awad.
+- **Apixis.dev:** Feed and shared backend live; world starter cutover is live. Open: remaining feed fix approvals.
+- **ApixisWallet:** Signup grant live; world-order contract built behind `WORLD_WALLET_ECONOMY` (off). Open: Awad's economy-switch approval.
+- **Renoxis.dev:** Feed live with shared client and owner seat bypass. Open: feed polish approval if requested.
+- **Rawixis.dev:** Feed live; Ixis seats, RFQs, quotes, and deals shipped. Open: legal review and end-to-end marketplace verification.
+- **Wattixis:** Feed and staff-reviewed marketplace live. Open: final launch/fixture approvals.
+- **Pinixis:** Feed live, browse-only; supplier intake and blueprint flow live. Open: Stripe/Connect keys and acting-feed linkage.
+- **Socixis:** Feed live; free/paid render catalog prepared with paid renders locked. Open: render/feed fix PRs pending Awad.
+- **Contraxis.dev:** Feed preview work is not merged; owner admin/pro bypass shipped. Open: feed approval and Supabase email-confirmation setting.
+- **Halaxis.dev:** Feed preview work is not merged; owner allowlist shipped. Open: feed approval and Tavily key.
+- **Lyrixis:** Feed preview and upload-worker work are not merged; owner bypass shipped. Open: feed approval, Redis, and transcription key.
+- **Deduxis:** Feed preview is not merged; verified-owner receipt/seat bypass shipped. Open: feed approval.
+- **Recovra:** Feed preview is not merged; owner support/plan bypass shipped. Open: feed approval and production service key.
+- **Geoxis:** No live Feed tab recorded; owner-admin row and allowlist are live. Open: none in the 2026-10-04 feed rollout.
+- **Launchixis:** Owner-admin allowlist is live; no Feed tab was merged. Open: none recorded.
+- **Ominix:** Verified-owner helper is live and intentionally bypasses no payment gate; no Feed tab was merged. Open: none recorded.
+- **qahwahworld:** Owner admin and roaster-seat bypass are live; no Feed tab was merged. Open: none recorded.
+- **awad-command:** Internal HQ subscriptions are owner-only and the owner allowlist is live; no Feed tab applies. Open: none recorded.
+- **AwadBot:** Paper-only trading configuration was updated; no Feed tab applies. Open: keep live trading disabled.
 
 ## Wallet welcome grant + bonus-safe payouts — 2026-10-04 (Grok, Wallet executor)
 - **What shipped:** Wallet migration `013_signup_grant` (`signup_grants` table; `grant_signup_xp`, `revoke_signup_grant`, `settle_marketplace_payout`, all service_role-only) and `lib/signup-grant.ts`, called from `/auth/callback`, the password login and `POST /api/sso/token`. 1,000 bonus Ixis once per Apixis ID; confirmed email + real sign-in; disposable-domain block; per-IP/domain/global limits; mint-ceiling check and `signup_grant` audit row in SQL. Details: `AGENTS.md` §4.
-- **Live state:** PR #41 (`f65b362`) deployed (`dpl_gWUTGjPi6HCW6HAyBgg98hk8eR4h` READY); migration 013 applied to `kzneeksminozmhnqaaun` 2026-10-04 5:37 PM CT. Flag OFF, 0 grants issued.
-- **Cutover (hub):** set `SIGNUP_GRANT_ENABLED=true` on Vercel project `apixis-wallet` (Production) **at the same moment** Apixis.dev's in-world visitor starter goes to 0. Until then the grant is OFF (unset = OFF) and no grant is issued.
+- **Live state:** PR #41 (`f65b362`) deployed (`dpl_gWUTGjPi6HCW6HAyBgg98hk8eR4h` READY); migration 013 applied to `kzneeksminozmhnqaaun` 2026-10-04 5:37 PM CT. The Production flag was switched on at 5:50 PM CT after the Apixis.dev starter cutover; lazy grants are live.
+- **Cutover (complete):** `SIGNUP_GRANT_ENABLED=true` is set on Vercel project `apixis-wallet` Production, coordinated with Apixis.dev's in-world visitor starter going to 0. Grants are issued lazily on confirmed sign-in.
 - **Marketplace:** bonus-funded orders now pay the seller as bonus. Rule `proportional_paid_floor_v1`: `paid = floor(payout × held_paid / held_total)`, rest bonus. Products need no change; the settle response adds `payoutPaid` / `payoutBonus`.
 - **Products:** nothing to change. The balance pill already shows `available` (paid + bonus).
 
