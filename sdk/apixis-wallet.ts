@@ -11,7 +11,7 @@
  *   APIXIS_WALLET_API_URL   https://apixis-wallet.vercel.app
  *   APIXIS_CLIENT_ID        this site's Apixis ID client name (e.g. "renoxis") — for "Sign in with Apixis"
  *
- * SDK version: 3.1 (2026-09-30: marketplace orders; 2026-10-04: optional `kind: "tip"`, min 10 Ixis). Replace older copies with this file.
+ * SDK version: 3.2 (2026-09-30: marketplace orders; 2026-10-04: optional `kind: "tip"`, min 10 Ixis; 2026-10-04: world kinds `world_trade` / `world_purchase`). Replace older copies with this file.
  *
  * WHO a call is about (`owner` below): pass the Apixis ID `sub` (a Wallet user id, from
  * exchangeLoginCode) — preferred — or, until your site uses Apixis ID, the user's VERIFIED email.
@@ -151,10 +151,12 @@ export async function reservationStatus(reservationId: string): Promise<Reservat
 
 // ---------------------------------------------------------------- marketplace orders (person → person)
 
-export type MarketplaceOrder = { reservationId: string; status: "held"; app: string; ixis: number };
+export type WorldKind = "world_trade" | "world_purchase";
+export type MarketplaceOrder = { reservationId: string; status: "held"; app: string; ixis: number; kind?: WorldKind; sellerId?: string | null; feeBps?: number };
 export type MarketplaceSettlement = {
   reservationId: string; status: "settled"; receiptId: string; payoutId: string | null;
   app: string; ixis: number; fee: number; feeBps: number; payout: number;
+  payoutPaid?: number; payoutBonus?: number; kind?: WorldKind; sellerId?: string;
 };
 
 /**
@@ -165,14 +167,22 @@ export type MarketplaceSettlement = {
  */
 export async function marketplaceOrder(opts: {
   buyer: Owner; amount: number; idempotencyKey: string; reference?: string; description?: string; holdDays?: number; app?: string;
-  /** "tip" allows 10+ Ixis (feed tips); default "order" needs 100+. Same hold, settle and 5% fee (rounded down). */
-  kind?: "order" | "tip";
+  /**
+   * "tip" allows 10+ Ixis (feed tips); default "order" needs 100+. Same hold, settle and 5% fee (rounded down).
+   * Apixis.dev world only (app "apixis", buyer must be an Apixis ID): "world_trade" (20+, agent → agent, pass
+   * `seller` = the counterparty's Apixis ID; settle pays only them at the locked 5% fee) and "world_purchase"
+   * (1+, agent → Apixis platform; settle pays nobody).
+   */
+  kind?: "order" | "tip" | WorldKind;
+  /** world_trade only: the counterparty's Apixis ID `sub`, pinned for settle. */
+  sellerId?: string;
 }): Promise<MarketplaceOrder> {
-  const { buyer, ...rest } = opts;
+  const { buyer, sellerId, ...rest } = opts;
   const fields = ownerFields(buyer);
   return call("POST", "/api/v1/marketplace/orders", {
     ...rest,
     ...("owner_id" in fields ? { buyer_id: fields.owner_id } : { buyer_email: fields.owner_email }),
+    ...(sellerId ? { seller_id: sellerId } : {}),
   });
 }
 
@@ -182,12 +192,13 @@ export async function marketplaceOrder(opts: {
  * A WalletError with code "payout_pending" means the buyer WAS charged and the seller payout must
  * be retried (call again with the same arguments); never refund the buyer on that code.
  */
-export async function marketplaceSettle(reservationId: string, opts: { seller: Owner; feeBps?: number; description?: string }): Promise<MarketplaceSettlement> {
+export async function marketplaceSettle(reservationId: string, opts: { seller?: Owner; feeBps?: number; description?: string }): Promise<MarketplaceSettlement> {
   const { seller, ...rest } = opts;
-  const fields = ownerFields(seller);
+  // world_trade may omit seller (the pinned one is paid); world_purchase must omit it.
+  const fields = seller ? ownerFields(seller) : null;
   return call("POST", `/api/v1/marketplace/orders/${reservationId}/settle`, {
     ...rest,
-    ...("owner_id" in fields ? { seller_id: fields.owner_id } : { seller_email: fields.owner_email }),
+    ...(!fields ? {} : "owner_id" in fields ? { seller_id: fields.owner_id } : { seller_email: fields.owner_email }),
   });
 }
 

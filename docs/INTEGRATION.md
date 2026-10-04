@@ -286,6 +286,10 @@ Tips of 10–19 Ixis pay no platform fee under the existing floor rounding. The 
 - The audit row records the cross-site link: `details.buyer_link` on the order's `reserve` event and `details.seller_link` on the settle `payout` event, as `{ cross_site: true, feed_client: "apixis", linked_client: "<site>" }`.
 - Unchanged: every other client; the `apixis` key on `/api/v1/balance`, `/redeem`, `/reservations` (including capture/release) and `/entitlements`; the legacy service key; the `buyer_email` / `seller_email` path. No `sso_links` row is written for `apixis`, so this exception never grants balance or redeem access.
 
+### 8b. Apixis.dev in-world money (`world_trade`, `world_purchase`, 2026-10-04)
+
+App `apixis` only, `buyer_id` (Apixis ID) required, whole Ixis. `world_trade` (min 20) pins `seller_id` when the order opens; settle pays only that Apixis ID at the locked 5% fee (`feeBps` other than 500 → 400 `fee_locked`; another seller → 409 `seller_mismatch`). `world_purchase` (min 1) has no seller; settle captures to clearing (`payout: 0`, `fee: amount`). Terms live in `marketplace_order_terms` (migration 014). No world kind credits an agent from nowhere. Full contract, error codes and the reconciliation plan: [`docs/WORLD_ECONOMY_CUTOVER.md`](WORLD_ECONOMY_CUTOVER.md).
+
 ## Catalog
 
 Current SKUs (as of 2026-09-21):

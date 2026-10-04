@@ -6,7 +6,10 @@ import { ledgerErrorResponse } from "@/lib/api/errors";
 import { recordAudit, requestContext } from "@/lib/audit";
 import { ledgerIdempotencyKey } from "@/lib/api/reserve";
 import { LIMITS, checkLimits } from "@/lib/api/rate-limit";
-import { DEFAULT_HOLD_DAYS, MAX_ORDER_IXIS, MIN_ORDER_IXIS, MIN_TIP_IXIS, holdSeconds, marketplaceOrderSchema, minOrderIxis, orderDescription } from "@/lib/api/marketplace";
+import {
+  DEFAULT_HOLD_DAYS, MAX_ORDER_IXIS, MIN_ORDER_IXIS, MIN_TIP_IXIS, MIN_WORLD_PURCHASE_IXIS, MIN_WORLD_TRADE_IXIS, ORDER_KINDS, WORLD_FEE_BPS,
+  checkWorldOrder, holdSeconds, isWorldKind, marketplaceOrderSchema, minOrderIxis, orderDescription, recordOrderTerms, type OrderKind,
+} from "@/lib/api/marketplace";
 import { canonicalAppSlug } from "@/lib/checkout/destinations";
 
 const bodySchema = marketplaceOrderSchema;
@@ -15,6 +18,10 @@ const bodySchema = marketplaceOrderSchema;
  * Open a marketplace order: hold `amount` Ixis on the buyer until the seller delivers.
  * Settle with POST /api/v1/marketplace/orders/{reservationId}/settle; cancel with
  * POST /api/v1/reservations/{reservationId}/release. Idempotent per (app, idempotencyKey).
+ *
+ * World kinds (Apixis.dev in-world money, migration 014): `world_trade` pins `seller_id` now and
+ * settle pays only them at the locked 5% fee; `world_purchase` settles to the platform (no payee).
+ * Both need buyer_id (Apixis ID) and app `apixis`; their terms are recorded before the hold.
  */
 export async function POST(request: Request) {
   const auth = await authenticateService(request);
@@ -24,12 +31,13 @@ export async function POST(request: Request) {
   if (limited) return limited;
 
   const raw = await request.json().catch(() => null);
-  const kind = (raw as { kind?: unknown } | null)?.kind === "tip" ? "tip" : "order";
+  const rawKind = (raw as { kind?: unknown } | null)?.kind;
+  const kind: OrderKind = (ORDER_KINDS as readonly unknown[]).includes(rawKind) ? (rawKind as OrderKind) : "order";
   const parsed = bodySchema.safeParse(raw);
   if (!parsed.success) {
     return NextResponse.json(
       {
-        error: `Invalid order (amount ${MIN_ORDER_IXIS}–${MAX_ORDER_IXIS} Ixis, or ${MIN_TIP_IXIS}+ with kind "tip"; idempotencyKey 8–80 chars, buyer_id or buyer_email)`,
+        error: `Invalid order (amount ${MIN_ORDER_IXIS}–${MAX_ORDER_IXIS} Ixis, or ${MIN_TIP_IXIS}+ with kind "tip", ${MIN_WORLD_TRADE_IXIS}+ "world_trade", ${MIN_WORLD_PURCHASE_IXIS}+ "world_purchase"; whole Ixis; idempotencyKey 8–80 chars, buyer_id or buyer_email)`,
         code: "invalid_order",
         min_ixis: minOrderIxis(kind),
       },
@@ -42,6 +50,10 @@ export async function POST(request: Request) {
   if (!callerMayUseApp(auth.caller, app)) {
     return NextResponse.json({ error: `This API key cannot open ${app} orders` }, { status: 403 });
   }
+
+  const world = checkWorldOrder({ kind: parsed.data.kind, app, buyerId: parsed.data.buyer_id, sellerId: parsed.data.seller_id });
+  if (!world.ok) return NextResponse.json({ error: world.error, code: world.code }, { status: world.status });
+  const worldKind = isWorldKind(parsed.data.kind) ? parsed.data.kind : null;
 
   const supabase = createServiceSupabase();
   if (!supabase) return NextResponse.json({ error: "Service configuration missing" }, { status: 503 });
@@ -59,12 +71,35 @@ export async function POST(request: Request) {
   const ownerLimit = checkLimits([{ key: `owner:${buyerId}`, ...LIMITS.ownerReserve }]);
   if (ownerLimit) return ownerLimit;
 
-  const description = orderDescription(app, parsed.data.reference, parsed.data.description);
+  // world_trade: the counterparty must be a linked Apixis ID too (same PR #40 rule), checked now so a
+  // proposal to an unknown agent fails before any Ixis is held.
+  let seller: Awaited<ReturnType<typeof ownerForCaller>> | null = null;
+  if (worldKind === "world_trade") {
+    seller = await ownerForCaller(supabase, auth.caller, { ownerId: parsed.data.seller_id }, { create: false, marketplace: true });
+    if ("error" in seller) return NextResponse.json({ error: seller.error, ...(seller.code ? { code: seller.code } : {}) }, { status: seller.status });
+  }
+  const externalId = ledgerIdempotencyKey(app, parsed.data.idempotencyKey);
+  if (worldKind) {
+    const terms = await recordOrderTerms(supabase, {
+      external_id: externalId,
+      kind: worldKind,
+      app_slug: app,
+      buyer_id: buyerId,
+      seller_id: worldKind === "world_trade" ? (parsed.data.seller_id as string) : null,
+      fee_bps: WORLD_FEE_BPS,
+      reference: parsed.data.reference ?? null,
+      actor: auth.caller.actor,
+    });
+    if (!terms.ok) return NextResponse.json({ error: terms.error, code: terms.code }, { status: terms.status });
+  }
+
+  const defaultLabel = worldKind === "world_trade" ? "World trade" : worldKind === "world_purchase" ? "World purchase" : undefined;
+  const description = orderDescription(app, parsed.data.reference, parsed.data.description ?? defaultLabel);
   const { data, error } = await supabase.rpc("reserve_xp", {
     p_owner_id: buyerId,
     p_amount: parsed.data.amount,
     p_description: description,
-    p_external_id: ledgerIdempotencyKey(app, parsed.data.idempotencyKey),
+    p_external_id: externalId,
     p_app_slug: app,
     p_product_key: null,
     p_actor: auth.caller.actor,
@@ -92,6 +127,7 @@ export async function POST(request: Request) {
       idempotency_key: parsed.data.idempotencyKey,
       hold_days: parsed.data.holdDays ?? DEFAULT_HOLD_DAYS,
       ...ownerLinkAudit(buyer, "buyer"),
+      ...(worldKind ? { world: true, fee_bps: WORLD_FEE_BPS, seller_id: parsed.data.seller_id ?? null, ...(seller ? ownerLinkAudit(seller, "seller") : {}) } : {}),
       ...(error ? { code: error.code ?? null } : { usd_equivalent: parsed.data.amount / 100 }),
     },
   });
@@ -102,5 +138,11 @@ export async function POST(request: Request) {
     return ledgerErrorResponse(error, "Order");
   }
 
-  return NextResponse.json({ reservationId: data, status: "held", app, ixis: parsed.data.amount }, { status: 201 });
+  return NextResponse.json(
+    {
+      reservationId: data, status: "held", app, ixis: parsed.data.amount,
+      ...(worldKind ? { kind: worldKind, sellerId: parsed.data.seller_id ?? null, feeBps: WORLD_FEE_BPS } : {}),
+    },
+    { status: 201 },
+  );
 }
