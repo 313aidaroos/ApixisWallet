@@ -102,3 +102,7 @@ Entry format:
 - Changed: `lib/api/marketplace.ts`, `app/api/v1/marketplace/orders/route.ts`, `app/api/v1/marketplace/orders/[id]/settle/route.ts`, `sdk/apixis-wallet.ts` (3.2), new `supabase/migrations/014_world_orders.sql`, `supabase/tests/60_world_orders_test.sql`, `test/world-orders.test.ts`, `docs/WORLD_ECONOMY_CUTOVER.md`, `docs/INTEGRATION.md` §8b, `AGENTS.md` §5, `NOTES/GROK.md`, `WORKBOARD.md`.
 - Why: Apixis.dev in-world spending must use the one shared Wallet. Adds `world_trade` (agent → agent, pinned counterparty, 5% fee locked) and `world_purchase` (agent → platform sink) on the existing hold/settle/release path. No path that creates Ixis; reconciliation of in-world balances is a plan only, awaiting Awad.
 
+
+## 2026-10-04 — Grok (Wallet Lead)
+- Changed: `app/layout.tsx` — main UI font Special Elite → Inter (`next/font/google`, system sans fallback); `NOTES/GROK.md`, `WORKBOARD.md`.
+- Why: Awad asked for a different font on the Wallet site and left the choice to us. Layout, colours and the "Apixis Wallet" name are unchanged.

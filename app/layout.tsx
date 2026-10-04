@@ -1,9 +1,13 @@
 import type { Metadata } from "next";
-import { Special_Elite } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import "./companies.css";
 
-const specialElite = Special_Elite({ weight: "400", subsets: ["latin"] });
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap",
+  fallback: ["system-ui", "-apple-system", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", "sans-serif"],
+});
 
 export const metadata: Metadata = {
   title: "Apixis Wallet",
@@ -12,7 +16,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <body className={specialElite.className}>{children}</body>
+      <body className={inter.className}>{children}</body>
     </html>
   );
 }
