@@ -110,4 +110,4 @@ Entry format:
 ## 2026-10-04 — Grok (Wallet Lead)
 - Changed: `lib/owners.ts` (owner list `OWNER_EMAILS` = awad@apixis.dev + alaidaroosawad@gmail.com, plus `ALLOWED_EMAIL` / optional `ALLOWED_EMAILS`; `isMasterUser` / `masterAccess` require a confirmed email), `app/api/admin/audit/route.ts`, `app/login/actions.ts`, `app/login/page.tsx` (hint text), new `test/owners.test.ts`, `AGENTS.md`, `NOTES/GROK.md`, `WORKBOARD.md`.
 - Why: Awad's 2026-10-04 rule — both emails are master/owner admins with full control. Unverified signups for either address get nothing. No SQL, RLS or env change.
-
+- Follow-up (notes only): recorded #47 merge `54ac001`, prod deploy READY, undo `git revert 54ac001`.

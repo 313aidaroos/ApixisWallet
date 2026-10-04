@@ -174,5 +174,6 @@ The entries below record the day's observed commits and merged PRs. Existing det
 - Env: none needed. Out of scope: awad-command's own `ALLOWED_EMAIL` (scripts/launch/companies.ts lists it for that repo) — its hub admin check needs the same change there.
 - Tests: `test/owners.test.ts` (both emails, case/whitespace, unconfirmed denied, other/look-alike emails denied, 401/403/ok, ALLOWED_EMAIL + ALLOWED_EMAILS additive).
 - Who: Wallet Lead (Grok). Branch `grok/wallet-second-owner`.
-- Undo: `git revert <merge sha>` (restores the single `ALLOWED_EMAIL` check). No DB or env to undo.
+- Shipped: PR #47, squash `54ac0015f3adecd7bf59dd3ab5154f2dbc6c2e47` merged 6:27 PM CT (CI app + ledger-sql green); prod `dpl_GaThXhK3iCRhudRzymgU7rqhyvXA` READY 6:27:55 PM CT (live: unauthenticated `/api/admin/audit` → 401).
+- Undo: `git revert 54ac0015f3adecd7bf59dd3ab5154f2dbc6c2e47` (restores the single `ALLOWED_EMAIL` check). No DB or env to undo.
 
