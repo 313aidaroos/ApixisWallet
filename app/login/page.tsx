@@ -22,7 +22,7 @@ const LEDES: Record<Mode, string> = {
   magic: "One account for Apixis Wallet, Apixis.dev and every Apixis company.",
   password: "One account for Apixis Wallet, Apixis.dev and every Apixis company.",
   signup: "One Apixis ID works on every family site.",
-  master: "Use awad@apixis.dev and choose the password you want.",
+  master: "Use awad@apixis.dev or alaidaroosawad@gmail.com and choose the password you want. Confirm the email before master access works.",
   forgot: "Enter your Apixis ID email. We will send a link to choose a new password.",
 };
 

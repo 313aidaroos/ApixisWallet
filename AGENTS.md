@@ -185,7 +185,7 @@ The ledger is the accounting truth. `audit_events` is the evidence around it.
 | `redeem` | `POST /api/v1/redeem` | user, email, product, Ixis, IP |
 | `hold_expiry_sweep` | cron | count released |
 
-- **Export (master account only, confirmed email = `ALLOWED_EMAIL`):**
+- **Export (master accounts only: confirmed email on the owner list in `lib/owners.ts` = `awad@apixis.dev`, `alaidaroosawad@gmail.com`, plus optional `ALLOWED_EMAIL` / comma-separated `ALLOWED_EMAILS`):**
   `GET /api/admin/audit?from=2026-09-01&to=2026-10-01&type=purchase&email=…&app=…&format=csv` (10,000 rows per page; page with `before_id`).
 - **Invoices:**
   - Stripe email receipts are free: turn on Stripe → Settings → Customer emails → Successful payments. Receipt URLs are stored either way.
@@ -307,7 +307,7 @@ const r = await redeemProduct("renoxis.agent.monthly"); // { ok } | { ok:false, 
      ```
    - Known hits: 12 hand-credited test/seed `purchase` rows from 2026-09-22/23 (79,300 Ixis), all on Awad's or test accounts. Kept, not clawed back; listed in `docs/FAMILY_STATUS.md` → "Hand-credited test/seed Ixis". **Revenue** = `purchase` rows whose `external_id` starts `evt_` only; never count these, payouts or welcome grants.
 4. [ ] **Vercel env:** set `CRON_SECRET` and `TERMS_VERSION`, and make sure all `STRIPE_*` and Supabase vars are set in Production. The Stripe restricted key needs Checkout Sessions (write), PaymentIntents and Charges (read), and Invoices (write, only if `STRIPE_CREATE_INVOICES=true`).
-4b. [ ] **Supabase Auth:** email confirmation ON, so nobody can register an unverified `ALLOWED_EMAIL` or someone else's address.
+4b. [ ] **Supabase Auth:** email confirmation ON, so nobody can register an unverified owner email (`lib/owners.ts`) or someone else's address.
 5. [ ] **Stripe webhook events:** `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `checkout.session.async_payment_failed`, `charge.refunded`, `charge.dispute.closed`.
 6. [ ] **Per-site keys:** issue one per sister site (`npm run api-key`), put it in that site's `WALLET_API_KEY`, copy SDK v2 into each site. When all are moved, set `WALLET_ALLOW_LEGACY_SERVICE_KEY=false` and rotate the Supabase secret key (the old one was shared with every site).
 7. [ ] **Test-mode rehearsal** end to end: buy Spark → credited once → redeem → entitlement → refund → Ixis removed.

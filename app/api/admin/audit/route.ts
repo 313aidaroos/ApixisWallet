@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAuthenticatedUser } from "@/lib/supabase/server";
 import { createServiceSupabase } from "@/lib/supabase/service";
-import { isMasterEmail } from "@/lib/owners";
+import { masterAccess } from "@/lib/owners";
 import { toCsv } from "@/lib/csv";
 
 export const runtime = "nodejs";
@@ -18,7 +18,8 @@ const COLUMNS = [
 ] as const;
 
 /**
- * Legal / accounting export of public.audit_events. Master account only (ALLOWED_EMAIL, confirmed).
+ * Legal / accounting export of public.audit_events. Master accounts only (lib/owners: awad@apixis.dev, alaidaroosawad@gmail.com
+ * + ALLOWED_EMAIL/ALLOWED_EMAILS), confirmed email on a server-verified Supabase session.
  *   /api/admin/audit?from=2026-09-01&to=2026-10-01&type=purchase&email=a@b.co&app=renoxis&format=csv
  * `from` inclusive, `to` exclusive (ISO dates or timestamps, UTC). Max 10,000 rows per request;
  * page with `before_id` (the smallest `id` you received).
@@ -30,8 +31,9 @@ export async function GET(request: Request) {
   } catch {
     return NextResponse.json({ error: "Supabase auth is not configured" }, { status: 503 });
   }
-  if (!user) return NextResponse.json({ error: "Sign in required" }, { status: 401 });
-  if (!user.emailConfirmed || !isMasterEmail(user.email)) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  const access = masterAccess(user);
+  if (access === 401) return NextResponse.json({ error: "Sign in required" }, { status: 401 });
+  if (access === 403) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const url = new URL(request.url);
   const params = url.searchParams;

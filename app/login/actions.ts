@@ -5,7 +5,7 @@ import { createClient } from "@supabase/supabase-js";
 import { cookies, headers } from "next/headers";
 import { safeLocalRedirect } from "@/lib/apixis-redirect";
 import { resetRedirectUrl } from "@/lib/auth-reset";
-import { isMasterEmail, MASTER_EMAIL } from "@/lib/owners";
+import { isMasterEmail } from "@/lib/owners";
 import { createServiceSupabase } from "@/lib/supabase/service";
 import { clientContext, ensureSignupGrant } from "@/lib/signup-grant";
 
@@ -76,7 +76,8 @@ export async function signup(form: FormData): Promise<LoginResult> {
   if (error) return { message: error.message };
   // Email confirmation off: already signed in, carry on to `next`.
   if (data.session) return { redirectTo: next };
-  if (isMasterEmail(email) || email === MASTER_EMAIL) {
+  // Wording only. Master access is granted later, and only to a confirmed session (lib/owners isMasterUser).
+  if (isMasterEmail(email)) {
     return { message: "Master account created. If email confirm is on, open the mail, then sign in with this password." };
   }
   return { message: "Account created. Confirm your email (the link brings you back here), then sign in." };
