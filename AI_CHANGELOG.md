@@ -88,3 +88,7 @@ Entry format:
 ## 2026-10-04 (feed tips) — Grok (Wallet Lead)
 - Changed: `lib/api/marketplace.ts` (`kind` "order"|"tip", `MIN_TIP_IXIS=10`, `minOrderIxis()`, `marketplaceOrderSchema`), `app/api/v1/marketplace/orders/route.ts`, `sdk/apixis-wallet.ts` (`marketplaceOrder({ kind })`), `test/marketplace.test.ts`, `docs/INTEGRATION.md`, `AGENTS.md`, `NOTES/GROK.md`, `WORKBOARD.md`.
 - Why: Awad's Oct 4 feed decisions. Apixis.dev feed tips of 10/50 Ixis were rejected by the 100 Ixis order minimum. Tips now have a 10 minimum, while other orders keep 100. Fee rate and rounding (floor) are unchanged, and there is no migration.
+
+## 2026-10-04 (feed Apixis ID owners) — Grok (Wallet Lead)
+- Changed: `lib/api/caller-owner.ts` (`FEED_CLIENTS = ["apixis"]`, `marketplace` option, cross-site link check, `ownerLinkAudit`), `lib/api/service-auth.ts` (`ServiceCaller.clientName`), `app/api/v1/marketplace/orders/route.ts` and `.../[id]/settle/route.ts` (opt in + `code` on 403 + audit link field), new `test/feed-owner.test.ts`, `test/backend-hardening.test.ts` (fixtures), `docs/INTEGRATION.md` §8, `NOTES/GROK.md`, `WORKBOARD.md`.
+- Why: Awad's one-Apixis-ID lock. The Apixis.dev feed names tip/boost buyers and sellers by Apixis ID, which may come from any family site sign-in. Marketplace routes only. Other clients and endpoints are unchanged, with no migration.

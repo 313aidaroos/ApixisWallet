@@ -24,6 +24,8 @@ export type ServiceCaller = {
   legacy: boolean;
   /** wallet_api_clients.id for per-site keys; null for the legacy key. */
   clientId: string | null;
+  /** wallet_api_clients.name for per-site keys (e.g. "apixis"); null for the legacy key. */
+  clientName: string | null;
   /** Once true (migration 009), this site may only act for users who signed in through Apixis ID. */
   requireSso: boolean;
 };
@@ -84,6 +86,7 @@ export async function authenticateService(
         apps: data.app_slugs as string[],
         legacy: false,
         clientId: data.id as string,
+        clientName: data.name as string,
         requireSso: data.require_sso === true,
       },
     };
@@ -92,7 +95,7 @@ export async function authenticateService(
   const serviceKey = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!serviceKey) return { response: NextResponse.json({ error: "Service configuration missing" }, { status: 503 }) };
   if (legacyServiceKeyAllowed() && sameSecret(token, serviceKey)) {
-    return { caller: { actor: "legacy-service-key", apps: null, legacy: true, clientId: null, requireSso: false } };
+    return { caller: { actor: "legacy-service-key", apps: null, legacy: true, clientId: null, clientName: null, requireSso: false } };
   }
   return { response: unauthorized() };
 }

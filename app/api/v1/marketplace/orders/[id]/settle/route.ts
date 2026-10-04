@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { createServiceSupabase } from "@/lib/supabase/service";
 import { authenticateService } from "@/lib/api/service-auth";
-import { ownerForCaller } from "@/lib/api/caller-owner";
+import { ownerForCaller, ownerLinkAudit } from "@/lib/api/caller-owner";
 import { ledgerErrorResponse } from "@/lib/api/errors";
 import { recordAudit, requestContext } from "@/lib/audit";
 import { DEFAULT_FEE_BPS, MAX_FEE_BPS, marketplaceSplit } from "@/lib/api/marketplace";
@@ -61,9 +61,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     supabase,
     auth.caller,
     { ownerId: parsed.data.seller_id, ownerEmail: parsed.data.seller_email },
-    { create: true },
+    { create: true, marketplace: true },
   );
-  if ("error" in seller) return NextResponse.json({ error: seller.error }, { status: seller.status });
+  if ("error" in seller) return NextResponse.json({ error: seller.error, ...(seller.code ? { code: seller.code } : {}) }, { status: seller.status });
   const sellerId = seller.ownerId;
   if (!sellerId) return NextResponse.json({ error: "seller_email required" }, { status: 400 });
 
@@ -120,7 +120,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       ledger_transaction_id: payoutTx,
       amount_ixis: split.payout,
       ...requestContext(request),
-      details: { marketplace: true, payout_for: captured.data, fee_bps: split.feeBps, fee_ixis: split.fee },
+      details: { marketplace: true, payout_for: captured.data, fee_bps: split.feeBps, fee_ixis: split.fee, ...ownerLinkAudit(seller, "seller") },
     });
   }
 
