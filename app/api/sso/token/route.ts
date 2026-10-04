@@ -4,6 +4,7 @@ import { authenticateService } from "@/lib/api/service-auth";
 import { createServiceSupabase } from "@/lib/supabase/service";
 import { SSO_CODE_PATTERN, hashSsoCode } from "@/lib/sso";
 import { LIMITS, checkLimits } from "@/lib/api/rate-limit";
+import { ensureSignupGrant } from "@/lib/signup-grant";
 
 const bodySchema = z.object({ code: z.string().regex(SSO_CODE_PATTERN), redirect_uri: z.string().url().max(500) });
 
@@ -37,6 +38,11 @@ export async function POST(request: Request) {
   }
   const row = Array.isArray(data) ? data[0] : null;
   if (!row?.user_id) return NextResponse.json({ error: "invalid_grant" }, { status: 400 });
+
+  // Apixis ID welcome grant (1,000 bonus Ixis, once) for people arriving through a product with a live
+  // Wallet session. No-op unless SIGNUP_GRANT_ENABLED; never fails the exchange. The caller here is the
+  // product's server, so there is no end-user IP (domain/global limits still apply).
+  await ensureSignupGrant(supabase, row.user_id, { source: "sso_token", ip: null, userAgent: null, actor: auth.caller.actor });
 
   return NextResponse.json(
     { sub: row.user_id, email: row.email, email_verified: true },

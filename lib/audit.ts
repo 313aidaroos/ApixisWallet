@@ -15,7 +15,9 @@ export type AuditEventType =
   | "release"
   | "redeem"
   | "hold_expiry_sweep"
-  | "payout";
+  | "payout"
+  | "signup_grant" // written inside grant_signup_xp (013)
+  | "signup_grant_revoke"; // written inside revoke_signup_grant (013)
 
 export type AuditEvent = {
   event_type: AuditEventType;

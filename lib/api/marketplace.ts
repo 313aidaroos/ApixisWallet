@@ -1,3 +1,4 @@
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { IDEMPOTENCY_KEY } from "@/lib/api/reserve";
 
@@ -9,9 +10,14 @@ import { IDEMPOTENCY_KEY } from "@/lib/api/reserve";
  * kept back (D12: 5% = 500 bps everywhere). It reuses the hold machinery unchanged:
  *
  *   order  = reserve_xp on the buyer (arbitrary amount, no product key → no entitlement row)
- *   settle = capture_xp on that hold (buyer → clearing), then credit_xp on the seller for
- *            amount − fee. The fee is whatever stays in clearing. Both steps are idempotent by
- *            external id, so a retried settle after a lost response never pays twice.
+ *   settle = capture_xp on that hold (buyer → clearing), then settle_marketplace_payout on the
+ *            seller for amount − fee (migration 013; was credit_xp 'paid'). The fee is whatever
+ *            stays in clearing. Both steps are idempotent by external id, so a retried settle
+ *            after a lost response never pays twice.
+ *
+ * Bonus stays bonus (2026-10-04, hub decision under Awad's locks): free Ixis (the welcome grant,
+ * promos) must never turn into paid Ixis through a sale. The payout is split in the ratio the
+ * buyer's hold was funded — see payoutSplit / PAYOUT_RULE.
  *   cancel = the ordinary /api/v1/reservations/{id}/release.
  */
 
@@ -87,3 +93,80 @@ export const marketplaceOrderSchema = z
   })
   .refine((b) => b.buyer_id || b.buyer_email, { message: "buyer_id or buyer_email required" })
   .refine((b) => b.amount >= minOrderIxis(b.kind ?? "order"), { message: "amount below the minimum for this kind" });
+
+/** Documented in audit rows, so a reader can tell which rule produced a payout. */
+export const PAYOUT_RULE = "proportional_paid_floor_v1";
+
+export type PayoutSplit = { paid: number; bonus: number };
+
+/**
+ * TS mirror of settle_marketplace_payout (013), used by tests and docs. The hold was funded
+ * heldPaid + heldBonus (bonus first at reserve time). The seller gets
+ *   paid  = floor(payout × heldPaid / (heldPaid + heldBonus))
+ *   bonus = payout − paid
+ * so paid ≤ heldPaid always: a settle never creates paid Ixis out of free Ixis. The rounding
+ * remainder (under 1 Ixis) lands in bonus. All-paid holds pay all paid (unchanged behaviour).
+ */
+export function payoutSplit(payout: number, heldPaid: number, heldBonus: number): PayoutSplit {
+  const total = heldPaid + heldBonus;
+  if (![payout, heldPaid, heldBonus].every(Number.isSafeInteger) || payout <= 0 || heldPaid < 0 || heldBonus < 0 || total <= 0 || payout > total) {
+    throw new RangeError("payout must be a positive integer no larger than the hold; hold parts non-negative integers");
+  }
+  const paid = Math.floor((payout * heldPaid) / total);
+  return { paid, bonus: payout - paid };
+}
+
+type PayoutArgs = {
+  reservationId: string;
+  sellerId: string;
+  payout: number;
+  description: string;
+  externalId: string;
+  app: string;
+  actor: string;
+};
+
+export type PayoutResult = { transactionId: string; paid: number; bonus: number } | { error: string };
+
+const MISSING_FUNCTION = new Set(["PGRST202", "42883"]);
+
+/**
+ * Seller payout for a captured hold. Uses settle_marketplace_payout (013). If that function isn't
+ * deployed yet (the few minutes between this deploy and the migration), an all-paid hold falls
+ * back to the old credit_xp 'paid' path under the same idempotency key; a hold with ANY bonus in it
+ * stays `payout_pending` (retryable) rather than paying free Ixis out as paid.
+ */
+export async function settlePayout(supabase: SupabaseClient, args: PayoutArgs): Promise<PayoutResult> {
+  const rpc = await supabase.rpc("settle_marketplace_payout", {
+    p_reservation_id: args.reservationId,
+    p_seller_id: args.sellerId,
+    p_payout: args.payout,
+    p_description: args.description,
+    p_external_id: args.externalId,
+    p_app_slug: args.app,
+    p_actor: args.actor,
+  });
+  if (!rpc.error) {
+    const data = (rpc.data ?? {}) as { transaction_id?: string; paid?: number | string; bonus?: number | string };
+    if (!data.transaction_id) return { error: "no_transaction" };
+    return { transactionId: data.transaction_id, paid: Number(data.paid ?? 0), bonus: Number(data.bonus ?? 0) };
+  }
+  if (!MISSING_FUNCTION.has(rpc.error.code ?? "")) return { error: rpc.error.code ?? "rpc_failed" };
+
+  const funding = await supabase.from("ledger_entries").select("bucket, amount").eq("transaction_id", args.reservationId).in("bucket", ["paid", "bonus"]);
+  if (funding.error) return { error: "funding_lookup_failed" };
+  const heldBonus = (funding.data ?? []).filter((row) => row.bucket === "bonus").reduce((sum, row) => sum - Number(row.amount), 0);
+  if (heldBonus !== 0) return { error: "bonus_payout_needs_migration_013" };
+
+  const legacy = await supabase.rpc("credit_xp", {
+    p_owner_id: args.sellerId,
+    p_amount: args.payout,
+    p_bucket: "paid",
+    p_description: args.description,
+    p_external_id: args.externalId,
+    p_app_slug: args.app,
+    p_expires_at: null,
+  });
+  if (legacy.error) return { error: legacy.error.code ?? "credit_failed" };
+  return { transactionId: legacy.data as string, paid: args.payout, bonus: 0 };
+}

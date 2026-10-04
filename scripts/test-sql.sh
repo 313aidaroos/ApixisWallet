@@ -38,5 +38,25 @@ wait
   end \$\$;" >/dev/null
 echo "concurrency test: ok (5 of 20 parallel reserves held, no overdraw)"
 
+# Concurrency: 20 parallel welcome grants for one Apixis ID. Exactly one may land (1,000 bonus Ixis).
+GRANTEE=66666666-6666-4666-8666-666666666666
+"${PSQL[@]}" -d "$DB" -c "insert into auth.users (id, email, email_confirmed_at, last_sign_in_at) values ('${GRANTEE}', 'grant-race@example.com', now(), now())" >/dev/null
+for i in $(seq 1 20); do
+  "${PSQL[@]}" -d "$DB" -c "select public.grant_signup_xp('${GRANTEE}', 'race-${i}')" >/dev/null 2>&1 &
+done
+wait
+"${PSQL[@]}" -d "$DB" -At -c "
+  do \$\$
+  declare v record; grants int; rows int;
+  begin
+    select * into v from public.wallet_balances where owner_id = '${GRANTEE}';
+    select count(*) into grants from public.signup_grants where owner_id = '${GRANTEE}';
+    select count(*) into rows from public.ledger_transactions where external_id = 'signup_grant:${GRANTEE}';
+    if v.bonus_xp <> 1000 or grants <> 1 or rows <> 1 then
+      raise exception 'GRANT RACE: bonus % grants % rows %', v.bonus_xp, grants, rows;
+    end if;
+  end \$\$;" >/dev/null
+echo "grant concurrency test: ok (1 of 20 parallel grants landed)"
+
 "${PSQL[@]}" -d postgres -c "drop database if exists ${DB}"
 echo "sql tests: ok"

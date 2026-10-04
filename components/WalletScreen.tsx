@@ -39,7 +39,7 @@ type LogRow = { title: string; meta: string; xp: number };
 
 const KIND_LABEL: Record<string, string> = {
   purchase: "Purchase",
-  bonus: "Bonus",
+  bonus: "Bonus · free Ixis",
   spend: "Redeem",
   refund: "Refund",
   adjustment: "Adjustment",

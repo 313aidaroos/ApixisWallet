@@ -129,7 +129,22 @@ REDEEM (inside Wallet UI)  POST /api/v1/redeem → reserve + capture in one step
 
 REFUND  Stripe charge.refunded (full) or charge.dispute.closed (lost)
         → refund_xp: customer paid −X (can go negative if already spent), once per charge
+
+WELCOME GRANT (013, behind SIGNUP_GRANT_ENABLED — default OFF)
+        first confirmed sign-in (/auth/callback, password login, POST /api/sso/token)
+        → lib/signup-grant.ts ensureSignupGrant → grant_signup_xp: +1,000 BONUS, once per Apixis ID
 ```
+
+**Welcome grant (migration 013, 2026-10-04).** 1,000 Ixis per Apixis ID (Wallet auth user), once, ever.
+- Bucket `bonus`, ledger kind `bonus`, app `wallet`, external id `signup_grant:<owner uuid>`, description "Welcome grant · 1,000 free Ixis for your Apixis ID". Spendable on every family SKU, spent first, non-withdrawable, no fee. Shows on every product's balance pill through `/api/v1/balance` (`available` and `bonus`); app `wallet` rows show in every site's history.
+- Eligibility: confirmed email **and** a real sign-in (`auth.users.last_sign_in_at`), not banned, not a disposable domain (`DISPOSABLE_DOMAINS` + `SIGNUP_GRANT_BLOCKED_DOMAINS`), per-IP / per-domain / global hourly limits. Accounts auto-created by `sister-site-redeem` get nothing until the person actually signs in.
+- Lazy backfill: no cutoff date. Anyone without a grant gets it on their next confirmed sign-in.
+- One per Apixis ID is enforced in SQL: `signup_grants` PK `owner_id`, unique `lower(email)`, unique ledger external id. The amount is a SQL constant (not a parameter). The mint ceiling (1,000,000,000,000 Ixis of outstanding paid+bonus+reserved) is checked in the same transaction, which also writes the `signup_grant` audit row.
+- **Kill switch `SIGNUP_GRANT_ENABLED`**: only `1`/`true`/`on`/`yes` turn it on; unset = OFF. The hub flips it on at the same moment Apixis.dev's in-world starter goes to 0 (otherwise people are granted twice). Never set it from a PR.
+- Claw-back: `revoke_signup_grant(owner, reason, actor)` posts an `adjustment` taking back what's left of the grant (≤ 1,000, never below a zero bonus balance) and audits `signup_grant_revoke`. The person can't be granted again.
+- Stripe refunds (`refund_xp`) only touch `paid`, so they never take the grant.
+
+**Marketplace payouts keep bonus as bonus (013).** Settle pays the seller in the ratio the buyer's hold was funded: `paid = floor(payout × held_paid / held_total)`, `bonus = payout − paid` (rule `proportional_paid_floor_v1`, `settle_marketplace_payout`). Free Ixis can never become paid Ixis through a sale.
 
 **Ledger buckets:**
 - `paid`: bought with cash, never expires.
@@ -150,6 +165,9 @@ REFUND  Stripe charge.refunded (full) or charge.dispute.closed (lost)
 | `release_expired_holds(limit)` | Cron sweep. |
 | `wallet_history(owner, limit, offset)` | One row per transaction, with the change to available and held. |
 | `get_or_create_wallet`, `find_user_id_by_email`, `release_hold_internal` | Helpers. |
+| `grant_signup_xp(owner, source, actor, ip, user_agent)` (013) | Welcome grant: +1,000 bonus once per Apixis ID. Returns `{granted, reason}`. Only `lib/signup-grant.ts` calls it. |
+| `revoke_signup_grant(owner, reason, actor)` (013) | Claw back a welcome grant (adjustment). Idempotent. |
+| `settle_marketplace_payout(reservation, seller, payout, desc, external_id, app, actor)` (013) | Seller side of a marketplace settle; bonus-funded share is paid as bonus. Idempotent on `<hold key>:payout`. |
 
 ### 4b. Legal record: `public.audit_events` (migration 008)
 
@@ -280,10 +298,13 @@ const r = await redeemProduct("renoxis.agent.monthly"); // { ok } | { ok:false, 
      ```sql
      select * from public.ledger_transactions where kind = 'refund' order by created_at;
      ```
-   - Anything not made by the webhook suggests someone minted through the open RPC:
+   - Anything not made by the webhook suggests someone minted through the open RPC. Excluded: welcome grants (`signup_grant:%`, 013) and marketplace payouts (`%:payout`, seller credits funded by a captured hold):
      ```sql
-     select t.* from public.ledger_transactions t where t.kind in ('purchase','bonus') and (t.external_id is null or t.external_id not like 'evt_%');
+     select t.* from public.ledger_transactions t
+      where t.kind in ('purchase','bonus')
+        and (t.external_id is null or (t.external_id not like 'evt\_%' and t.external_id not like 'signup\_grant:%' and t.external_id not like '%:payout'));
      ```
+   - Known hits: 12 hand-credited test/seed `purchase` rows from 2026-09-22/23 (79,300 Ixis), all on Awad's or test accounts. Kept, not clawed back; listed in `docs/FAMILY_STATUS.md` → "Hand-credited test/seed Ixis". **Revenue** = `purchase` rows whose `external_id` starts `evt_` only; never count these, payouts or welcome grants.
 4. [ ] **Vercel env:** set `CRON_SECRET` and `TERMS_VERSION`, and make sure all `STRIPE_*` and Supabase vars are set in Production. The Stripe restricted key needs Checkout Sessions (write), PaymentIntents and Charges (read), and Invoices (write, only if `STRIPE_CREATE_INVOICES=true`).
 4b. [ ] **Supabase Auth:** email confirmation ON, so nobody can register an unverified `ALLOWED_EMAIL` or someone else's address.
 5. [ ] **Stripe webhook events:** `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `checkout.session.async_payment_failed`, `charge.refunded`, `charge.dispute.closed`.
@@ -295,7 +316,7 @@ const r = await redeemProduct("renoxis.agent.monthly"); // { ok } | { ok:false, 
 
 - **Identity is by email until Apixis ID (D4) ships.** The Wallet trusts the email a sister-site *server* sends. Any site that lets people sign up without verifying their email could let someone spend another person's Ixis. Every sister site must send only verified emails. The long-term fix is one shared Apixis ID (a single auth project) or signed identity tokens.
 - **Refunds:** policy is no refunds (D3). If a full refund is issued anyway, or a chargeback is lost, the Ixis are removed even if already spent, so the balance goes negative and redeems are blocked until a top-up. Partial refunds are not applied to the ledger; they're logged for manual handling.
-- **Bonus expiry** is not enforced, so don't sell or grant expiring bonus yet.
+- **Bonus expiry** is not enforced, so don't sell or grant expiring bonus yet. The welcome grant never expires.
 - **Quotes are informational.** A price change between quote and reserve charges the new catalog price.
 - **Rate limiting** is burst protection only (`lib/api/rate-limit.ts`, 2026-09-30): fixed window, in memory,
   per serverless instance — per site key (300 holds/min), per person (30 holds/min across sites,
