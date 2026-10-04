@@ -1,10 +1,21 @@
 Grok Bot (Developer Bot hub + product leads) notes. Every change Grok Bot makes to this product (code, env, database, deploys) gets a dated entry here so Claude, Hermes and Codex stay on the same page.
+
 ## 2026-10-04 summary
 
 - **Grok:** shipped the Socixis catalog SKUs/free packs, feed-tip and cross-site-ID support, the 1,000-Ixis signup grant, world-order contract, font update, and rollout notes.
-- **Wallet lead:** coordinated the signup-grant and world-economy cutovers; the world switch remains off.
-- **Claude/Codex/Hermes/Juno:** Claude merged one notes-only PR today (#48, 6:34 PM CT; see the backfill entry below). Hermes, Codex and Juno had no commits or merged PRs in this repo on 2026-10-04 CT.
+- **Lead:** coordinated the signup-grant and world-economy cutovers; the world switch remains off.
+- **Claude:** merged PR #48 (`dd0bf49`) around 6:30 PM CT, adding the full-portfolio review to `NOTES/CLAUDE.md` and `AI_CHANGELOG.md` (notes/docs only).
+- **Hermes:** no 2026-10-04 commit or merged PR identified in this repository.
+- **Juno:** no 2026-10-04 commit or merged PR identified in this repository.
 
+## Catch-up correction — 2026-10-04 (CT)
+
+Claude activity was present; the earlier “no Claude activity” line was incorrect. Each item below has an undo pointer.
+
+- **Claude, 2026-10-04 6:34 PM CT — PR #48, merge `dd0bf491fbb0c4791e6ebc3d8db12c719717f1a9`:** notes: Claude full-portfolio review 2026-10-04 (NOTES/CLAUDE.md, AI_CHANGELOG, FAMILY_STATUS); added `NOTES/CLAUDE.md` and `AI_CHANGELOG.md` (notes/docs only). Undo: `git revert dd0bf491fbb0c4791e6ebc3d8db12c719717f1a9`.
+- **2026-10-04 6:30 PM CT — 313aidaroos:** `notes: second owner #47 merged (54ac001), prod READY, undo sha (#49)` landed as `ae780bbd34375772843f6549596c0825fbd80244`. Where: commit `ae780bbd34375772843f6549596c0825fbd80244`. Undo: `git revert ae780bbd34375772843f6549596c0825fbd80244`.
+- **PR #49, 2026-10-04 6:30 PM CT, merge `ae780bbd34375772843f6549596c0825fbd80244` (`grok/wallet-second-owner-notes` → `main`):** notes: second owner #47 merged (54ac001), prod READY, undo sha. Undo: `git revert ae780bbd34375772843f6549596c0825fbd80244`.
+- **PR #46, 2026-10-04 6:20 PM CT, merge `40e7534a65132f1a38629325051a58f46e4159d0` (`grok/wallet-font-inter-notes` → `main`):** notes: Inter font #45 merged, undo sha. Undo: `git revert 40e7534a65132f1a38629325051a58f46e4159d0`.
 
 ## 2026-10-04 (CT) — Backfilled by Wallet Lead (Grok): Claude's changes, last 7 days audit
 _Backfilled 2026-10-04 ~6:55 PM CT by Grok (Wallet Lead) on Awad's 6:43 PM CT request. Claude's 2026-09-30 → 2026-10-02 work (#22–#33, migrations 011/012, client rows, PR #4 close) is already in the 09-28 → 10-02 backfill below; only the item(s) missing an entry are added here._
