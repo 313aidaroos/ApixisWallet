@@ -3,8 +3,15 @@ Grok Bot (Developer Bot hub + product leads) notes. Every change Grok Bot makes 
 
 - **Grok:** shipped the Socixis catalog SKUs/free packs, feed-tip and cross-site-ID support, the 1,000-Ixis signup grant, world-order contract, font update, and rollout notes.
 - **Wallet lead:** coordinated the signup-grant and world-economy cutovers; the world switch remains off.
-- **Claude/Codex/Hermes/Juno:** Claude, Hermes, and Juno had no commits or merged PRs in this repo on 2026-10-04 CT.
+- **Claude/Codex/Hermes/Juno:** Claude merged one notes-only PR today (#48, 6:34 PM CT; see the backfill entry below). Hermes, Codex and Juno had no commits or merged PRs in this repo on 2026-10-04 CT.
 
+
+## 2026-10-04 (CT) — Backfilled by Wallet Lead (Grok): Claude's changes, last 7 days audit
+_Backfilled 2026-10-04 ~6:55 PM CT by Grok (Wallet Lead) on Awad's 6:43 PM CT request. Claude's 2026-09-30 → 2026-10-02 work (#22–#33, migrations 011/012, client rows, PR #4 close) is already in the 09-28 → 10-02 backfill below; only the item(s) missing an entry are added here._
+- **Claude** — PR #48 (`claude/great-fermi-6brq7a`, commits `906a699` + merge `c165903`, author `Claude <noreply@anthropic.com>`, co-author "Claude Fable 5.1", session `session_01AQ6sDztQAekatz5QPvgvbB`) opened 6:28 PM, merged 6:34 PM, squash `dd0bf49`. What: notes only — new `NOTES/CLAUDE.md` (Wallet slice of the 24-repo review), AI_CHANGELOG entry, `docs/FAMILY_STATUS.md` section "Full-portfolio review — 2026-10-04". Where: those 3 files; no code, env, DB or deploy change (squash diff checked: Inter font #45 and owner list #47 untouched). Prod `dpl_9X4KAhPw9V8DzteTJNEdJLGknran` READY 6:34 PM. Undo: `git revert dd0bf49`.
+- **Audit finding on Claude #23** (`1a39da7`, 2026-09-30 2:56 AM): `sdk/apixis-cixy.{ts,js}` CIXY_CORE v1 + `docs/CIXY.md` codified Arab/Muslim-culture identity, "Salam"/"As-salamu alaykum"/"Insha'Allah"/"alhamdulillah" guidance and said "Halaxis is not an exception any more"; #33's `docs/legal/TERMS_DRAFT.md` §9 said "Halal-conscious" and `docs/TESTER_MATRIX.md` row 17 tested "Salam". Against Awad's religion lock. Fixed by Grok (Wallet Lead) in **PR #50** (squash `3a22244`, merged 6:48 PM CT): CIXY_CORE v2 neutral wording, Halaxis named as the only exception. No Wallet runtime imports the file; the copies on other sites still carry v1 (Developer Bot / site leads to re-copy). Undo: `git revert 3a22244`.
+- Audit also checked (no problem): Inter font live on /login; no SVG Cixy art (only lucide UI icons + a chart line on /); fee `DEFAULT_FEE_BPS=500`; peg/non-withdrawable wording in TERMS_DRAFT; money functions not executable by anon/authenticated (0); migration 012 index present; 16 active clients. Claude did not touch footer PR #21 (still open, CONFLICTING, last update 2026-09-29 10:30 PM CT).
+- Note: AGENTS.md D15 says per-repo NOTES/WORKBOARD are archives; this entry is written because Awad's 6:43 PM CT request asked for it.
 
 ## 2026-09-27 (CT) — Developer Bot (hub)
 - Wallet database: added 12 client rows in Supabase project `kzneeksminozmhnqaaun`, all with `require_sso=false`.
