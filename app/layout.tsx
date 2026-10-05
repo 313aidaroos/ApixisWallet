@@ -3,6 +3,7 @@ import { DM_Sans, Space_Grotesk, Libre_Caslon_Display } from "next/font/google";
 import "./globals.css";
 import "./wallet.css";
 import "./wallet-integration.css";
+import "./wallet-cyber.css";
 
 const sans = DM_Sans({
   subsets: ["latin"],

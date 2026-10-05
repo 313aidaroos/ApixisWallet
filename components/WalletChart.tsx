@@ -36,7 +36,7 @@ export function WalletChart({
   loadingOlder: boolean;
 }) {
   const [range, setRange] = useState(ranges[0]);
-  const [mode, setMode] = useState<"price" | "activity">("price");
+  const [mode, setMode] = useState<"price" | "activity">("activity");
   const canvas = useRef<HTMLCanvasElement>(null);
   const [hover, setHover] = useState<{ x: number; index: number } | null>(null);
   const data = useMemo(() => {
@@ -88,12 +88,13 @@ export function WalletChart({
         right = w - 60,
         top = 24,
         bottom = h - 50,
+        plotBottom = bottom - 48,
         max = Math.max(1, ...data.bars),
         span = right - left;
       ctx.font = "10px sans-serif";
       ctx.textBaseline = "middle";
       for (let i = 0; i < 5; i++) {
-        const y = top + ((bottom - top) * i) / 4;
+        const y = top + ((plotBottom - top) * i) / 4;
         ctx.beginPath();
         ctx.moveTo(left, y);
         ctx.lineTo(right, y);
@@ -109,24 +110,51 @@ export function WalletChart({
           y,
         );
       }
-      const priceY = top + (bottom - top) / 2;
+      const priceY = top + (plotBottom - top) / 2;
       if (mode === "price") {
-        const fill = ctx.createLinearGradient(0, priceY, 0, bottom);
+        const fill = ctx.createLinearGradient(0, priceY, 0, plotBottom);
         fill.addColorStop(0, "#e9c56725");
         fill.addColorStop(1, "#e9c56700");
         ctx.fillStyle = fill;
-        ctx.fillRect(left, priceY, span, bottom - priceY);
+        ctx.fillRect(left, priceY, span, plotBottom - priceY);
         ctx.beginPath();
         ctx.moveTo(left, priceY);
         ctx.lineTo(right, priceY);
-        ctx.strokeStyle = "#f2d18a";
+        ctx.strokeStyle = "#ffd68a";
         ctx.lineWidth = 2;
         ctx.stroke();
+      } else if (connected) {
+        const points = data.bars.map((value, i) => ({
+          x: left + ((i + 0.5) * span) / 40,
+          y: plotBottom - (value / max) * (plotBottom - top),
+        }));
+        const fill = ctx.createLinearGradient(0, top, 0, plotBottom);
+        fill.addColorStop(0, "#63e9ff50");
+        fill.addColorStop(1, "#63e9ff00");
+        ctx.beginPath();
+        points.forEach((point, i) =>
+          i ? ctx.lineTo(point.x, point.y) : ctx.moveTo(point.x, point.y),
+        );
+        ctx.lineTo(points[points.length - 1].x, plotBottom);
+        ctx.lineTo(points[0].x, plotBottom);
+        ctx.closePath();
+        ctx.fillStyle = fill;
+        ctx.fill();
+        ctx.beginPath();
+        points.forEach((point, i) =>
+          i ? ctx.lineTo(point.x, point.y) : ctx.moveTo(point.x, point.y),
+        );
+        ctx.strokeStyle = "#67ffe6";
+        ctx.lineWidth = 2;
+        ctx.shadowColor = "#67ffe6";
+        ctx.shadowBlur = 7;
+        ctx.stroke();
+        ctx.shadowBlur = 0;
       }
       data.bars.forEach((value, i) => {
-        const barHeight =
-          (value / max) * (mode === "price" ? 32 : bottom - top);
-        ctx.fillStyle = i === hover?.index ? "#c1ffff" : "#68e5ee88";
+        const barHeight = (value / max) * 32;
+        ctx.fillStyle =
+          i === hover?.index ? "#c1ffff" : i % 3 ? "#57e6d85f" : "#b383fbc0";
         ctx.fillRect(
           left + (i * span) / 40 + 1,
           bottom - barHeight,
@@ -168,7 +196,7 @@ export function WalletChart({
     observer.observe(el);
     draw();
     return () => observer.disconnect();
-  }, [data, mode, range, hover, updatedAt]);
+  }, [data, mode, range, hover, updatedAt, connected]);
   const partial = history.length < total;
   return (
     <section
@@ -179,7 +207,7 @@ export function WalletChart({
         <div className="ix-chart-asset">
           <span className="ix-coin">IX</span>
           <div>
-            <strong>Ixis / USD</strong>
+            <strong>{mode === "price" ? "Ixis / USD" : "Ixis activity"}</strong>
             <small>Apixis platform credit</small>
           </div>
         </div>

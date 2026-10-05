@@ -25,10 +25,11 @@ export function GoldCoinRain({ motion }: { motion: boolean }) {
       width = 0,
       height = 0,
       last = 0;
-    const coins = Array.from({ length: 22 }, (_, i) => ({
+    const coins = Array.from({ length: 30 }, (_, i) => ({
       x: (i * 0.61803398875) % 1,
-      y: (i * 0.38196601125) % 1,
-      r: 14 + ((i * 11) % 22),
+      y: (i * 0.41421356237 + 0.17) % 1,
+      r: 19 + ((i * 11) % 30),
+      opacity: 0.3 + (i % 4) * 0.1,
       turn: i * 1.97,
       speed: 0.018 + (i % 7) * 0.003,
     }));
@@ -37,7 +38,7 @@ export function GoldCoinRain({ motion }: { motion: boolean }) {
       const dt = Math.min((time - last) / 1000, 0.05);
       last = time;
       ctx.clearRect(0, 0, width, height);
-      for (const c of coins) {
+      for (const c of coins.slice(0, width < 650 ? 14 : 30)) {
         if (motion && !document.hidden) {
           c.y += dt * c.speed;
           c.turn += dt * 0.3;
@@ -47,7 +48,7 @@ export function GoldCoinRain({ motion }: { motion: boolean }) {
         ctx.translate(c.x * width + Math.sin(c.turn) * 18, c.y * height);
         ctx.rotate(c.turn * 0.28);
         ctx.scale(Math.max(0.16, Math.abs(Math.cos(c.turn))), 1);
-        ctx.globalAlpha = 0.25;
+        ctx.globalAlpha = c.opacity;
         const gradient = ctx.createLinearGradient(-c.r, -c.r, c.r, c.r);
         [
           [0, "#fff3b3"],
@@ -69,6 +70,15 @@ export function GoldCoinRain({ motion }: { motion: boolean }) {
           ctx.beginPath();
           ctx.arc(0, 0, c.r * radius, 0, Math.PI * 2);
           ctx.strokeStyle = radius === 0.83 ? "#7d531c" : "#ffe5a2";
+          ctx.stroke();
+        }
+        for (let i = 0; i < 24; i++) {
+          const a = (i * Math.PI) / 12;
+          ctx.beginPath();
+          ctx.moveTo(Math.cos(a) * c.r * 0.9, Math.sin(a) * c.r * 0.9);
+          ctx.lineTo(Math.cos(a) * c.r * 0.98, Math.sin(a) * c.r * 0.98);
+          ctx.strokeStyle = "#765019";
+          ctx.lineWidth = 0.7;
           ctx.stroke();
         }
         ctx.font = `700 ${c.r * 0.45}px sans-serif`;

@@ -7,6 +7,7 @@ import {
   useState,
   type CSSProperties,
 } from "react";
+import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   ArrowDownLeft,
@@ -75,9 +76,9 @@ const tabs = [
 ] as const;
 const headings: Record<Tab, [string, string, string]> = {
   home: [
-    "THE APIXIS UNIVERSE",
-    "Your universe. One wallet.",
-    "Every Ixis, every app, every possibility.",
+    "WALLET OVERVIEW",
+    "Welcome to your next move.",
+    "One balance. Every Apixis possibility.",
   ],
   companies: [
     "THE APIXIS FAMILY",
@@ -576,15 +577,24 @@ export function WalletScreen({
       <GoldCoinRain motion={motion} />
       <div className="ix-shell">
         <aside className="ix-side">
-          <div className="ix-brand">
-            <span className="ix-coin">IX</span>
-            <div>
-              <strong>apixis</strong>
-              <small>WALLET</small>
-            </div>
-          </div>
+          <button
+            className="ix-brand"
+            onClick={() => navigate("home")}
+            aria-label="Apixis Wallet home"
+          >
+            <Image
+              className="ix-apixis-logo"
+              src="/brand/apixis-family-logo.png"
+              alt="Apixis Family Company"
+              width={1774}
+              height={887}
+              sizes="180px"
+              priority
+            />
+            <small>WALLET</small>
+          </button>
           <nav className="ix-nav" aria-label="Main navigation">
-            <div className="ix-nav-title">YOUR UNIVERSE</div>
+            <div className="ix-nav-title">YOUR CONTROL CENTER</div>
             {tabs.map((item) => (
               <button
                 key={item.id}
@@ -703,57 +713,116 @@ export function WalletScreen({
             {tab === "companies" && <CompaniesDirectory motion={motion} />}
             {tab === "home" && (
               <>
-                <section className="ix-wallet-strip ix-panel">
-                  <div>
-                    <div className="ix-wallet-label">
-                      YOUR AVAILABLE BALANCE
+                <section className="cyber-hero" aria-label="Wallet overview">
+                  <div className="cyber-copy">
+                    <div className="ix-eyebrow">THE CURRENCY OF YOUR WORLD</div>
+                    <h2>
+                      Big ideas.
+                      <br />
+                      <span>Ixis energy.</span>
+                    </h2>
+                    <p>
+                      Fuel your next creation.
+                      <br />
+                      One wallet for the whole family.
+                    </p>
+                    <div className="cyber-rate">
+                      <i className="ix-led" aria-hidden="true" />
+                      100 IXIS = $1.00
                     </div>
-                    <div className="ix-wallet-value">
+                  </div>
+                  <div className="cyber-coin-stage" aria-hidden="true">
+                    <div className="cyber-orbit" />
+                    <div className="cyber-orbit second" />
+                    <div className="cyber-big-coin">
+                      <div className="cyber-coin-type">
+                        <small>APIXIS FAMILY</small>
+                        <strong>IXIS</strong>
+                        <small>ONE CONNECTED WORLD</small>
+                      </div>
+                    </div>
+                    <div className="cyber-chip">IXIS / DIGITAL CREDIT</div>
+                  </div>
+                  <div className="cyber-balance">
+                    <div className="cyber-balance-label">Available balance</div>
+                    <div className="cyber-balance-value">
                       {connected ? fmt(available) : "—"}
-                      <small>{unit}</small>
+                      <small>{unit.toUpperCase()}</small>
                     </div>
-                    <div className="ix-wallet-eq">
+                    <div className="cyber-balance-eq">
                       {connected
-                        ? `${money(available / 100)} in Apixis credit`
+                        ? `${money(available / 100)} in platform credit`
                         : status === "signedout"
                           ? "Sign in to see your balance"
                           : "Waiting for wallet connection"}
                     </div>
-                  </div>
-                  <div className="ix-wallet-split">
-                    <span>
-                      Purchased <b>{balance ? fmt(balance.paid) : "—"}</b>
-                    </span>
-                    <span>
-                      Bonus credits <b>{balance ? fmt(balance.bonus) : "—"}</b>
-                    </span>
-                    <span>
-                      On hold <b>{balance ? fmt(balance.reserved) : "—"}</b>
-                    </span>
-                  </div>
-                  <div className="ix-wallet-actions">
-                    <button
-                      className="ix-button ix-primary"
-                      onClick={() => navigate("buy")}
-                    >
-                      <Plus />
-                      Buy Ixis
-                    </button>
-                    <button
-                      className="ix-button"
-                      onClick={() => navigate("redeem")}
-                    >
-                      Redeem <ArrowUpRight />
-                    </button>
+                    <div className="cyber-balance-actions">
+                      <button
+                        className="ix-button ix-primary"
+                        onClick={() => navigate("buy")}
+                      >
+                        <Plus />
+                        Buy Ixis
+                      </button>
+                      <button
+                        className="ix-button"
+                        onClick={() => navigate("redeem")}
+                      >
+                        Redeem <ArrowUpRight />
+                      </button>
+                    </div>
+                    <div className="cyber-balance-note">
+                      Your purchased Ixis never expire
+                    </div>
                   </div>
                 </section>
+                <div className="cyber-metrics">
+                  {[
+                    {
+                      label: "Purchased",
+                      value: balance?.paid,
+                      color: "#7ff7e1",
+                    },
+                    {
+                      label: "Bonus credits",
+                      value: balance?.bonus,
+                      color: "#d0a4ff",
+                    },
+                    {
+                      label: "On hold",
+                      value: balance?.reserved,
+                      color: "#ffce89",
+                    },
+                  ].map((metric) => (
+                    <div
+                      className="cyber-metric"
+                      style={{ "--metric": metric.color } as CSSProperties}
+                      key={metric.label}
+                    >
+                      <small>{metric.label}</small>
+                      <strong>
+                        {metric.value === undefined ? "—" : fmt(metric.value)}
+                        <span>{unit.toUpperCase()}</span>
+                      </strong>
+                    </div>
+                  ))}
+                  <div
+                    className="cyber-metric"
+                    style={{ "--metric": "#86b6ff" } as CSSProperties}
+                  >
+                    <small>One connected family</small>
+                    <strong>
+                      15<span>COMPANIES</span>
+                    </strong>
+                  </div>
+                </div>
                 <div className="ix-market-grid">
                   {chart}
                   {stream}
                 </div>
                 <section className="ix-section">
                   <div className="ix-section-title">
-                    <h2>Go beyond your wallet.</h2>
+                    <h2>Enter the Apixis universe.</h2>
                     <button
                       className="ix-text-button"
                       onClick={() => navigate("companies")}
