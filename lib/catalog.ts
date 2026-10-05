@@ -1,4 +1,4 @@
-// Change note (Grok, Oct 2026): Socixis paid avatar renders (45s/60s/90s/120s) added; free avatar videos are capped at 30s (no paid 30s SKU); Socixis avatar base and site packs are free (freeCatalog, no Wallet charge) per Awad 2026-10-04. Skins and the all-skins pack still sell. See docs/LAUNCH_NOTES.md.
+// Change note (Grok, Oct 2026): Socixis paid avatar renders (45s/60s/90s/120s) and Content Studio image generation (socixis.image.generate, 25 Ixis) added; free avatar videos are capped at 30s (no paid 30s SKU); Socixis avatar base and site packs are free (freeCatalog, no Wallet charge) per Awad 2026-10-04. Skins and the all-skins pack still sell. See docs/LAUNCH_NOTES.md.
 /** 100 Ixis = $1. Same SKU prices on every apple. */
 export const pointPacks = [
   { id: "spark", name: "Spark", price: 10, xp: 1000, bonus: 0 },
@@ -33,6 +33,8 @@ export const redeemCatalog = [
   { key: "socixis.avatar.render.60s", app: "Socixis", name: "Avatar video: 60s render", xp: 2000, color: "#ff8a3d", includes: "One avatar video up to 60s · $20" },
   { key: "socixis.avatar.render.90s", app: "Socixis", name: "Avatar video: 90s render", xp: 3000, color: "#ff8a3d", includes: "One avatar video up to 90s · $30" },
   { key: "socixis.avatar.render.120s", app: "Socixis", name: "Avatar video: 120s render", xp: 4000, color: "#ff8a3d", includes: "One avatar video up to 120s · $40" },
+  // Content Studio "Generate image" (Socixis PR #67): consumable, no `days`: one reserve → capture per image, release on failure (Wallet Lead, 2026-10-04).
+  { key: "socixis.image.generate", app: "Socixis", name: "Content Studio image", xp: 25, color: "#ff6bce", includes: "One generated brand image · $0.25 (per-use, floor-exempt)" },
   { key: "recovra.intel.monthly", app: "Recovra", name: "Recovery Intelligence · Starter", xp: 22000, color: "#58c8ff", includes: "Seat + 120 extracts · $220/mo", days: 30 },
   { key: "recovra.intel.growth", app: "Recovra", name: "Recovery Intelligence · Growth", xp: 44000, color: "#58c8ff", includes: "Multi-module · workflows · reporting · $440/mo", days: 30 },
   { key: "deduxis.receipts.monthly", app: "Deduxis", name: "Receipt Intelligence", xp: 15000, color: "#ffbd59", includes: "Seat + 200 receipts", days: 30 },
