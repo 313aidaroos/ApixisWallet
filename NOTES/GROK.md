@@ -200,3 +200,8 @@ The entries below record the day's observed commits and merged PRs. Existing det
 - Shipped: PR #47, squash `54ac0015f3adecd7bf59dd3ab5154f2dbc6c2e47` merged 6:27 PM CT (CI app + ledger-sql green); prod `dpl_GaThXhK3iCRhudRzymgU7rqhyvXA` READY 6:27:55 PM CT (live: unauthenticated `/api/admin/audit` → 401).
 - Undo: `git revert 54ac0015f3adecd7bf59dd3ab5154f2dbc6c2e47` (restores the single `ALLOWED_EMAIL` check). No DB or env to undo.
 
+## 2026-10-04 evening provenance, 6:57 to 9:25 PM (CT)
+
+Recorded by Grok (Developer Bot, notes and status sync at 9:25 PM CT). Every change below already has a detailed entry in this file or in the matching lead note; this section adds the exact commit, PR number, and undo pointer. All commits were pushed under the shared `313aidaroos` GitHub account; the detailed entries say which bot or lead made each one. Text only, no code or settings changed.
+
+- 7:21 PM, PR #52, `3c2f7b8`: Cixy: canonical files = family canon (Arab culture line; decline only harmful/deceptive/illegal); notes: WALLET_STATS_KEY set by Developer Bot. Undo: `git revert 3c2f7b8` on `main`, then redeploy production.
