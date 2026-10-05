@@ -48,6 +48,17 @@ describe("Socixis catalog", () => {
     assert.equal(findCatalogProduct("socixis.avatar.render.30s"), undefined);
   });
 
+  it("sells Content Studio image generation (socixis.image.generate) at 25 Ixis per image, as Socixis PR #67 sends it", () => {
+    const socixis: string[] = productsForDestination("socixis").map((p) => p.key);
+    const product = findCatalogProduct("socixis.image.generate");
+    assert.ok(product, "socixis.image.generate");
+    assert.equal(product.key, "socixis.image.generate");
+    assert.equal(product.xp, 25);
+    assert.equal(product.app, "Socixis");
+    assert.equal((product as { days?: number }).days, undefined, "per image, not a period");
+    assert.ok(socixis.includes("socixis.image.generate"));
+  });
+
   it("still sells the Socixis products Socixis delivers: Autopilot, skins and the all-skins pack", () => {
     const socixis: string[] = productsForDestination("socixis").map((p) => p.key);
     for (const key of [
