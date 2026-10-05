@@ -57,6 +57,14 @@ No pending changes.
 
 ## What changed, file by file
 
+### 2026-10-04: Socixis Content Studio image SKU (Wallet Lead, approved Socixis freeze exception, 10:45 PM CT)
+
+| File | Change |
+|---|---|
+| `lib/catalog.ts` | Added `socixis.image.generate` (25 Ixis, consumable) to `redeemCatalog`, matching Socixis PR #67 (`redeem()` → reserve/capture/release on that key). |
+| `test/held-catalog.test.ts` | New SKU at 25 Ixis, app Socixis, no `days`. |
+| `docs/INTEGRATION.md` | Table row. |
+
 ### 2026-10-04 (follow-up): 45s and 60s avatar render SKUs (Grok, Awad scope update 4:38 PM CT)
 
 | File | Change |

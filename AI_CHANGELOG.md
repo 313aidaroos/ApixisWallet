@@ -128,6 +128,10 @@ Entry format:
 - Changed: `sdk/apixis-cixy.ts`, `sdk/apixis-cixy.js`, `docs/CIXY.md` now byte-identical to Developer Bot's family canon (character line "draws on Arab culture"; the recommendations rule becomes "decline only what is genuinely harmful, deceptive or illegal, never on religious grounds"). `NOTES/GROK.md`: Developer Bot set `WALLET_STATS_KEY` on Production (redeploy dpl_GT9SVmHT2cffxib1jsprVhVwS8Bv). Live check: summary returns 401 without a key. awad-command still lacks the var. `WORKBOARD.md` line.
 - Why: Awad's 7:18 PM CT follow-up (one Cixy across the family; record the env change). No SQL, no env change by Wallet Lead, no runtime code. Undo: revert this PR's squash commit.
 
+## 2026-10-04 — Wallet Lead
+- Changed: `lib/catalog.ts`: added `socixis.image.generate` (25 Ixis, consumable) to `redeemCatalog` for Socixis Content Studio "Generate image" (Socixis PR #67). Test `test/held-catalog.test.ts`; docs `INTEGRATION.md`, `LAUNCH_NOTES.md`; `NOTES/GROK.md`, `WORKBOARD.md`. No fee logic change (catalog spends take no FEE_BPS).
+- Why: approved Socixis exception during tonight's freeze, so Socixis image charges start with no Socixis change. Undo: `git revert` this PR's squash commit.
+
 ## 2026-10-04 — Codex: approved Wallet design integration
 - Integrated Awad's approved futuristic preview into the existing eight Wallet tabs, with a shared navy/gold/cyan theme, responsive layout, Canvas gold Ixis rain, motion controls, and reduced-motion support.
 - Matched Apixis Companies to apixis.dev: original 15 companies, descriptions, destinations, scene artwork, colored borders and serif headings. Added the approved Higgsfield video animations, loaded near the viewport with original-art fallbacks. Videos pause offscreen, in hidden tabs, and when motion is disabled; no SVG company illustrations or SVG animations.
