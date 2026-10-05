@@ -219,3 +219,12 @@ Recorded by Grok (Developer Bot, notes and status sync at 9:25 PM CT). Every cha
 - Where: `lib/catalog.ts`, `test/held-catalog.test.ts`, `docs/INTEGRATION.md`, `docs/LAUNCH_NOTES.md`, `AI_CHANGELOG.md`, `WORKBOARD.md`. Branch `grok/socixis-image-generate`. Who: Wallet Lead. Not touched: fees, Stripe, checkout, webhook, ledger SQL, env, DB, other products.
 - Merged: PR #54, squash `5995ee5` (10:51 PM CT); prod `dpl_CWA4TuFzqjJwRMFavnZFds9oMajr` READY 10:51 PM CT. Live check: unauthenticated `POST /api/v1/quotes {"productKey":"socixis.image.generate"}` → `xp: 25`, app `Socixis`.
 - Undo: `git revert 5995ee5` on `main` (or promote the previous production deployment in Vercel). Socixis then gets 404 again and falls back to unbilled generation; already-captured image receipts stay as they are.
+
+## 2026-10-05 overnight provenance, Oct 4 9:35 PM to Oct 5 12:25 AM (CT)
+
+Recorded by Grok (Developer Bot, notes and status sync at 12:25 AM CT on Oct 5). Each change below either has its own detailed entry earlier in this file (written by whoever made it) or is described here. Commits under the shared `313aidaroos` account were made by the bot or lead named in the detailed entry. Every production deployment for this repo was Ready at the time of this sync. Text only, no code or settings changed.
+
+- Oct 4 10:29 PM, PR #53, `405f60a`: notes: Apixis ID provider signup confirmed (no code change). Undo: nothing to undo in code; edit or delete the note text.
+- Oct 4 10:51 PM, PR #54, `5995ee5`: Catalog: Socixis Content Studio image SKU socixis.image.generate (25 Ixis). Undo: `git revert 5995ee5` on `main`, then redeploy production.
+- Oct 4 10:55 PM, PR #55, `b61a873`: notes: socixis.image.generate SKU done (#54, no code change). Undo: nothing to undo in code; edit or delete the note text.
+- Oct 4 11:17 PM, PR #56, `84a561c`: Apply approved cyber Wallet design and Apixis logo. Made by Codex: approved Cyber Design 02 Wallet look and the official Apixis logo across all eight Wallet tabs (front end only; no backend, database, catalog, package or env changes). Detailed entry is in `AI_CHANGELOG.md`, not in this file. Undo: `git revert 84a561c` on `main`, then redeploy production.

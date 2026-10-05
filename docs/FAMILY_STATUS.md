@@ -1,6 +1,6 @@
 # Apixis family — status board (one page, every AI reads this first)
 
-**Owner:** Awad (313aidaroos). **Rules:** `AGENTS.md` §0 (D1–D16). **Last updated: 2026-10-04 9:25 PM CT, notes and status sync (Grok); before that 2026-10-04 night, full-portfolio review (Claude).** Owner to-do: **`docs/OWNER_CHECKLIST.md`**. Keys go in with the launch kit: **`docs/LAUNCH_KIT.md`** (`npm run launch`). Previous brief: `docs/MORNING_BRIEF_2026-10-01.md`.
+**Owner:** Awad (313aidaroos). **Rules:** `AGENTS.md` §0 (D1–D16). **Last updated: 2026-10-05 12:25 AM CT, notes and status sync (Grok); before that 2026-10-04 9:25 PM CT, notes and status sync (Grok).** Owner to-do: **`docs/OWNER_CHECKLIST.md`**. Keys go in with the launch kit: **`docs/LAUNCH_KIT.md`** (`npm run launch`). Previous brief: `docs/MORNING_BRIEF_2026-10-01.md`.
 
 This is the only family-wide status board (D15). Per-repo `NOTES/*.md`, `JUNOAI_NOTES.md`, `WORKBOARD.md`
 and `LAUNCH_NOTES.md` are archives. If you change family status, change it here. Every code change: `AI_CHANGELOG.md` in that repo.
@@ -16,29 +16,29 @@ and `LAUNCH_NOTES.md` are archives. If you change family status, change it here.
 - **Welcome grant (D11, Wallet migration 013):** 1,000 free Ixis per Apixis ID, once, in the shared Wallet's bonus bucket, on the first confirmed sign-in (lazy backfill, no cutoff). Shows on every balance pill via `/api/v1/balance`. Live in Wallet Production with `SIGNUP_GRANT_ENABLED=true`; Apixis.dev's in-world visitor starter is 0.
 - **Cixy:** one persona, `sdk/apixis-cixy.*` (`docs/CIXY.md`). Product role is the only site-specific text. Brain down → calm 503, never a vendor error.
 
-## 2026-10-04 current product status, 9:25 PM CT (Grok notes sync)
+## 2026-10-05 current product status, 12:25 AM CT (Grok notes sync)
 
-Shared status: the Socixis Social Feed tab is now live on all 16 family sites (every site except AwadBot and AWAD COMMAND; ApixisWallet has no feed tab). Awad approved the go-live at 7:13 PM CT; the "Feed tab" and "Feed visual fixes" PRs merged at about 7:17 PM CT, and a 9:25 PM CT check found every `/feed` page answering 200 (Geoxis lives at `spatial-dashboard-xi.vercel.app/feed`). Every site's latest production deployment is Ready. The 1,000-Ixis signup grant is live in ApixisWallet Production. The "Cixy persona v2 sync" PRs (no religious wording outside Halaxis; Ominix links now point to `ominix-app.vercel.app`) merged on 14 repos plus PersonalContentBot between 7:06 and 7:16 PM CT. The world-economy Wallet switch is built behind `WORLD_WALLET_ECONOMY` and remains **off**. Awad's two emails (`alaidaroosawad@gmail.com` and `awad@apixis.dev`) are the family master-admin allowlist. No commits landed in any repo between 7:27 and 9:25 PM CT.
+Shared status: Apixis ID is now the only way to create a new account on every family site except AwadBot and AWAD COMMAND. Between 10:29 and 10:30 PM CT on Oct 4, PRs on 14 repos removed the last email-only signup paths (people who already have email accounts can still sign in), and Renoxis and Geoxis re-verified theirs with no code change. The Socixis Social Feed tab stays live on all 16 sites (spot-checked at 12:25 AM CT: `socixis.dev/feed` and `spatial-dashboard-xi.vercel.app/feed` answer 200). Every family site's latest production deployment is Ready; the only failed deployment in the last few hours is a throwaway Vercel project named `temporary-turbo-sienna-p6yqsjd`, which is not a family product. The 1,000-Ixis signup grant is live in the Wallet, the world-economy Wallet switch (`WORLD_WALLET_ECONOMY`) remains **off**, and Awad's two emails remain the master-admin allowlist.
 
-- **AidaroosHolding:** Feed live with the visual fixes; footer now has "Other Ixis companies" and a PNG logo mark (PR #13). Open: Supabase sign-in and owner workspace setup.
-- **Apixis.dev:** Shared feed backend and Feed page live with visual fixes; 1,000-Ixis wording and Apixis-ID-only signup shipped (PR #79); Cixy v2 synced (PR #80); old Stripe webhook retired and now answers 410 (PR #81). Open: none recorded.
-- **ApixisWallet:** Signup grant live; Cixy canon files match the family canon (PR #52); `WALLET_STATS_KEY` set on Production by Developer Bot. Open: Awad's world-economy switch approval; the same `WALLET_STATS_KEY` still has to be set on the `awad-command` project. The custom domain `wallet.apixis.dev` is still not in DNS (deferred until Awad reopens DNS); production is `apixis-wallet.vercel.app`.
-- **Renoxis.dev:** Feed live with visual fixes; Apixis-ID-only signup and the "draws on Arab culture" Cixy line merged (PR #43, by hub decision) plus the Cixy v2 follow-up (PR #44). Open: none recorded.
-- **Rawixis.dev:** Feed live with visual fixes; Apixis-ID-only signup (PR #49) and Cixy v2 (PR #50) merged. Open: legal review and end-to-end marketplace verification.
-- **Wattixis:** Feed live with visual fixes; Cixy v2 merged (PR #23). Open: final launch and fixture approvals.
-- **Pinixis:** Feed live with visual fixes; Cixy v2 merged (PR #19). Open: Stripe/Connect keys and acting-feed linkage.
-- **Socixis:** Feed live with visual fixes (PR #63); lock-compliance fix merged (PR #65) and `platform_cut` default set to 500 (5%) by Socixis Lead. Open: paid renders stay locked until Awad says otherwise.
-- **Contraxis.dev:** Feed tab live (PR #53); Cixy v2 merged (PR #56). Open: Supabase email-confirmation setting.
-- **Halaxis.dev:** Feed tab live (PR #22); Cixy v2 merged (PR #24; religious rules stay only here, with Hala). Open: Tavily key.
-- **Lyrixis:** Feed tab live (PR #25); Cixy v2 merged (PR #30). Open: Redis and transcription key; upload-worker work not merged.
-- **Deduxis:** Feed tab live (PR #23); Cixy v2 merged (PR #26). Open: none recorded.
-- **Recovra:** Feed tab live (PR #24); Cixy v2 merged (PR #26). Open: production service key.
-- **Geoxis:** Feed tab live (PR #19); Apixis-ID-only signup (PR #22), Claude-review fixes (PR #21), Cixy v2 (PR #23), and full Ixis family footer (PRs #7, #25) merged. Open: none recorded.
-- **Launchixis:** Feed tab live (PR #20); Cixy v2 merged (PR #22); Cixy brain fixed so it answers again (PR #23, production smoke-checked). Open: none recorded.
-- **Ominix:** Feed tab live (PR #13); Cixy v2 merged (PR #16). Open: none recorded.
-- **qahwahworld:** Feed tab live (PR #20); Cixy v2 merged (PR #22). Open: none recorded.
-- **awad-command:** Internal HQ, no feed tab. Open: set `WALLET_STATS_KEY` on its Vercel project so the wallet views connect (they show "not connected" until then, nothing errors).
-- **AwadBot:** Paper-only trading; no feed tab. Open: keep live trading disabled.
+- **AidaroosHolding:** Apixis-ID-only signup; the old email form now serves existing accounts only (PR #14). Open: Supabase sign-in and owner workspace setup.
+- **Apixis.dev:** Magic link is existing-accounts only (PR #82). Cixy now says the 1,000 welcome Ixis sit in the Wallet and the in-world starter is 0 (Claude daily QA fix). Open: none recorded.
+- **ApixisWallet:** Codex's approved Cyber Design 02 and the official Apixis logo are live on all eight Wallet tabs (PR #56; front end only). New catalog item `socixis.image.generate` at 25 Ixis (PR #54). Open: Awad's world-economy switch approval; `WALLET_STATS_KEY` still has to be set on the `awad-command` project; `wallet.apixis.dev` is still not in DNS, so production stays at `apixis-wallet.vercel.app`.
+- **Renoxis.dev:** Apixis-ID-only signup re-verified (PR #45, notes only). Open: none recorded.
+- **Rawixis.dev:** Unused password-signup action removed (PR #51). Open: legal review and end-to-end marketplace verification.
+- **Wattixis:** Apixis-ID-only signup (PR #24). Open: final launch and fixture approvals.
+- **Pinixis:** Email link is existing-accounts only (PR #20). Hermes restated decision D17: card payments through Pinixis's own Stripe, and Ixis stays off on Pinixis. Open: Stripe/Connect keys, domain and factory emails (owner only), plus world-agent setup on first sign-in.
+- **Socixis:** Rollout push landed. Apixis-ID-only signup (PR #66); real image generation at 25 Ixis (PR #67); real drafts and calendar edit, unschedule and delete, plus brand logo upload and Ixis cost labels (PR #68); a brand-color frame on generated images with an on/off toggle (PR #69); headline lettering that copies the brand's own logo style (PRs #70 to #72); and Instagram Feed, Story or Reel choice in Studio and Calendar (PR #73, merged 12:20 AM CT). Two additive production database columns were added with these (`business_profiles.logo_lettering`, `posts.target_format`). Open: paid video renders stay locked until Awad says otherwise.
+- **Contraxis.dev:** Apixis-ID-only signup (PR #57). Open: Supabase email-confirmation setting.
+- **Halaxis.dev:** Apixis-ID-only signup (PR #25). Open: Tavily key.
+- **Lyrixis:** Apixis-ID-only signup (PR #31). Open: Redis and transcription key; upload-worker work not merged.
+- **Deduxis:** Apixis-ID-only signup (PR #27). Open: none recorded.
+- **Recovra:** Apixis-ID-only signup (PR #27). Open: production service key.
+- **Geoxis:** Apixis-ID-only signup re-verified (PR #26, notes only). Open: none recorded.
+- **Launchixis:** Apixis-ID-only signup (PR #24). Open: none recorded.
+- **Ominix:** Leftover email/password signup form removed (PR #17). Open: none recorded.
+- **qahwahworld:** Apixis-ID-only signup (PR #23); welcome card now says 1,000 starter Ixis instead of 200 (Hermes daily QA). Open: the support form saves tickets but its success message does not show (not a blocker).
+- **awad-command:** Internal HQ, no feed tab, no changes this window. Open: set `WALLET_STATS_KEY` on its Vercel project so the wallet views connect.
+- **AwadBot:** Paper-only trading; no feed tab. Cixy chat fix so it no longer wrongly says the AI key is missing (daily QA, `8742bdd`). Open: keep live trading disabled.
 
 ## Full-portfolio review — 2026-10-04 night (Claude, read-only)
 
