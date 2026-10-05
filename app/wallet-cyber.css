@@ -1,0 +1,1236 @@
+html,
+body {
+  background: #070711 !important;
+}
+body {
+  padding: 0 !important;
+}
+#ix-universe {
+  max-width: none !important;
+  border: 0;
+  border-radius: 0;
+  --ix-bg: #080914;
+  --ix-panel: #131529d9;
+  --ix-line: #33344f;
+  --ix-muted: #a1a5c6;
+  --ix-gold: #ffd783;
+  --ix-cyan: #63f6f0;
+  --ix-violet: #b49aff;
+  --ix-radius: 20px;
+  background:
+    radial-gradient(ellipse at 88% 3%, #5530a74a, transparent 36%),
+    radial-gradient(ellipse at 30% 48%, #06486135, transparent 48%),
+    radial-gradient(ellipse at 95% 95%, #6d23522a, transparent 40%), #080914;
+  font-size: 14px;
+  min-height: 100vh;
+}
+#ix-universe:before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  background-image:
+    linear-gradient(#878fff06 1px, transparent 1px),
+    linear-gradient(90deg, #878fff06 1px, transparent 1px);
+  background-size: 52px 52px;
+  mask-image: linear-gradient(#000, transparent 90%);
+}
+#ix-universe .ix-shell {
+  grid-template-columns: 218px minmax(0, 1fr);
+  min-height: 100vh;
+}
+#ix-universe #ix-rain {
+  position: fixed;
+  height: 100vh;
+  opacity: 0.88;
+}
+#ix-universe .ix-side {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  padding: 35px 18px 23px;
+  background: #0b0c1bee;
+  backdrop-filter: blur(24px);
+  border-color: #ffffff0d;
+  gap: 43px;
+}
+#ix-universe .ix-brand {
+  gap: 12px;
+  padding: 0 9px;
+}
+#ix-universe .ix-brand strong {
+  font-size: 28px;
+}
+#ix-universe .ix-brand small {
+  color: #999fc5;
+  letter-spacing: 4px;
+  font-size: 9px;
+}
+#ix-universe .ix-brand .ix-coin {
+  width: 42px;
+  height: 42px;
+}
+#ix-universe .ix-nav {
+  gap: 8px;
+}
+#ix-universe .ix-nav-title {
+  letter-spacing: 2.4px;
+  font-size: 9px;
+  margin: 0 14px 12px;
+  color: #777eaa;
+}
+#ix-universe .ix-nav button {
+  font-size: 12px;
+  min-height: 46px;
+  padding: 12px 13px;
+  gap: 13px;
+  color: #a3a9c7;
+  border-radius: 10px;
+}
+#ix-universe .ix-nav button svg {
+  width: 18px;
+  height: 18px;
+}
+#ix-universe .ix-nav button.ix-selected {
+  color: #9bffff;
+  background: linear-gradient(95deg, #14363ec9, #19334230);
+  border-color: #65f2e740;
+  box-shadow:
+    inset 3px 0 #65f2e7,
+    0 0 30px #53e8e609;
+}
+#ix-universe .ix-nav button.ix-selected:after {
+  background: #70ffed;
+  box-shadow: 0 0 10px #70ffed;
+}
+#ix-universe .ix-side-message {
+  border: 1px solid #7c5dbe4d;
+  border-radius: 14px;
+  background:
+    radial-gradient(ellipse at 20% 0, #65379f38, transparent), #151425;
+  padding: 16px;
+  margin-bottom: 18px;
+}
+#ix-universe .ix-side-message strong {
+  font-size: 12px;
+  color: #d8b9ff;
+}
+#ix-universe .ix-side-message p {
+  font-size: 10px;
+  line-height: 1.7;
+  margin: 8px 0 13px;
+}
+#ix-universe .ix-user {
+  padding: 16px 8px 0;
+  border-color: #ffffff12;
+}
+#ix-universe .ix-avatar {
+  background: linear-gradient(135deg, #354fab, #a255a6);
+  border-color: #927adf;
+  width: 35px;
+  height: 35px;
+}
+#ix-universe .ix-top {
+  background: #0c0e1da6;
+  border-color: #ffffff0c;
+  min-height: 78px;
+  padding: 18px 35px;
+  backdrop-filter: blur(24px);
+}
+#ix-universe .ix-breadcrumb {
+  font-size: 11px;
+}
+#ix-universe .ix-demo {
+  color: #ddcfff;
+  border-color: #7152a5;
+  background: #39264e6b;
+  font-size: 9px;
+  letter-spacing: 1.2px;
+  padding: 6px 11px;
+}
+#ix-universe .ix-content {
+  padding: 30px 35px 26px;
+  max-width: 1580px;
+  margin: auto;
+}
+#ix-universe .ix-heading {
+  margin-bottom: 23px;
+}
+#ix-universe .ix-eyebrow {
+  font:
+    500 9px var(--font-space),
+    sans-serif;
+  letter-spacing: 2.5px;
+  color: #8da4d9;
+  margin-bottom: 9px;
+}
+#ix-universe h1 {
+  font-size: 34px;
+  font-weight: 500;
+  letter-spacing: -1.3px;
+}
+#ix-universe .ix-subtitle {
+  font-size: 12px;
+  color: #a1a5c2;
+}
+#ix-universe .ix-status {
+  font-size: 9px;
+  color: #76eae1;
+}
+#ix-universe .ix-panel {
+  border-color: #ffffff18;
+  box-shadow: inset 0 1px #ffffff09;
+  background: #111326d9;
+  backdrop-filter: blur(18px);
+}
+#ix-universe .ix-button {
+  font-size: 12px;
+  padding: 12px 17px;
+  min-height: 43px;
+  border-color: #ffffff22;
+  background: #24243c;
+  border-radius: 9px;
+}
+#ix-universe .ix-button.ix-primary {
+  background: linear-gradient(115deg, #bafff4, #63eee8);
+  color: #06383d;
+  border-color: #a2fff1;
+  box-shadow: 0 4px 25px #50e7d51a;
+  font-weight: 700;
+}
+#ix-universe .ix-button:hover {
+  transform: translateY(-2px);
+}
+#ix-universe .ix-text-button {
+  font-size: 11px;
+  color: #87e5ef;
+}
+#ix-universe h2 {
+  font-size: 18px;
+}
+#ix-universe .cyber-hero {
+  position: relative;
+  overflow: hidden;
+  min-height: 268px;
+  border: 1px solid #8674c453;
+  border-radius: 22px;
+  margin-bottom: 20px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(210px, 0.75fr) minmax(
+      235px,
+      0.85fr
+    );
+  align-items: center;
+  padding: 30px 34px;
+  gap: 16px;
+  background:
+    radial-gradient(ellipse at 58% 95%, #8d39d85c, transparent 45%),
+    radial-gradient(ellipse at 90% 0%, #233d8c50, transparent 45%),
+    linear-gradient(120deg, #171b34dd, #1a1232eb 70%, #151b32ed);
+  box-shadow:
+    inset 0 1px #e0caff1c,
+    0 18px 80px #0002;
+}
+#ix-universe .cyber-hero:before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(#9e82ff0c 1px, transparent 1px),
+    linear-gradient(90deg, #9e82ff0c 1px, transparent 1px);
+  background-size: 36px 36px;
+  mask-image: linear-gradient(90deg, transparent, #000 55%, transparent);
+}
+#ix-universe .cyber-copy {
+  position: relative;
+  z-index: 2;
+}
+#ix-universe .cyber-copy .ix-eyebrow {
+  color: #a7fcf2;
+  margin-bottom: 16px;
+  font-size: 9px;
+}
+#ix-universe .cyber-copy h2 {
+  font:
+    500 clamp(28px, 2.85vw, 43px) / 1.11 var(--font-space),
+    sans-serif;
+  letter-spacing: -1.8px;
+  margin: 0 0 12px;
+}
+#ix-universe .cyber-copy h2 span {
+  color: #c3a1ff;
+}
+#ix-universe .cyber-copy p {
+  font-size: 11px;
+  color: #b8b4d3;
+  max-width: 235px;
+  line-height: 1.7;
+}
+#ix-universe .cyber-rate {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font:
+    500 10px var(--font-space),
+    sans-serif;
+  letter-spacing: 1px;
+  margin-top: 19px;
+  color: #ffe0a0;
+}
+#ix-universe .cyber-balance {
+  position: relative;
+  z-index: 2;
+  border-left: 1px solid #b5a1e52e;
+  padding-left: 26px;
+}
+#ix-universe .cyber-balance-label {
+  color: #beb8d5;
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 7px;
+}
+#ix-universe .cyber-balance-value {
+  font:
+    500 39px/1.15 var(--font-space),
+    sans-serif;
+  letter-spacing: -1.8px;
+  white-space: nowrap;
+}
+#ix-universe .cyber-balance-value small {
+  font-size: 14px;
+  color: #ffd78c;
+  letter-spacing: 0;
+  margin-left: 6px;
+}
+#ix-universe .cyber-balance-eq {
+  color: #b3aec9;
+  font-size: 11px;
+  margin: 6px 0 18px;
+}
+#ix-universe .cyber-balance-actions {
+  display: flex;
+  gap: 8px;
+}
+#ix-universe .cyber-balance-actions .ix-button {
+  padding: 10px 12px;
+  font-size: 11px;
+  min-height: 40px;
+}
+#ix-universe .cyber-balance-note {
+  color: #928dab;
+  font-size: 9px;
+  margin-top: 13px;
+}
+#ix-universe .cyber-coin-stage {
+  height: 208px;
+  position: relative;
+  perspective: 800px;
+  display: grid;
+  place-items: center;
+  isolation: isolate;
+}
+#ix-universe .cyber-coin-stage:before {
+  content: "";
+  position: absolute;
+  left: 5%;
+  right: 5%;
+  bottom: 4px;
+  height: 35px;
+  border: 1px solid #a15fff;
+  border-radius: 50%;
+  transform: rotate(-8deg);
+  background: #842ee430;
+  box-shadow:
+    0 0 30px #af41ff80,
+    inset 0 0 20px #a651ed36;
+  animation: cyber-platform 5s ease-in-out infinite;
+}
+#ix-universe .cyber-orbit {
+  position: absolute;
+  inset: 36px -5px;
+  border: 1px solid #9b73db50;
+  border-radius: 50%;
+  transform: rotate(-25deg);
+  box-shadow: 0 -1px #d399ff80;
+}
+#ix-universe .cyber-orbit:after {
+  content: "";
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  top: 17%;
+  left: 10%;
+  background: #9ffff6;
+  box-shadow: 0 0 13px #63fff0;
+  border-radius: 50%;
+}
+#ix-universe .cyber-orbit.second {
+  inset: 25px 7px;
+  transform: rotate(32deg);
+  border-color: #59e4e42b;
+  box-shadow: 0 1px #5ae3ff80;
+}
+#ix-universe .cyber-big-coin {
+  width: 147px;
+  height: 147px;
+  border-radius: 50%;
+  position: relative;
+  display: grid;
+  place-items: center;
+  border: 3px solid #fff0a6;
+  background: conic-gradient(
+    from 30deg,
+    #a06417,
+    #fce59a 14%,
+    #dc9c34 23%,
+    #6f3a0c 41%,
+    #ffe59a 58%,
+    #c17d20 73%,
+    #fff2b6 87%,
+    #a06417
+  );
+  box-shadow:
+    1px 1px 0 #bb7726,
+    3px 3px 0 #dc982b,
+    5px 5px 0 #996020,
+    7px 7px 0 #c1852b,
+    9px 9px 0 #7f4317,
+    10px 11px 0 #573014,
+    13px 20px 35px #07040c70,
+    0 0 65px #efa84b2c;
+  transform: rotate(-15deg) rotateY(-23deg);
+  animation: cyber-coin 7s ease-in-out infinite;
+  z-index: 1;
+}
+#ix-universe .cyber-big-coin:before {
+  content: "";
+  position: absolute;
+  inset: 7px;
+  border-radius: 50%;
+  background: repeating-conic-gradient(#f7d16f 0 2deg, #966322 2deg 4deg);
+  border: 1px solid #6e4211;
+  box-shadow: inset 0 0 2px #553510;
+}
+#ix-universe .cyber-big-coin:after {
+  content: "";
+  position: absolute;
+  inset: 13px;
+  border-radius: 50%;
+  background: linear-gradient(
+    140deg,
+    #f4d986,
+    #bd8128 37%,
+    #e7b64d 67%,
+    #ffedac
+  );
+  border: 2px solid #e6b755;
+  box-shadow:
+    inset 2px 2px 6px #673a2280,
+    0 0 0 1px #7a4a17;
+}
+#ix-universe .cyber-coin-type {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  color: #734413;
+  text-shadow: 1px 1px 0 #fff0b2;
+  display: grid;
+  gap: 6px;
+}
+#ix-universe .cyber-coin-type strong {
+  font:
+    700 33px/1 var(--font-space),
+    sans-serif;
+  letter-spacing: -2px;
+}
+#ix-universe .cyber-coin-type small {
+  font:
+    600 6px var(--font-space),
+    sans-serif;
+  letter-spacing: 2px;
+}
+#ix-universe .cyber-chip {
+  position: absolute;
+  z-index: 2;
+  padding: 5px 8px;
+  border: 1px solid #b991d751;
+  border-radius: 5px;
+  background: #241932d4;
+  backdrop-filter: blur(10px);
+  font:
+    500 8px var(--font-space),
+    sans-serif;
+  color: #ffe0a0;
+  letter-spacing: 1px;
+  bottom: 12px;
+  right: 10px;
+  transform: rotate(-5deg);
+}
+#ix-universe .cyber-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+#ix-universe .cyber-metric {
+  position: relative;
+  background: linear-gradient(
+    120deg,
+    color-mix(in srgb, var(--metric) 7%, #111223),
+    #111222dc
+  );
+  border: 1px solid color-mix(in srgb, var(--metric) 24%, #191b32);
+  border-radius: 13px;
+  padding: 15px 18px;
+  overflow: hidden;
+}
+#ix-universe .cyber-metric:after {
+  content: "";
+  position: absolute;
+  right: -7px;
+  bottom: -16px;
+  width: 57px;
+  height: 57px;
+  border: 1px solid var(--metric);
+  border-radius: 50%;
+  opacity: 0.15;
+  box-shadow:
+    0 0 0 8px color-mix(in srgb, var(--metric) 40%, transparent),
+    0 0 0 16px color-mix(in srgb, var(--metric) 20%, transparent);
+}
+#ix-universe .cyber-metric small {
+  display: block;
+  color: #a2a5bf;
+  font-size: 9px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 5px;
+}
+#ix-universe .cyber-metric strong {
+  font:
+    500 21px var(--font-space),
+    sans-serif;
+  color: var(--metric);
+  letter-spacing: -0.6px;
+}
+#ix-universe .cyber-metric strong span {
+  font-size: 9px;
+  letter-spacing: 0;
+  margin-left: 5px;
+  color: #aaa9c6;
+}
+#ix-universe .ix-market-grid {
+  grid-template-columns: minmax(0, 1.85fr) minmax(285px, 1fr);
+  gap: 18px;
+}
+#ix-universe .ix-chart {
+  padding: 22px 23px 16px;
+  border-color: #59898b45;
+  background:
+    radial-gradient(ellipse at 15% 0%, #2b556e20, transparent 65%), #101526e8;
+}
+#ix-universe .ix-chart-title {
+  margin-bottom: 16px;
+}
+#ix-universe .ix-chart-asset strong {
+  font-size: 16px;
+}
+#ix-universe .ix-chart-asset small {
+  font-size: 10px;
+  margin-top: 2px;
+}
+#ix-universe .ix-chart-price {
+  font-size: 34px;
+}
+#ix-universe .ix-peg {
+  background: #272334;
+  border-color: #63504766;
+  color: #e9cf92;
+  font-size: 8px;
+}
+#ix-universe .ix-chart-controls {
+  padding-bottom: 11px;
+  border-bottom: 1px solid #ffffff09;
+  margin-bottom: 10px;
+}
+#ix-universe .ix-ranges button {
+  padding: 6px 9px;
+  font-size: 10px;
+}
+#ix-universe .ix-ranges button.ix-selected {
+  color: #83fff1;
+  background: #2b555346;
+  box-shadow: inset 0 -2px #73fcec;
+}
+#ix-universe .ix-modes button {
+  font-size: 10px;
+  padding: 6px 10px;
+}
+#ix-universe .ix-modes button.ix-selected {
+  background: #284a50;
+  color: #a8fff3;
+}
+#ix-universe .ix-plot {
+  height: 245px;
+}
+#ix-universe .ix-period-stats {
+  border-color: #ffffff10;
+  padding-top: 14px;
+}
+#ix-universe .ix-period-stats b {
+  font-size: 14px;
+}
+#ix-universe .ix-stream {
+  padding: 23px 21px 17px;
+  background:
+    radial-gradient(ellipse at 100% 0, #5a337324, transparent 65%), #151326e8;
+  border-color: #8b5db942;
+}
+#ix-universe .ix-stream .ix-section-title h2 {
+  font-size: 16px;
+}
+#ix-universe .ix-stream-row {
+  padding: 17px 0;
+  border-color: #ffffff0c;
+  gap: 11px;
+}
+#ix-universe .ix-stream-name {
+  font-size: 11px;
+}
+#ix-universe .ix-stream-meta {
+  font-size: 9px;
+  color: #8c8caf;
+  margin-top: 4px;
+}
+#ix-universe .ix-stream-amount {
+  font-size: 13px;
+  color: #75f4dd;
+}
+#ix-universe .ix-stream-amount.out {
+  color: #d9b1ff;
+}
+#ix-universe .ix-flow-icon {
+  width: 32px;
+  height: 32px;
+  background: #55ebc41b;
+  color: #71f9d9;
+}
+#ix-universe .ix-flow-icon.out {
+  background: #bb77f624;
+  color: #d4a2ff;
+}
+#ix-universe .ix-stream-bottom {
+  padding-top: 14px;
+  border-color: #ffffff12;
+}
+#ix-universe .ix-section {
+  margin-top: 28px;
+}
+#ix-universe .ix-section-title {
+  margin-bottom: 17px;
+}
+#ix-universe .ix-company-grid {
+  gap: 20px;
+}
+#ix-universe .ix-cinematic-card {
+  background: #151b29;
+  border-color: color-mix(in srgb, var(--company) 65%, transparent);
+  box-shadow: 0 0 20px color-mix(in srgb, var(--company) 6%, transparent);
+}
+#ix-universe .ix-company-film {
+  height: 185px;
+}
+#ix-universe .ix-card-copy {
+  padding: 20px;
+}
+#ix-universe .ix-card-copy h3 {
+  font-size: 25px;
+}
+#ix-universe .ix-card-copy p {
+  color: #c0c6d3;
+  font-size: 12px;
+  line-height: 1.7;
+}
+#ix-universe .ix-footer {
+  margin-top: 30px;
+  font-size: 9px;
+  border-color: #ffffff13;
+}
+#ix-universe .ix-buy-hero {
+  border-color: #a475e957;
+  background:
+    radial-gradient(ellipse at 80% 70%, #ad51db44, transparent 60%),
+    linear-gradient(120deg, #132936, #24162f);
+  min-height: 210px;
+  padding: 33px;
+}
+#ix-universe .ix-buy-hero h2 {
+  font-size: 35px;
+}
+#ix-universe .ix-pack {
+  padding: 26px 20px;
+}
+#ix-universe .ix-pack.featured {
+  background: linear-gradient(140deg, #42324a, #26233c);
+  border-color: #c098ea;
+}
+#ix-universe .ix-pack-amount {
+  font-size: 34px;
+  color: #ffe1a4;
+}
+#ix-universe .ix-pack:nth-child(2) {
+  border-color: #6ddddd66;
+}
+#ix-universe .ix-pack:nth-child(4) {
+  border-color: #e59dcd55;
+}
+#ix-universe .ix-product {
+  padding: 24px;
+  border-color: color-mix(in srgb, var(--company) 32%, transparent);
+}
+#ix-universe .ix-product-art {
+  height: 140px;
+}
+#ix-universe .ix-product h3 {
+  font-size: 17px;
+}
+#ix-universe .ix-product p {
+  font-size: 12px;
+  line-height: 1.7;
+}
+#ix-universe .ix-product .ix-price {
+  font-size: 24px;
+}
+#ix-universe .ix-filter.ix-selected {
+  background: #255053;
+  color: #97fff2;
+  border-color: #5fd5d270;
+}
+#ix-universe .ix-news-main {
+  background:
+    radial-gradient(ellipse at 100% 100%, #bd4bda55, transparent 70%),
+    linear-gradient(130deg, #182c3e, #231934);
+  min-height: 380px;
+}
+#ix-universe .ix-news-main h2 {
+  font-size: 43px;
+}
+#ix-universe .ix-log {
+  background: #14162adb;
+}
+#ix-universe .ix-log-row {
+  padding: 22px 4px;
+}
+#ix-universe .ix-dialog {
+  background: #151429;
+  border-color: #9b77e257;
+}
+#ix-universe .ix-overlay {
+  backdrop-filter: blur(10px);
+}
+#ix-universe[data-motion="off"] .cyber-big-coin,
+#ix-universe[data-motion="off"] .cyber-coin-stage:before {
+  animation: none !important;
+}
+@keyframes cyber-coin {
+  0%,
+  100% {
+    transform: translateY(-5px) rotate(-15deg) rotateY(-25deg);
+  }
+  50% {
+    transform: translateY(7px) rotate(-7deg) rotateY(14deg);
+  }
+}
+@keyframes cyber-platform {
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: rotate(-8deg) scale(0.95);
+  }
+  50% {
+    opacity: 1;
+    transform: rotate(-8deg) scale(1.06);
+  }
+}
+@media (min-width: 1500px) {
+  #ix-universe .cyber-hero {
+    min-height: 292px;
+  }
+  #ix-universe .cyber-big-coin {
+    width: 172px;
+    height: 172px;
+  }
+  #ix-universe .cyber-copy h2 {
+    font-size: 47px;
+  }
+  #ix-universe .cyber-balance-value {
+    font-size: 47px;
+  }
+  #ix-universe .cyber-coin-type strong {
+    font-size: 40px;
+  }
+  #ix-universe .cyber-coin-stage {
+    height: 225px;
+  }
+}
+@media (max-width: 1150px) {
+  #ix-universe .ix-shell {
+    grid-template-columns: 185px minmax(0, 1fr);
+  }
+  #ix-universe .ix-side {
+    padding: 30px 12px 18px;
+  }
+  #ix-universe .ix-content {
+    padding: 25px;
+  }
+  #ix-universe .ix-top {
+    padding: 17px 25px;
+  }
+  #ix-universe .cyber-hero {
+    grid-template-columns: 1fr 160px 1fr;
+    padding: 25px 22px;
+    gap: 7px;
+  }
+  #ix-universe .cyber-big-coin {
+    width: 117px;
+    height: 117px;
+  }
+  #ix-universe .cyber-coin-type strong {
+    font-size: 26px;
+  }
+  #ix-universe .cyber-coin-type small {
+    font-size: 5px;
+  }
+  #ix-universe .cyber-copy h2 {
+    font-size: 29px;
+  }
+  #ix-universe .cyber-balance {
+    padding-left: 17px;
+  }
+  #ix-universe .cyber-balance-value {
+    font-size: 32px;
+  }
+  #ix-universe .cyber-balance-actions {
+    flex-direction: column;
+  }
+  #ix-universe .cyber-balance-actions .ix-button {
+    min-height: 33px;
+    padding: 8px 10px;
+  }
+  #ix-universe .cyber-coin-stage {
+    height: 190px;
+  }
+  #ix-universe .ix-market-grid {
+    grid-template-columns: minmax(0, 1.6fr) minmax(240px, 1fr);
+  }
+  #ix-universe .ix-stream {
+    padding: 20px 15px;
+  }
+  #ix-universe .ix-stream-row {
+    gap: 7px;
+  }
+  #ix-universe .ix-stream-name {
+    font-size: 10px;
+  }
+  #ix-universe .ix-stream-amount {
+    font-size: 11px;
+  }
+  #ix-universe .ix-chart {
+    padding: 20px 16px;
+  }
+  #ix-universe .cyber-metric {
+    padding: 14px;
+  }
+  #ix-universe .cyber-metric strong {
+    font-size: 18px;
+  }
+}
+@media (max-width: 900px) {
+  #ix-universe .ix-shell {
+    grid-template-columns: 166px minmax(0, 1fr);
+  }
+  #ix-universe .ix-content {
+    padding: 24px 20px;
+  }
+  #ix-universe .ix-nav button {
+    font-size: 11px;
+    gap: 9px;
+  }
+  #ix-universe .ix-brand {
+    padding: 0 3px;
+    gap: 8px;
+  }
+  #ix-universe .ix-brand strong {
+    font-size: 25px;
+  }
+  #ix-universe .ix-brand .ix-coin {
+    width: 34px;
+    height: 34px;
+  }
+  #ix-universe .cyber-hero {
+    grid-template-columns: 1fr 160px;
+    padding: 25px;
+    gap: 20px;
+  }
+  #ix-universe .cyber-coin-stage {
+    height: 180px;
+  }
+  #ix-universe .cyber-balance {
+    grid-column: 1/-1;
+    border-left: 0;
+    border-top: 1px solid #ffffff15;
+    padding: 20px 0 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 20px;
+  }
+  #ix-universe .cyber-balance-label {
+    grid-column: 1;
+  }
+  #ix-universe .cyber-balance-value {
+    grid-column: 1;
+  }
+  #ix-universe .cyber-balance-eq {
+    grid-column: 1;
+    margin-bottom: 0;
+  }
+  #ix-universe .cyber-balance-actions {
+    grid-column: 2;
+    grid-row: 1/4;
+    justify-content: center;
+  }
+  #ix-universe .cyber-balance-note {
+    grid-column: 1/-1;
+    margin-top: 12px;
+  }
+  #ix-universe .cyber-metrics {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  #ix-universe .ix-market-grid {
+    grid-template-columns: 1fr;
+  }
+  #ix-universe .ix-stream-list {
+    display: block;
+  }
+  #ix-universe .ix-chart {
+    padding: 22px;
+  }
+  #ix-universe .ix-stream {
+    padding: 24px;
+  }
+  #ix-universe .ix-stream-name {
+    font-size: 12px;
+  }
+  #ix-universe .ix-stream-amount {
+    font-size: 13px;
+  }
+  #ix-universe .ix-app-grid {
+    grid-template-columns: 1fr;
+  }
+  #ix-universe .ix-company-film {
+    height: 200px;
+  }
+}
+@media (max-width: 650px) {
+  #ix-universe .ix-shell {
+    display: block;
+  }
+  #ix-universe .ix-side {
+    position: relative;
+    height: auto;
+    padding: 22px 18px 15px;
+    gap: 23px;
+    border-bottom: 1px solid #ffffff16;
+  }
+  #ix-universe .ix-brand {
+    padding: 0 4px;
+  }
+  #ix-universe .ix-brand strong {
+    font-size: 28px;
+  }
+  #ix-universe .ix-nav {
+    gap: 6px;
+  }
+  #ix-universe .ix-nav button {
+    min-height: 56px;
+    padding: 8px 3px;
+    font-size: 9px;
+    gap: 6px;
+  }
+  #ix-universe .ix-nav button.ix-selected {
+    box-shadow: inset 0 -2px #65f2e7;
+  }
+  #ix-universe .ix-top {
+    padding: 13px 18px;
+    min-height: 58px;
+  }
+  #ix-universe .ix-breadcrumb {
+    font-size: 9px;
+  }
+  #ix-universe .ix-demo {
+    font-size: 7px;
+    padding: 5px 7px;
+  }
+  #ix-universe .ix-content {
+    padding: 24px 18px;
+  }
+  #ix-universe h1 {
+    font-size: 29px;
+  }
+  #ix-universe .ix-subtitle {
+    font-size: 11px;
+  }
+  #ix-universe .cyber-hero {
+    padding: 22px 20px;
+    grid-template-columns: 1fr 122px;
+    gap: 8px;
+    border-radius: 18px;
+  }
+  #ix-universe .cyber-copy h2 {
+    font-size: 29px;
+    letter-spacing: -1.5px;
+  }
+  #ix-universe .cyber-copy .ix-eyebrow {
+    font-size: 7px;
+    letter-spacing: 1.6px;
+  }
+  #ix-universe .cyber-copy p {
+    font-size: 10px;
+  }
+  #ix-universe .cyber-rate {
+    font-size: 8px;
+    letter-spacing: 0.6px;
+  }
+  #ix-universe .cyber-coin-stage {
+    height: 181px;
+  }
+  #ix-universe .cyber-big-coin {
+    width: 99px;
+    height: 99px;
+  }
+  #ix-universe .cyber-coin-type strong {
+    font-size: 23px;
+  }
+  #ix-universe .cyber-coin-type small {
+    font-size: 4px;
+    letter-spacing: 1px;
+  }
+  #ix-universe .cyber-orbit {
+    inset: 35px -4px;
+  }
+  #ix-universe .cyber-orbit.second {
+    inset: 38px -3px;
+  }
+  #ix-universe .cyber-chip {
+    font-size: 6px;
+    right: -3px;
+    bottom: 9px;
+  }
+  #ix-universe .cyber-balance {
+    margin-top: 14px;
+    padding-top: 20px;
+    gap: 0 12px;
+  }
+  #ix-universe .cyber-balance-value {
+    font-size: 32px;
+  }
+  #ix-universe .cyber-balance-value small {
+    font-size: 11px;
+  }
+  #ix-universe .cyber-balance-label {
+    font-size: 8px;
+  }
+  #ix-universe .cyber-balance-eq {
+    font-size: 9px;
+  }
+  #ix-universe .cyber-balance-actions .ix-button {
+    font-size: 10px;
+    min-height: 34px;
+  }
+  #ix-universe .cyber-metrics {
+    gap: 9px;
+  }
+  #ix-universe .cyber-metric {
+    padding: 14px 16px;
+  }
+  #ix-universe .cyber-metric small {
+    font-size: 8px;
+  }
+  #ix-universe .cyber-metric strong {
+    font-size: 20px;
+  }
+  #ix-universe .ix-chart {
+    padding: 20px 16px;
+  }
+  #ix-universe .ix-chart-price {
+    font-size: 30px;
+  }
+  #ix-universe .ix-chart-asset strong {
+    font-size: 14px;
+  }
+  #ix-universe .ix-peg {
+    font-size: 7px;
+  }
+  #ix-universe .ix-ranges button {
+    font-size: 9px;
+    padding: 7px 8px;
+  }
+  #ix-universe .ix-plot {
+    height: 250px;
+  }
+  #ix-universe .ix-chart-controls {
+    gap: 12px;
+  }
+  #ix-universe .ix-period-stats {
+    gap: 8px;
+  }
+  #ix-universe .ix-period-stats b {
+    font-size: 12px;
+  }
+  #ix-universe .ix-period-stats span {
+    font-size: 8px;
+  }
+  #ix-universe .ix-stream {
+    padding: 22px 18px;
+  }
+  #ix-universe .ix-company-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  #ix-universe .ix-company-film {
+    height: 225px;
+  }
+  #ix-universe .ix-products {
+    grid-template-columns: 1fr;
+  }
+  #ix-universe .ix-pack-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  #ix-universe .ix-pack {
+    padding: 22px 15px;
+  }
+  #ix-universe .ix-pack-amount {
+    font-size: 28px;
+  }
+  #ix-universe .ix-buy-hero {
+    padding: 25px;
+  }
+  #ix-universe .ix-buy-hero h2 {
+    font-size: 29px;
+  }
+  #ix-universe .ix-news-main h2 {
+    font-size: 36px;
+  }
+  #ix-universe .ix-log {
+    padding: 0 14px;
+  }
+  #ix-universe .ix-log-row {
+    gap: 9px;
+  }
+  #ix-universe .ix-log-name {
+    font-size: 11px;
+  }
+  #ix-universe .ix-log-amount {
+    font-size: 11px;
+    min-width: 65px;
+  }
+  #ix-universe .ix-section-title h2 {
+    font-size: 16px;
+  }
+}
+@media (max-width: 360px) {
+  #ix-universe .ix-content {
+    padding: 22px 12px;
+  }
+  #ix-universe .cyber-hero {
+    padding: 20px 16px;
+    grid-template-columns: minmax(0, 1fr) 105px;
+  }
+  #ix-universe .cyber-copy h2 {
+    font-size: 26px;
+  }
+  #ix-universe .cyber-big-coin {
+    width: 87px;
+    height: 87px;
+  }
+  #ix-universe .cyber-coin-type strong {
+    font-size: 20px;
+  }
+  #ix-universe .cyber-coin-type small {
+    font-size: 3px;
+  }
+  #ix-universe .cyber-balance-value {
+    font-size: 28px;
+  }
+  #ix-universe .ix-chart {
+    padding: 18px 12px;
+  }
+  #ix-universe .ix-period-stats b {
+    font-size: 11px;
+  }
+  #ix-universe .ix-company-film {
+    height: 200px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  #ix-universe .cyber-big-coin,
+  #ix-universe .cyber-coin-stage:before {
+    animation: none !important;
+  }
+}
+
+#ix-universe {
+  width: 100%;
+  margin: 0;
+}
+#ix-universe .cyber-balance-value {
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+#ix-universe .ix-stream {
+  min-height: 260px;
+}
+#ix-universe .ix-pack .ix-pack-amount {
+  font-size: clamp(23px, 2.2vw, 34px);
+}
+
+#ix-universe .ix-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 0;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  border-radius: 8px;
+  text-decoration: none;
+}
+#ix-universe .ix-brand .ix-apixis-logo {
+  display: block;
+  width: 180px;
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+#ix-universe .ix-brand > small {
+  font:
+    500 8px var(--font-space),
+    sans-serif;
+  letter-spacing: 4px;
+  color: #a1aed5;
+  margin: 0 0 0 4px;
+}
+@media (max-width: 650px) {
+  #ix-universe .ix-brand {
+    width: 160px;
+    align-self: flex-start;
+  }
+  #ix-universe .ix-brand .ix-apixis-logo {
+    width: 160px;
+  }
+}

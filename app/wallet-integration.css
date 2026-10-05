@@ -1,0 +1,214 @@
+:root {
+  --bg: #070b17;
+  --panel: #11192c;
+  --line: #283650;
+  --muted: #94a7c7;
+  --lime: #f0cf84;
+  --white: #edf4ff;
+  --amber: #f8ce77;
+}
+body {
+  background: #050812;
+}
+body:after {
+  display: none;
+}
+#ix-universe {
+  max-width: 1540px;
+  margin: 12px auto;
+  width: calc(100% - 24px);
+  font-family: var(--font-dm), sans-serif;
+}
+#ix-universe .ix-main {
+  display: block;
+  min-height: 100vh;
+}
+#ix-universe .ix-side {
+  position: sticky;
+  top: 0;
+  width: auto;
+  height: 100dvh;
+}
+#ix-universe .ix-nav {
+  margin: 0;
+}
+#ix-universe .ix-top {
+  margin: 0;
+  align-items: center;
+}
+#ix-universe .ix-top p {
+  letter-spacing: normal;
+}
+#ix-universe #ix-rain {
+  position: fixed;
+  height: 100dvh;
+}
+#ix-universe .ix-brand a,
+#ix-universe a.ix-text-button {
+  color: inherit;
+  text-decoration: none;
+}
+#ix-universe .ix-notice {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  justify-content: space-between;
+  background: #1c273b;
+  border: 1px solid #536786;
+  border-radius: 10px;
+  padding: 12px 15px;
+  margin-bottom: 18px;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+#ix-universe .ix-catalog-select {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #a5b7d1;
+  margin: 18px 0;
+  font-size: 12px;
+}
+#ix-universe select {
+  font: inherit;
+  color: #edf4ff;
+  background: #18243a;
+  border: 1px solid #354965;
+  padding: 9px 12px;
+  border-radius: 9px;
+  max-width: 100%;
+}
+#ix-universe .ix-confirm {
+  padding: 26px;
+  background: #151d31;
+  color: #edf4ff;
+  border: 1px solid #59617b;
+  border-radius: 20px;
+  width: min(450px, calc(100% - 32px));
+  box-shadow: 0 25px 80px #0007;
+}
+#ix-universe .ix-confirm::backdrop {
+  background: #020510bb;
+  backdrop-filter: blur(7px);
+}
+#ix-universe .ix-confirm h2 {
+  font-size: 23px;
+}
+#ix-universe .ix-confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 24px;
+}
+#ix-universe .ix-confirm .ix-note {
+  margin-top: 12px;
+}
+#ix-universe .ix-file-art {
+  width: 54px;
+  height: 54px;
+  display: grid;
+  place-items: center;
+  font-size: 37px;
+  color: var(--company);
+  text-shadow: 0 0 30px var(--company);
+  animation: ix-art 6s ease-in-out infinite;
+}
+#ix-universe .ix-receipt-copy {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+#ix-universe .ix-receipt-id {
+  color: #8497b3;
+  font-size: 9px;
+  overflow-wrap: anywhere;
+  margin-top: 5px;
+}
+#ix-universe .ix-stream-row .ix-log-name {
+  font-size: 11px;
+}
+#ix-universe .ix-stream-row .ix-log-meta {
+  font-size: 9px;
+}
+#ix-universe .ix-stream-row .ix-log-amount {
+  font-size: 12px;
+  min-width: 64px;
+}
+#ix-universe .ix-news-small h2 {
+  font-size: 20px;
+  margin: 10px 0;
+}
+#ix-universe .ix-news-date {
+  display: block;
+  font-size: 10px;
+  color: #94a7c7;
+  margin: 18px 0;
+}
+#ix-universe .ix-load-more {
+  margin-top: 18px;
+}
+#ix-universe .ix-note {
+  flex-wrap: wrap;
+}
+#ix-universe .ix-pack .ix-pack-amount {
+  font-size: 27px;
+}
+#ix-universe .ix-buy-hero h2 {
+  font-size: 24px;
+}
+#ix-universe .ix-card-copy {
+  flex: 1;
+}
+.auth-card,
+.auth-cixy {
+  border-radius: 18px;
+}
+.auth-top {
+  background: #0b1021;
+}
+.auth-form input {
+  background: #101a2c;
+  border-radius: 8px;
+}
+.auth-submit,
+.auth-ghost,
+.auth-tabs button {
+  border-radius: 8px;
+}
+.auth-submit {
+  color: #30220b;
+}
+.auth-tabs button.active,
+.auth-tabs button:hover,
+.auth-ghost:hover,
+.auth-nav a:hover {
+  background: #24333e;
+}
+@media (max-width: 650px) {
+  #ix-universe {
+    margin: 0;
+    width: 100%;
+    border-radius: 0;
+  }
+  #ix-universe .ix-side {
+    position: static;
+    height: auto;
+  }
+  #ix-universe .ix-top {
+    flex-wrap: wrap;
+  }
+  #ix-universe .ix-top-actions {
+    flex-wrap: wrap;
+  }
+  #ix-universe .ix-pack .ix-pack-amount {
+    font-size: 23px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  #ix-universe * {
+    animation: none !important;
+    transition: none !important;
+  }
+}

@@ -1,122 +1,391 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
-import { ArrowDownLeft, ArrowUpRight, Coins, LayoutGrid, List, Megaphone, ShoppingBag, TrendingUp, WalletCards } from "lucide-react";
-import { pointPacks, redeemCatalog, shopCatalog, shopCategories, type ShopCategory } from "@/lib/catalog";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+} from "react";
+import Image from "next/image";
+import { useRouter, useSearchParams } from "next/navigation";
+import {
+  ArrowDownLeft,
+  ArrowUpRight,
+  Coins,
+  LayoutGrid,
+  List,
+  Megaphone,
+  ShoppingBag,
+  TrendingUp,
+  WalletCards,
+  Orbit,
+  Pause,
+  Play,
+  Plus,
+  RefreshCw,
+  ShieldCheck,
+  X,
+  Download,
+} from "lucide-react";
+import {
+  pointPacks,
+  redeemCatalog,
+  shopCatalog,
+  shopCategories,
+  type ShopCategory,
+} from "@/lib/catalog";
 import { appSlug, resolveDestination } from "@/lib/checkout/destinations";
 import { returnHost } from "@/lib/checkout/return-url";
-import { last24h, productTape, xpTape } from "@/lib/market";
-import { bulletins, ticker } from "@/lib/news";
-import { Tape } from "@/components/Tape";
+import { bulletins } from "@/lib/news";
 import { CompaniesDirectory } from "@/components/CompaniesDirectory";
-import { fetchBalance, fetchHistory, redeemProduct, WalletClientError, type HistoryItem } from "@/lib/wallet-client";
+import { GoldCoinRain, useReducedMotion } from "@/components/WalletMotion";
+import {
+  WalletChart,
+  transactionAmount,
+  visibleTransactions,
+} from "@/components/WalletChart";
+import {
+  fetchBalance,
+  fetchHistory,
+  redeemProduct,
+  WalletClientError,
+  type Balance,
+  type HistoryItem,
+} from "@/lib/wallet-client";
 
-type Tab = "companies" | "home" | "buy" | "redeem" | "shop" | "market" | "news" | "activity";
-type ShopFilter = "all" | ShopCategory;
-
-const TABS: readonly Tab[] = ["home", "companies", "buy", "redeem", "shop", "market", "news", "activity"];
-
-function isTab(value: string | null): value is Tab {
-  return TABS.includes(value as Tab);
-}
-
-function readableHost(raw: string) {
-  try {
-    return new URL(raw).hostname;
-  } catch {
-    return null;
-  }
-}
-
-function openingNotice(checkout: string | null) {
-  if (checkout === "cancelled") return "Checkout cancelled. You can buy a pack whenever you are ready.";
-  if (checkout === "success") return "Stripe returned you here. Paid Ixis posts to this Wallet after the webhook.";
-  return "";
-}
-
-type LogRow = { title: string; meta: string; xp: number };
-
-const KIND_LABEL: Record<string, string> = {
+type Tab =
+  | "companies"
+  | "home"
+  | "buy"
+  | "redeem"
+  | "shop"
+  | "market"
+  | "news"
+  | "activity";
+type Product = { key: string; name: string; xp: number };
+const tabs = [
+  { id: "home", name: "HQ", icon: LayoutGrid },
+  { id: "companies", name: "Apixis Companies", icon: Orbit },
+  { id: "buy", name: "Buy", icon: WalletCards },
+  { id: "redeem", name: "Redeem", icon: Coins },
+  { id: "shop", name: "Shop", icon: ShoppingBag },
+  { id: "market", name: "Tape", icon: TrendingUp },
+  { id: "news", name: "News", icon: Megaphone },
+  { id: "activity", name: "Log", icon: List },
+] as const;
+const headings: Record<Tab, [string, string, string]> = {
+  home: [
+    "WALLET OVERVIEW",
+    "Welcome to your next move.",
+    "One balance. Every Apixis possibility.",
+  ],
+  companies: [
+    "THE APIXIS FAMILY",
+    "Apixis Companies",
+    "The Ixis ecosystem • 15 companies, one platform • Explore and visit each company",
+  ],
+  buy: [
+    "POWER YOUR NEXT MOVE",
+    "Buy a little possibility.",
+    "One top-up. Every participating Apixis app.",
+  ],
+  redeem: [
+    "TURN CREDIT INTO POSSIBILITY",
+    "Make your Ixis matter.",
+    "Unlock a workspace, a creative tool, or your next step.",
+  ],
+  shop: [
+    "MADE FOR YOUR WORLD",
+    "A little more you.",
+    "Useful files and templates from the Apixis family.",
+  ],
+  market: [
+    "THE IXIS SIGNAL",
+    "Every movement. In view.",
+    "Explore the Ixis rate and your wallet activity over time.",
+  ],
+  news: [
+    "TRANSMISSIONS FROM APIXIS",
+    "The next thing starts here.",
+    "Updates from across the family, in one place.",
+  ],
+  activity: [
+    "YOUR PERSONAL LEDGER",
+    "Every Ixis, accounted for.",
+    "Your purchases, redemptions, and bonus credits.",
+  ],
+};
+const kinds: Record<string, string> = {
   purchase: "Purchase",
-  bonus: "Bonus · free Ixis",
+  bonus: "Bonus",
   spend: "Redeem",
   refund: "Refund",
   adjustment: "Adjustment",
 };
-
-/** Ledger receipts → activity rows. Holds and releases are internal steps; the spend is the redeem. */
-function toLogRows(items: HistoryItem[]): LogRow[] {
-  return items
-    .filter((item) => item.kind !== "reserve" && item.kind !== "release")
-    .map((item) => ({
-      title: item.description,
-      meta: [KIND_LABEL[item.kind] ?? item.kind, item.app].filter(Boolean).join(" · "),
-      xp: item.kind === "spend" ? item.held : item.amount,
-    }));
+const money = (n: number) =>
+  n.toLocaleString("en-US", { style: "currency", currency: "USD" });
+const fmt = (n: number) => n.toLocaleString("en-US");
+function mergeHistory(previous: HistoryItem[], incoming: HistoryItem[]) {
+  return [
+    ...new Map(
+      [...previous, ...incoming].map((item) => [item.id, item]),
+    ).values(),
+  ].sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt));
 }
 
-function signInHere() {
-  const here = window.location.pathname + window.location.search;
-  window.location.assign(new URL(`/login?next=${encodeURIComponent(here)}`, window.location.origin).toString());
+function LedgerRows({
+  items,
+  stream = false,
+  unit,
+}: {
+  items: HistoryItem[];
+  stream?: boolean;
+  unit: string;
+}) {
+  return items.map((item) => {
+    const amount = transactionAmount(item);
+    return (
+      <div className={stream ? "ix-stream-row" : "ix-log-row"} key={item.id}>
+        <span className={`ix-flow-icon ${amount < 0 ? "out" : ""}`}>
+          {amount < 0 ? <ArrowUpRight /> : <ArrowDownLeft />}
+        </span>
+        <div className="ix-receipt-copy">
+          <div className="ix-log-name">{item.description}</div>
+          <div className="ix-log-meta">
+            {kinds[item.kind] ?? item.kind}
+            {item.app ? ` · ${item.app}` : ""}
+          </div>
+          <time className="ix-log-meta" dateTime={item.createdAt}>
+            {new Date(item.createdAt).toLocaleString([], {
+              month: "short",
+              day: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
+          </time>
+          {!stream && <div className="ix-receipt-id">TX {item.id}</div>}
+        </div>
+        <span className={`ix-log-amount ${amount < 0 ? "out" : ""}`}>
+          {amount > 0 ? "+" : ""}
+          {fmt(amount)}
+          <small>{unit}</small>
+        </span>
+      </div>
+    );
+  });
 }
 
-const usd = (n: number) =>
-  n.toLocaleString(undefined, { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+function RedeemDialog({
+  product,
+  unit,
+  busy,
+  onClose,
+  onConfirm,
+}: {
+  product: Product;
+  unit: string;
+  busy: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+}) {
+  const dialog = useRef<HTMLDialogElement>(null);
+  useEffect(() => {
+    dialog.current?.showModal();
+  }, []);
+  return (
+    <dialog
+      ref={dialog}
+      className="ix-confirm"
+      onCancel={(e) => {
+        if (busy) e.preventDefault();
+        else onClose();
+      }}
+    >
+      <div className="ix-dialog-head">
+        <div>
+          <p className="ix-eyebrow">REDEEM IXIS</p>
+          <h2>Confirm your redemption</h2>
+        </div>
+        <button
+          className="ix-icon-button"
+          onClick={onClose}
+          disabled={busy}
+          aria-label="Cancel redemption"
+        >
+          <X />
+        </button>
+      </div>
+      <p>{product.name}</p>
+      <div className="ix-detail">
+        <span>Total</span>
+        <strong>
+          {fmt(product.xp)} {unit}
+        </strong>
+      </div>
+      <p className="ix-note">This spends Ixis from your Wallet.</p>
+      <div className="ix-confirm-actions">
+        <button className="ix-button" onClick={onClose} disabled={busy}>
+          Cancel
+        </button>
+        <button
+          className="ix-button ix-primary"
+          onClick={onConfirm}
+          disabled={busy}
+        >
+          {busy ? "Redeeming…" : "Confirm redemption"}
+        </button>
+      </div>
+    </dialog>
+  );
+}
 
-export function WalletScreen({ lockTab, unitLabel = "Ixis" }: { lockTab?: Tab; unitLabel?: string }) {
+export function WalletScreen({
+  lockTab,
+  unitLabel = "Ixis",
+  finalSaleNotice,
+}: {
+  lockTab?: Tab;
+  unitLabel?: string;
+  finalSaleNotice: string;
+}) {
   const unit = unitLabel === "Ixis Coin" ? "Ixis Coin" : "Ixis";
   const params = useSearchParams();
-  const returnUrl = params.get("return_url") ?? params.get("returnUrl") ?? "";
-  const product = params.get("product") ?? params.get("app") ?? params.get("destination") ?? "";
+  const router = useRouter();
+  const signInHere = () =>
+    router.push(
+      `/login?next=${encodeURIComponent(window.location.pathname + window.location.search)}`,
+    );
   const queryTab = params.get("tab");
-  const [tab, setTab] = useState<Tab>(lockTab ?? (isTab(queryTab) ? queryTab : "home"));
-  const [paid, setPaid] = useState(0);
-  const [bonus, setBonus] = useState(0);
-  const [reserved, setReserved] = useState(0);
-  const [signedIn, setSignedIn] = useState<boolean | null>(null);
-  const [redeeming, setRedeeming] = useState<string | null>(null);
-  const [notice, setNotice] = useState(() => openingNotice(params.get("checkout")));
-  const [log, setLog] = useState<LogRow[]>([]);
-  const [shopFilter, setShopFilter] = useState<ShopFilter>("all");
+  const [tab, setTab] = useState<Tab>(
+    tabs.some((item) => item.id === queryTab)
+      ? (queryTab as Tab)
+      : (lockTab ?? "home"),
+  );
+  const returnUrl = params.get("return_url") ?? params.get("returnUrl") ?? "";
+  const product =
+    params.get("product") ??
+    params.get("app") ??
+    params.get("destination") ??
+    "";
+  const destination = resolveDestination(product),
+    allowedReturnHost = returnUrl ? returnHost(returnUrl) : null;
+  const [balance, setBalance] = useState<Balance | null>(null);
+  const [history, setHistory] = useState<HistoryItem[]>([]);
+  const [total, setTotal] = useState(0);
+  const [status, setStatus] = useState<
+    "loading" | "ready" | "signedout" | "error"
+  >("loading");
+  const [updatedAt, setUpdatedAt] = useState(0);
+  const [notice, setNotice] = useState(
+    params.get("checkout") === "cancelled"
+      ? "Checkout cancelled. Choose a pack whenever you are ready."
+      : "",
+  );
+  const [motionEnabled, setMotionEnabled] = useState(true);
+  const reducedMotion = useReducedMotion(),
+    motion = motionEnabled && !reducedMotion;
+  const [feedPaused, setFeedPaused] = useState(false);
+  const [loadingOlder, setLoadingOlder] = useState(false);
+  const [shopFilter, setShopFilter] = useState<"all" | ShopCategory>("all");
+  const [redeemFilter, setRedeemFilter] = useState("All");
   const [showAllRedeem, setShowAllRedeem] = useState(false);
-  const available = paid + bonus;
-  const tape = last24h(xpTape);
-  const destination = resolveDestination(product);
-  const allowedReturnHost = returnUrl ? returnHost(returnUrl) : null;
-  const shownReturnHost = returnUrl ? readableHost(returnUrl) : null;
-  const scopedRedeem = destination && destination.slug !== "wallet" && !showAllRedeem
-    ? redeemCatalog.filter((item) => appSlug(item.app) === destination.slug)
-    : redeemCatalog;
-  const redeemItems = scopedRedeem.length ? scopedRedeem : redeemCatalog;
+  const [logFilter, setLogFilter] = useState("All");
+  const [buying, setBuying] = useState<string | null>(null);
+  const [pendingProduct, setPendingProduct] = useState<Product | null>(null);
+  const [redeeming, setRedeeming] = useState(false);
+  const refreshPromise = useRef<Promise<void> | null>(null),
+    purchaseLock = useRef(false),
+    redeemLock = useRef(false),
+    olderLock = useRef(false);
+  const redeemKeys = useRef(new Map<string, string>());
+  const historyEpoch = useRef(0);
 
-  /** Balance and receipts come only from the Wallet ledger. Nothing is computed in the browser. */
-  const refresh = useCallback(async () => {
-    try {
-      const [balance, history] = await Promise.all([fetchBalance(), fetchHistory({ limit: 50 })]);
-      setPaid(balance.paid);
-      setBonus(balance.bonus);
-      setReserved(balance.reserved);
-      setLog(toLogRows(history.transactions));
-      setSignedIn(true);
-    } catch (error) {
-      if (error instanceof WalletClientError && error.needsSignIn) {
-        setSignedIn(false);
-        setNotice((current) => current || `Sign in to see your ${unit} balance.`);
-        return;
+  const refresh = useCallback(() => {
+    if (refreshPromise.current) return refreshPromise.current;
+    historyEpoch.current += 1;
+    const request = (async () => {
+      try {
+        const [current, receipts] = await Promise.all([
+          fetchBalance(),
+          fetchHistory({ limit: 100 }),
+        ]);
+        setBalance(current);
+        setHistory((previous) => {
+          // A session may change in another tab. Retain older pages only when the
+          // refreshed ledger overlaps this same wallet's globally unique receipts.
+          const ids = new Set(receipts.transactions.map((item) => item.id));
+          return previous.some((item) => ids.has(item.id))
+            ? mergeHistory(previous, receipts.transactions)
+            : receipts.transactions;
+        });
+        setTotal(receipts.total);
+        setStatus("ready");
+        setUpdatedAt(Date.now());
+      } catch (error) {
+        if (error instanceof WalletClientError && error.needsSignIn) {
+          setBalance(null);
+          setHistory([]);
+          setTotal(0);
+          setStatus("signedout");
+          redeemKeys.current.clear();
+        } else setStatus("error");
       }
-      setNotice("Wallet is unreachable right now. Your balance is safe; try again in a moment.");
-    }
-  }, [unit]);
-
+    })();
+    refreshPromise.current = request;
+    void request.finally(() => {
+      refreshPromise.current = null;
+    });
+    return request;
+  }, []);
   useEffect(() => {
-    // Fetch-on-mount: the ledger is the only source of the balance.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+    // Initial fetch and visibility/focus refresh use the existing authenticated Wallet APIs.
     void refresh();
+    const focus = () => {
+      if (!document.hidden) void refresh();
+    };
+    window.addEventListener("focus", focus);
+    return () => window.removeEventListener("focus", focus);
   }, [refresh]);
+  useEffect(() => {
+    if (feedPaused || status === "signedout") return;
+    const timer = setInterval(() => {
+      if (!document.hidden) void refresh();
+    }, 15000);
+    return () => clearInterval(timer);
+  }, [refresh, feedPaused, status]);
+  const loadOlder = async () => {
+    if (olderLock.current || history.length >= total) return;
+    olderLock.current = true;
+    setLoadingOlder(true);
+    const epoch = historyEpoch.current;
+    try {
+      const page = await fetchHistory({ limit: 100, offset: history.length });
+      if (epoch === historyEpoch.current) {
+        setHistory((previous) => mergeHistory(previous, page.transactions));
+        setTotal(page.total);
+      }
+    } catch {
+      setNotice("Older history could not be loaded. Please try again.");
+    } finally {
+      olderLock.current = false;
+      setLoadingOlder(false);
+    }
+  };
 
+  const navigate = (next: Tab) => {
+    setTab(next);
+    const url = new URL(window.location.href);
+    url.searchParams.set("tab", next);
+    // Keep the sibling-app return URL and product intact when changing tabs.
+    window.history.replaceState(null, "", url);
+    window.scrollTo({ top: 0, behavior: "instant" });
+  };
   const buy = async (id: string) => {
-    setNotice("Opening coin checkout…");
+    if (purchaseLock.current) return;
+    purchaseLock.current = true;
+    setBuying(id);
+    setNotice("Opening secure checkout…");
     try {
       const response = await fetch("/api/checkout", {
         method: "POST",
@@ -130,277 +399,746 @@ export function WalletScreen({ lockTab, unitLabel = "Ixis" }: { lockTab?: Tab; u
       });
       const data = await response.json().catch(() => null);
       if (response.status === 401) {
-        // Not signed in: go through magic link (and first-time password), then come straight back here.
         signInHere();
         return;
       }
       if (!response.ok) {
-        setNotice(typeof data?.error === "string" ? data.error : "Stripe dark. Coin checkout is the only card flow.");
+        setNotice(
+          typeof data?.error === "string"
+            ? data.error
+            : "Checkout is unavailable. Please try again.",
+        );
         return;
       }
-      if (data?.url) window.location.assign(data.url);
+      if (typeof data?.url === "string") window.location.assign(data.url);
+      else
+        setNotice("Checkout did not return a payment link. Please try again.");
     } catch {
-      setNotice("Stripe dark. Coin checkout is the only card flow.");
+      setNotice("Checkout could not be opened. Please try again.");
+    } finally {
+      purchaseLock.current = false;
+      setBuying(null);
     }
   };
-
-  const redeem = async (key: string, name: string, xp: number, extra = "") => {
-    if (signedIn === false) {
+  const requestRedeem = (item: Product) => {
+    if (status === "signedout") {
       signInHere();
       return;
     }
-    if (redeeming) return;
-    if (available < xp) {
-      setNotice(`Need ${(xp - available).toLocaleString()} more ${unit}.`);
-      setTab("buy");
+    if (status !== "ready" || !balance) {
+      setNotice("Refresh your wallet before redeeming.");
       return;
     }
-    setRedeeming(key);
-    setNotice(`Redeeming ${name}…`);
+    if (balance.available < item.xp) {
+      setNotice(`You need ${fmt(item.xp - balance.available)} more ${unit}.`);
+      navigate("buy");
+      return;
+    }
+    setPendingProduct(item);
+  };
+  const redeem = async () => {
+    if (!pendingProduct || redeemLock.current) return;
+    redeemLock.current = true;
+    setRedeeming(true);
+    const item = pendingProduct;
+    const key = redeemKeys.current.get(item.key) ?? crypto.randomUUID();
+    redeemKeys.current.set(item.key, key);
     try {
-      const result = await redeemProduct(key);
+      const result = await redeemProduct(item.key, key);
       if (result.ok) {
-        setNotice(extra ? `${name} · ${xp.toLocaleString()} ${unit}. ${extra}` : `${name} · ${xp.toLocaleString()} ${unit}. Done.`);
+        redeemKeys.current.delete(item.key);
+        setNotice(
+          `${item.name} redeemed for ${fmt(item.xp)} ${unit}. Receipt ${result.receiptId}.`,
+        );
       } else if (result.reason === "signin") {
         signInHere();
         return;
-      } else if (result.reason === "insufficient") {
-        setNotice(`Not enough ${unit} for ${name}. Buy a pack first.`);
-        setTab("buy");
       } else {
         setNotice(result.message);
+        if (result.reason === "insufficient") {
+          redeemKeys.current.delete(item.key);
+          navigate("buy");
+        }
       }
     } catch {
-      setNotice("Wallet is unreachable right now. Nothing was charged; try again in a moment.");
+      setNotice(
+        "We could not confirm this redemption. Refresh your ledger; retrying this product will use the same transaction reference.",
+      );
     } finally {
-      setRedeeming(null);
+      redeemLock.current = false;
+      setRedeeming(false);
+      setPendingProduct(null);
       await refresh();
     }
   };
-
-  const shopItems = shopFilter === "all" ? shopCatalog : shopCatalog.filter((item) => item.category === shopFilter);
-
-  const title = useMemo(
-    () => ({ companies: "APIXIS COMPANIES", home: "HQ", buy: "BUY", redeem: "REDEEM", shop: "SHOP", market: "TAPE", news: "NEWS", activity: "LOG" })[tab],
-    [tab],
+  const exportHistory = () => {
+    const csv = [
+      "Transaction ID,Date,Type,Company,Description,Ixis",
+      ...visibleTransactions(history).map((item) =>
+        [
+          item.id,
+          item.createdAt,
+          item.kind,
+          item.app ?? "",
+          item.description,
+          transactionAmount(item),
+        ]
+          .map(
+            (value) =>
+              `"${String(value)
+                .replace(/^[=+@\-]/, "'$&")
+                .replaceAll('"', '""')}"`,
+          )
+          .join(","),
+      ),
+    ].join("\r\n");
+    const url = URL.createObjectURL(
+      new Blob([csv], { type: "text/csv;charset=utf-8" }),
+    );
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "apixis-wallet-loaded-history.csv";
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
+  const connected = balance !== null,
+    available = balance?.available ?? 0;
+  const receipts = visibleTransactions(history);
+  const scopedRedeem =
+    destination && destination.slug !== "wallet" && !showAllRedeem
+      ? redeemCatalog.filter((item) => appSlug(item.app) === destination.slug)
+      : redeemCatalog;
+  const redeemItems = (
+    scopedRedeem.length ? scopedRedeem : redeemCatalog
+  ).filter((item) => redeemFilter === "All" || item.app === redeemFilter);
+  const shopItems = shopCatalog.filter(
+    (item) => shopFilter === "all" || item.category === shopFilter,
+  );
+  const [eyebrow, title, subtitle] = headings[tab];
+  const empty = (
+    <p className="ix-empty">
+      {status === "loading"
+        ? "Loading your wallet…"
+        : status === "signedout"
+          ? "Sign in to see your balance and transactions."
+          : status === "error"
+            ? "Wallet connection unavailable. Please try refreshing."
+            : "No transactions yet. Your activity will appear here."}
+    </p>
+  );
+  const stream = (
+    <section className="ix-stream ix-panel">
+      <div className="ix-section-title">
+        <h2>Transaction stream</h2>
+        <span className="ix-stream-label">
+          {status === "ready" && !feedPaused ? "AUTO UPDATE" : "YOUR WALLET"}
+        </span>
+      </div>
+      <p className="ix-stream-caption">
+        Your transactions · refreshes every 15 seconds
+      </p>
+      <div className="ix-stream-list">
+        {receipts.length ? (
+          <LedgerRows items={receipts.slice(0, 5)} stream unit={unit} />
+        ) : (
+          empty
+        )}
+      </div>
+      <div className="ix-stream-bottom">
+        <span>
+          {updatedAt
+            ? `Updated ${new Date(updatedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`
+            : "Waiting for wallet connection"}
+        </span>
+        <button
+          className="ix-pause"
+          aria-pressed={feedPaused}
+          onClick={() => setFeedPaused((value) => !value)}
+        >
+          {feedPaused ? <Play /> : <Pause />}
+          {feedPaused ? "Resume" : "Pause"}
+        </button>
+      </div>
+    </section>
+  );
+  const chart = (
+    <WalletChart
+      history={history}
+      total={total}
+      updatedAt={updatedAt}
+      connected={connected}
+      loadOlder={() => void loadOlder()}
+      loadingOlder={loadingOlder}
+    />
   );
 
   return (
-    <main>
-      <aside>
-        <div className="brand">
-          <div className="mark">A</div>
-          <div>
-            <strong>APIXIS</strong>
-            <span>FAMILY // WALLET</span>
-          </div>
-        </div>
-        <nav>
-          <button className={tab === "home" ? "active" : ""} onClick={() => setTab("home")}><LayoutGrid />HQ</button>
-          <button className={tab === "companies" ? "active" : ""} onClick={() => setTab("companies")}><LayoutGrid />Apixis Companies</button>
-          <button className={tab === "buy" ? "active" : ""} onClick={() => setTab("buy")}><WalletCards />Buy</button>
-          <button className={tab === "redeem" ? "active" : ""} onClick={() => setTab("redeem")}><Coins />Redeem</button>
-          <button className={tab === "shop" ? "active" : ""} onClick={() => setTab("shop")}><ShoppingBag />Shop</button>
-          <button className={tab === "market" ? "active" : ""} onClick={() => setTab("market")}><TrendingUp />Tape</button>
-          <button className={tab === "news" ? "active" : ""} onClick={() => setTab("news")}><Megaphone />News</button>
-          <button className={tab === "activity" ? "active" : ""} onClick={() => setTab("activity")}><List />Log</button>
-        </nav>
-      </aside>
-      <section className="shell">
-        <div className="ticker"><i>{ticker}    {/* ///    {ticker} */}</i></div>
-        <header>
-          <div>
-            <p>100 {unit} = $1 <span className="live">● LIVE</span></p>
-            <h1>{title}</h1>
-          </div>
-          <p>{available.toLocaleString()} {unit}</p>
-        </header>
-        {notice && (
-          <div className="notice" onClick={() => setNotice("")}>
-            {notice}<span>×</span>
-          </div>
-        )}
-
-        {tab === "companies" && <CompaniesDirectory host="wallet" />}
-        {tab === "home" && (
-          <div className="dash">
-            <article className="balance-card">
-              <div className="eyebrow"><span>AVAILABLE</span></div>
-              <h2>{available.toLocaleString()} <small>{unit}</small></h2>
-              <p>${(available / 100).toFixed(2)}</p>
-              <div className="balance-actions">
-                <button onClick={() => setTab("buy")}>Buy coins</button>
-                <button className="secondary" onClick={() => setTab("redeem")}>Redeem</button>
-              </div>
-              <div className="split">
-                <span><b>{paid.toLocaleString()} {unit}</b>Paid</span>
-                <span><b>{bonus.toLocaleString()} {unit}</b>Bonus</span>
-                <span><b>{reserved.toLocaleString()} {unit}</b>Held</span>
-              </div>
-              <div style={{ marginTop: 16 }}>
-                <Tape values={xpTape.map((d) => d.circulating)} bars={xpTape.map((d) => d.buyXp + d.redeemXp)} height={120} />
-              </div>
-            </article>
-            <div>
-              <article className="transactions">
-                {log.slice(0, 4).map((t, i) => (
-                  <div className="tx" key={`${t.title}-${i}`}>
-                    <span className={t.xp > 0 ? "in" : "out"}>{t.xp > 0 ? <ArrowDownLeft /> : <ArrowUpRight />}</span>
-                    <div><b>{t.title}</b><p>{t.meta}</p></div>
-                    <strong className={t.xp > 0 ? "green" : ""}>{t.xp > 0 ? "+" : ""}{t.xp.toLocaleString()}</strong>
-                  </div>
-                ))}
-              </article>
-              <article className="news-card" style={{ marginTop: 14 }}>
-                <em>{bulletins[0].tag} · {bulletins[0].source}</em>
-                <h3>{bulletins[0].title}</h3>
-                <p>{bulletins[0].body}</p>
-                <button className="secondary" onClick={() => setTab("news")} style={{ marginTop: 10, background: "transparent", color: "#9dff4a", border: "1px solid #1f3a24", padding: "8px 10px" }}>All news</button>
-              </article>
-            </div>
-          </div>
-        )}
-
-        {tab === "buy" && (
-          <>
-            {(returnUrl || product) && (
-              <div className="notice">
-                <span>
-                  {returnUrl
-                    ? allowedReturnHost
-                      ? `After payment you return to ${allowedReturnHost}.`
-                      : `Return host ${shownReturnHost ?? "is unreadable"}. Wallet checks it against the Apixis allowlist when you buy.`
-                    : ""}
-                  {product
-                    ? destination
-                      ? ` Sister app: ${destination.label}.`
-                      : " That product is not a known Apixis app."
-                    : ""}
-                </span>
-              </div>
-            )}
-            <div className="packs">
-            {pointPacks.map((p) => (
-              <article key={p.id}>
-                <p>{p.name}</p>
-                <h3>{p.xp.toLocaleString()} <small>{unit}</small></h3>
-                <span>${p.price}</span>
-                <button onClick={() => buy(p.id)}>Buy</button>
-              </article>
+    <div id="ix-universe" data-page={tab} data-motion={motion ? "on" : "off"}>
+      <GoldCoinRain motion={motion} />
+      <div className="ix-shell">
+        <aside className="ix-side">
+          <button
+            className="ix-brand"
+            onClick={() => navigate("home")}
+            aria-label="Apixis Wallet home"
+          >
+            <Image
+              className="ix-apixis-logo"
+              src="/brand/apixis-family-logo.png"
+              alt="Apixis Family Company"
+              width={1774}
+              height={887}
+              sizes="180px"
+              priority
+            />
+            <small>WALLET</small>
+          </button>
+          <nav className="ix-nav" aria-label="Main navigation">
+            <div className="ix-nav-title">YOUR CONTROL CENTER</div>
+            {tabs.map((item) => (
+              <button
+                key={item.id}
+                aria-current={tab === item.id ? "page" : undefined}
+                className={tab === item.id ? "ix-selected" : ""}
+                onClick={() => navigate(item.id)}
+              >
+                <item.icon aria-hidden="true" />
+                {item.name}
+              </button>
             ))}
+          </nav>
+          <div className="ix-side-bottom">
+            <div className="ix-side-message">
+              <strong>Your universe, connected.</strong>
+              <p>
+                One identity. One balance.
+                <br />
+                Every Apixis possibility.
+              </p>
+              <a className="ix-text-button" href="https://www.apixis.dev">
+                Explore Apixis ↗
+              </a>
             </div>
-          </>
-        )}
-
-        {tab === "redeem" && (
-          <div className="products">
-            {destination && destination.slug !== "wallet" && (
-              <div style={{ gridColumn: "1 / -1", color: "var(--muted)", margin: 0 }}>
-                {destination.label} SKUs. {unit} stays in this Wallet until you redeem.
-                <button type="button" style={{ marginLeft: 10, background: "transparent", color: "#9dff4a", border: "1px solid #1f3a24", padding: "8px 10px" }} onClick={() => setShowAllRedeem((value) => !value)}>
-                  {showAllRedeem ? destination.label : "All products"}
+            <div className="ix-user">
+              <span className="ix-avatar">
+                <WalletCards />
+              </span>
+              <div>
+                <strong>Apixis ID</strong>
+                <small>
+                  {status === "ready"
+                    ? "Wallet connected"
+                    : "Your shared identity"}
+                </small>
+              </div>
+            </div>
+          </div>
+        </aside>
+        <main className="ix-main">
+          <header className="ix-top">
+            <div className="ix-breadcrumb">
+              Apixis Wallet <span>/</span>
+              <b>{tabs.find((item) => item.id === tab)?.name}</b>
+            </div>
+            <div className="ix-top-actions">
+              <span className="ix-demo">100 {unit.toUpperCase()} = $1</span>
+              {status === "signedout" && (
+                <button className="ix-button ix-primary" onClick={signInHere}>
+                  Sign in
                 </button>
+              )}
+              <button
+                className="ix-icon-button"
+                onClick={() => void refresh()}
+                aria-label="Refresh wallet"
+              >
+                <RefreshCw />
+              </button>
+              <button
+                className="ix-icon-button"
+                disabled={reducedMotion}
+                aria-label={motion ? "Pause animations" : "Resume animations"}
+                aria-pressed={!motion}
+                onClick={() => setMotionEnabled((value) => !value)}
+              >
+                {motion ? <Pause /> : <Play />}
+              </button>
+            </div>
+          </header>
+          <div className="ix-content">
+            <div className="ix-heading">
+              <div>
+                <p className="ix-eyebrow">{eyebrow}</p>
+                <h1>{title}</h1>
+                <p className="ix-subtitle">{subtitle}</p>
               </div>
-            )}
-            {redeemItems.map((p) => (
-              <article key={p.key} style={{ ["--accent"]: p.color } as React.CSSProperties}>
-                <span>{p.app.slice(0, 1)}</span>
-                <p>{p.app}</p>
-                <h3>{p.name}</h3>
-                <b>{p.xp.toLocaleString()} {unit}</b>
-                <button disabled={redeeming === p.key} onClick={() => redeem(p.key, p.name, p.xp)}>Redeem</button>
-              </article>
-            ))}
-          </div>
-        )}
-
-        {tab === "shop" && (
-          <>
-            <div className="balance-actions" style={{ flexWrap: "wrap" }}>
-              <button className={shopFilter === "all" ? "" : "secondary"} onClick={() => setShopFilter("all")}>All</button>
-              {shopCategories.map((category) => (
+              {tab === "activity" && (
                 <button
-                  key={category.id}
-                  className={shopFilter === category.id ? "" : "secondary"}
-                  onClick={() => setShopFilter(category.id)}
+                  className="ix-button"
+                  disabled={!receipts.length}
+                  onClick={exportHistory}
                 >
-                  {category.label}
+                  <Download />
+                  Export loaded
                 </button>
-              ))}
+              )}
             </div>
-            <div className="products">
-              {shopItems.map((p) => {
-                const label = shopCategories.find((category) => category.id === p.category)?.label ?? "";
-                return (
-                  <article key={p.key} style={{ ["--accent"]: p.color } as React.CSSProperties}>
-                    <span>{label.slice(0, 1)}</span>
-                    <p>{label}</p>
-                    <h3>{p.name}</h3>
-                    <b>{p.xp.toLocaleString()} {unit}</b>
-                    <span>{usd(p.xp / 100)}</span>
-                    <p>{p.blurb}</p>
-                    <button disabled={redeeming === p.key} onClick={() => redeem(p.key, p.name, p.xp)}>
-                      Buy with {unit}
+            {notice && (
+              <div className="ix-notice" role="status">
+                <span>{notice}</span>
+                <button
+                  className="ix-icon-button"
+                  onClick={() => setNotice("")}
+                  aria-label="Dismiss message"
+                >
+                  <X />
+                </button>
+              </div>
+            )}
+            {status === "error" && (
+              <div className="ix-notice" role="status">
+                <span>
+                  {balance
+                    ? "Connection interrupted. Showing your last retrieved balance and transactions."
+                    : "Your wallet could not be loaded."}
+                </span>
+                <button
+                  className="ix-text-button"
+                  onClick={() => void refresh()}
+                >
+                  Try again
+                </button>
+              </div>
+            )}
+            {tab === "companies" && <CompaniesDirectory motion={motion} />}
+            {tab === "home" && (
+              <>
+                <section className="cyber-hero" aria-label="Wallet overview">
+                  <div className="cyber-copy">
+                    <div className="ix-eyebrow">THE CURRENCY OF YOUR WORLD</div>
+                    <h2>
+                      Big ideas.
+                      <br />
+                      <span>Ixis energy.</span>
+                    </h2>
+                    <p>
+                      Fuel your next creation.
+                      <br />
+                      One wallet for the whole family.
+                    </p>
+                    <div className="cyber-rate">
+                      <i className="ix-led" aria-hidden="true" />
+                      100 IXIS = $1.00
+                    </div>
+                  </div>
+                  <div className="cyber-coin-stage" aria-hidden="true">
+                    <div className="cyber-orbit" />
+                    <div className="cyber-orbit second" />
+                    <div className="cyber-big-coin">
+                      <div className="cyber-coin-type">
+                        <small>APIXIS FAMILY</small>
+                        <strong>IXIS</strong>
+                        <small>ONE CONNECTED WORLD</small>
+                      </div>
+                    </div>
+                    <div className="cyber-chip">IXIS / DIGITAL CREDIT</div>
+                  </div>
+                  <div className="cyber-balance">
+                    <div className="cyber-balance-label">Available balance</div>
+                    <div className="cyber-balance-value">
+                      {connected ? fmt(available) : "—"}
+                      <small>{unit.toUpperCase()}</small>
+                    </div>
+                    <div className="cyber-balance-eq">
+                      {connected
+                        ? `${money(available / 100)} in platform credit`
+                        : status === "signedout"
+                          ? "Sign in to see your balance"
+                          : "Waiting for wallet connection"}
+                    </div>
+                    <div className="cyber-balance-actions">
+                      <button
+                        className="ix-button ix-primary"
+                        onClick={() => navigate("buy")}
+                      >
+                        <Plus />
+                        Buy Ixis
+                      </button>
+                      <button
+                        className="ix-button"
+                        onClick={() => navigate("redeem")}
+                      >
+                        Redeem <ArrowUpRight />
+                      </button>
+                    </div>
+                    <div className="cyber-balance-note">
+                      Your purchased Ixis never expire
+                    </div>
+                  </div>
+                </section>
+                <div className="cyber-metrics">
+                  {[
+                    {
+                      label: "Purchased",
+                      value: balance?.paid,
+                      color: "#7ff7e1",
+                    },
+                    {
+                      label: "Bonus credits",
+                      value: balance?.bonus,
+                      color: "#d0a4ff",
+                    },
+                    {
+                      label: "On hold",
+                      value: balance?.reserved,
+                      color: "#ffce89",
+                    },
+                  ].map((metric) => (
+                    <div
+                      className="cyber-metric"
+                      style={{ "--metric": metric.color } as CSSProperties}
+                      key={metric.label}
+                    >
+                      <small>{metric.label}</small>
+                      <strong>
+                        {metric.value === undefined ? "—" : fmt(metric.value)}
+                        <span>{unit.toUpperCase()}</span>
+                      </strong>
+                    </div>
+                  ))}
+                  <div
+                    className="cyber-metric"
+                    style={{ "--metric": "#86b6ff" } as CSSProperties}
+                  >
+                    <small>One connected family</small>
+                    <strong>
+                      15<span>COMPANIES</span>
+                    </strong>
+                  </div>
+                </div>
+                <div className="ix-market-grid">
+                  {chart}
+                  {stream}
+                </div>
+                <section className="ix-section">
+                  <div className="ix-section-title">
+                    <h2>Enter the Apixis universe.</h2>
+                    <button
+                      className="ix-text-button"
+                      onClick={() => navigate("companies")}
+                    >
+                      All companies →
                     </button>
+                  </div>
+                  <CompaniesDirectory featured motion={motion} />
+                </section>
+              </>
+            )}
+            {tab === "buy" && (
+              <>
+                {(returnUrl || product) && (
+                  <p className="ix-notice">
+                    {allowedReturnHost
+                      ? `After payment you return to ${allowedReturnHost}. `
+                      : returnUrl
+                        ? "Wallet will verify your return destination at checkout. "
+                        : ""}
+                    {destination ? `From ${destination.label}.` : ""}
+                  </p>
+                )}
+                <section className="ix-buy-hero ix-panel">
+                  <p className="ix-eyebrow">100 IXIS = $1</p>
+                  <h2>
+                    Small coin.
+                    <br />
+                    Big universe.
+                  </h2>
+                  <p>
+                    Your purchased Ixis never expire. Use them across the Apixis
+                    family.
+                  </p>
+                  <span className="ix-coin ix-hero-coin" aria-hidden="true">
+                    IXIS
+                  </span>
+                </section>
+                <div className="ix-pack-grid">
+                  {pointPacks.map((pack, index) => (
+                    <article
+                      key={pack.id}
+                      className={`ix-pack ix-panel ${index === 2 ? "featured" : ""}`}
+                    >
+                      <p className="ix-pack-label">{pack.name.toUpperCase()}</p>
+                      <h2 className="ix-pack-amount">{fmt(pack.xp)}</h2>
+                      <p className="ix-pack-price">
+                        {unit} · {money(pack.price)}
+                      </p>
+                      <button
+                        className={`ix-button ${index === 2 ? "ix-primary" : ""}`}
+                        disabled={buying !== null}
+                        onClick={() => void buy(pack.id)}
+                      >
+                        {buying === pack.id
+                          ? "Opening…"
+                          : `Choose ${pack.name}`}
+                      </button>
+                    </article>
+                  ))}
+                </div>
+                <p className="ix-note">
+                  <ShieldCheck />
+                  Secure checkout with Stripe. {finalSaleNotice}
+                </p>
+              </>
+            )}
+            {tab === "redeem" && (
+              <>
+                {destination && destination.slug !== "wallet" && (
+                  <p className="ix-note">
+                    {showAllRedeem
+                      ? "Showing all companies."
+                      : `Products for ${destination.label}.`}{" "}
+                    <button
+                      className="ix-text-button"
+                      onClick={() => {
+                        setShowAllRedeem((value) => !value);
+                        setRedeemFilter("All");
+                      }}
+                    >
+                      {showAllRedeem
+                        ? `Only ${destination.label}`
+                        : "All products"}
+                    </button>
+                  </p>
+                )}
+                <label className="ix-catalog-select">
+                  Company{" "}
+                  <select
+                    value={redeemFilter}
+                    onChange={(event) => setRedeemFilter(event.target.value)}
+                  >
+                    <option>All</option>
+                    {Array.from(
+                      new Set(
+                        (scopedRedeem.length
+                          ? scopedRedeem
+                          : redeemCatalog
+                        ).map((item) => item.app),
+                      ),
+                    ).map((app) => (
+                      <option key={app}>{app}</option>
+                    ))}
+                  </select>
+                </label>
+                <div className="ix-products">
+                  {redeemItems.map((item) => (
+                    <article
+                      className="ix-product ix-panel"
+                      key={item.key}
+                      style={{ "--company": item.color } as CSSProperties}
+                    >
+                      <span className="ix-company-icon">
+                        <Coins />
+                      </span>
+                      <p className="ix-eyebrow" style={{ color: item.color }}>
+                        {item.app}
+                      </p>
+                      <h3>{item.name}</h3>
+                      <p>{item.includes}</p>
+                      <div className="ix-price">
+                        {fmt(item.xp)}{" "}
+                        <small>
+                          {unit}
+                          {"days" in item ? ` · ${item.days} days` : ""}
+                        </small>
+                      </div>
+                      <button
+                        className="ix-button"
+                        disabled={redeeming || status === "loading"}
+                        onClick={() => requestRedeem(item)}
+                      >
+                        Redeem <ArrowUpRight />
+                      </button>
+                    </article>
+                  ))}
+                </div>
+              </>
+            )}
+            {tab === "shop" && (
+              <>
+                <div className="ix-filters">
+                  <button
+                    className={`ix-filter ${shopFilter === "all" ? "ix-selected" : ""}`}
+                    onClick={() => setShopFilter("all")}
+                    aria-pressed={shopFilter === "all"}
+                  >
+                    All items
+                  </button>
+                  {shopCategories.map((category) => (
+                    <button
+                      key={category.id}
+                      className={`ix-filter ${shopFilter === category.id ? "ix-selected" : ""}`}
+                      aria-pressed={shopFilter === category.id}
+                      onClick={() => setShopFilter(category.id)}
+                    >
+                      {category.label}
+                    </button>
+                  ))}
+                </div>
+                <div className="ix-products">
+                  {shopItems.map((item) => (
+                    <article
+                      className="ix-product ix-panel"
+                      key={item.key}
+                      style={{ "--company": item.color } as CSSProperties}
+                    >
+                      <div className="ix-product-art">
+                        <span className="ix-file-art">▤</span>
+                      </div>
+                      <p className="ix-eyebrow" style={{ color: item.color }}>
+                        {item.app}
+                      </p>
+                      <h3>{item.name}</h3>
+                      <p>{item.blurb}</p>
+                      <div className="ix-price">
+                        {fmt(item.xp)}{" "}
+                        <small>
+                          {unit} · {money(item.xp / 100)}
+                        </small>
+                      </div>
+                      <button
+                        className="ix-button"
+                        disabled={redeeming || status === "loading"}
+                        onClick={() => requestRedeem(item)}
+                      >
+                        Buy with {unit} <ArrowUpRight />
+                      </button>
+                    </article>
+                  ))}
+                </div>
+              </>
+            )}
+            {tab === "market" && (
+              <>
+                {chart}
+                <div className="ix-tape-bottom">
+                  {stream}
+                  <section className="ix-explainer ix-panel">
+                    <div className="ix-section-title">
+                      <h2>The Ixis rate</h2>
+                      <span className="ix-coin">IX</span>
+                    </div>
+                    <p>
+                      Ixis is fixed platform credit. One Ixis equals $0.01, so
+                      its price change is 0%. Activity shows credits and
+                      redemptions in your own wallet.
+                    </p>
+                    <div className="ix-detail">
+                      <span>Rate</span>
+                      <span>100 Ixis = $1</span>
+                    </div>
+                    <div className="ix-detail">
+                      <span>Data source</span>
+                      <span>Your Wallet ledger</span>
+                    </div>
+                    <p>
+                      Use the time controls to explore your recorded activity.
+                      Load older history when a period extends beyond the
+                      records shown.
+                    </p>
+                  </section>
+                </div>
+              </>
+            )}
+            {tab === "news" && (
+              <div className="ix-news-grid">
+                {bulletins.map((item, index) => (
+                  <article
+                    className={`${index === 0 ? "ix-news-main" : "ix-news-small"} ix-panel`}
+                    key={item.id}
+                  >
+                    <p className="ix-eyebrow">
+                      {item.tag} · {item.source}
+                    </p>
+                    <h2>{item.title}</h2>
+                    <p>{item.body}</p>
+                    <time className="ix-news-date">{item.at}</time>
+                    {index === 0 && (
+                      <button
+                        className="ix-button"
+                        onClick={() => navigate("companies")}
+                      >
+                        Meet the family <ArrowUpRight />
+                      </button>
+                    )}
                   </article>
-                );
-              })}
-            </div>
-          </>
-        )}
-
-        {tab === "market" && (
-          <>
-            <article className="balance-card">
-              <div className="eyebrow"><span>{unit} / USD</span><span className="live">PEG $0.01</span></div>
-              <h2>$0.01 <small>FIXED</small></h2>
-              <div className="split">
-                <span><b>{tape.circulating.toLocaleString()}</b>Circulating</span>
-                <span><b>{tape.volumeXp.toLocaleString()}</b>Bought + redeemed 24h</span>
-                <span><b>{usd(tape.volumeUsd)}</b>Same, in USD</span>
+                ))}
               </div>
-              <div style={{ marginTop: 18 }}>
-                <Tape values={xpTape.map((d) => d.circulating)} bars={xpTape.map((d) => d.buyXp + d.redeemXp)} height={160} />
-              </div>
-            </article>
-            <div className="products" style={{ marginTop: 14 }}>
-              {productTape.map((p) => (
-                <article key={p.key} style={{ ["--accent"]: p.color } as React.CSSProperties}>
-                  <p>{p.symbol}</p>
-                  <h3>{p.name}</h3>
-                  <b>{p.volume30.toLocaleString()} {unit} / 30d</b>
-                  <Tape values={p.redeemXp} color={p.color} height={72} />
-                </article>
-              ))}
-            </div>
-          </>
-        )}
-
-        {tab === "news" && (
-          <div>
-            {bulletins.map((b) => (
-              <article className="news-card" key={b.id}>
-                <em>{b.tag} · {b.source} · {b.at}</em>
-                <h3>{b.title}</h3>
-                <p>{b.body}</p>
-              </article>
-            ))}
+            )}
+            {tab === "activity" && (
+              <>
+                <div className="ix-filters">
+                  {[
+                    "All",
+                    "purchase",
+                    "spend",
+                    "bonus",
+                    "refund",
+                    "adjustment",
+                  ].map((kind) => (
+                    <button
+                      key={kind}
+                      className={`ix-filter ${logFilter === kind ? "ix-selected" : ""}`}
+                      aria-pressed={logFilter === kind}
+                      onClick={() => setLogFilter(kind)}
+                    >
+                      {kinds[kind] ?? kind}
+                    </button>
+                  ))}
+                </div>
+                <section className="ix-log ix-panel">
+                  {receipts.filter(
+                    (item) => logFilter === "All" || item.kind === logFilter,
+                  ).length ? (
+                    <LedgerRows
+                      items={receipts.filter(
+                        (item) =>
+                          logFilter === "All" || item.kind === logFilter,
+                      )}
+                      unit={unit}
+                    />
+                  ) : (
+                    empty
+                  )}
+                </section>
+                {history.length < total && (
+                  <button
+                    className="ix-button ix-load-more"
+                    onClick={() => void loadOlder()}
+                    disabled={loadingOlder}
+                  >
+                    {loadingOlder
+                      ? "Loading…"
+                      : `Load older history (${history.length} of ${total} records)`}
+                  </button>
+                )}
+              </>
+            )}
+            <footer className="ix-footer">
+              <span>APIXIS FAMILY COMPANY · 100 {unit} = $1</span>
+              <span>ONE IDENTITY. ONE WALLET.</span>
+            </footer>
           </div>
-        )}
-
-        {tab === "activity" && (
-          <article className="transactions">
-            {log.map((t, i) => (
-              <div className="tx" key={`${t.title}-${i}`}>
-                <span className={t.xp > 0 ? "in" : "out"}>{t.xp > 0 ? <ArrowDownLeft /> : <ArrowUpRight />}</span>
-                <div><b>{t.title}</b><p>{t.meta}</p></div>
-                <strong className={t.xp > 0 ? "green" : ""}>{t.xp > 0 ? "+" : ""}{t.xp.toLocaleString()} {unit}</strong>
-              </div>
-            ))}
-          </article>
-        )}
-        <footer>APIXIS FAMILY CO. · coins only · peg 100 {unit} = $1</footer>
-      </section>
-    </main>
+        </main>
+      </div>
+      {pendingProduct && (
+        <RedeemDialog
+          product={pendingProduct}
+          unit={unit}
+          busy={redeeming}
+          onClose={() => setPendingProduct(null)}
+          onConfirm={() => void redeem()}
+        />
+      )}
+    </div>
   );
 }
