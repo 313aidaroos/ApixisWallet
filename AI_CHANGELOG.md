@@ -123,3 +123,7 @@ Entry format:
 ## 2026-10-04 — Grok (Wallet Lead): Claude-changes audit notes (backfill)
 - Changed: `NOTES/GROK.md` (backfilled entry for Claude #48 + the #23 religion-lock finding fixed in #50; today's summary line corrected), `WORKBOARD.md` (task line, done). Notes only; no code, env, DB or deploy change.
 - Why: Awad asked at 6:43 PM CT for everything Claude did recently in this repo to be found, verified and logged. Undo: revert this PR's squash commit.
+
+## 2026-10-04 — Grok (Wallet Lead): Cixy canon sync + WALLET_STATS_KEY note
+- Changed: `sdk/apixis-cixy.ts`, `sdk/apixis-cixy.js`, `docs/CIXY.md` now byte-identical to Developer Bot's family canon (character line "draws on Arab culture"; the recommendations rule becomes "decline only what is genuinely harmful, deceptive or illegal, never on religious grounds"). `NOTES/GROK.md`: Developer Bot set `WALLET_STATS_KEY` on Production (redeploy dpl_GT9SVmHT2cffxib1jsprVhVwS8Bv). Live check: summary returns 401 without a key. awad-command still lacks the var. `WORKBOARD.md` line.
+- Why: Awad's 7:18 PM CT follow-up (one Cixy across the family; record the env change). No SQL, no env change by Wallet Lead, no runtime code. Undo: revert this PR's squash commit.
