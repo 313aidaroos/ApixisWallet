@@ -1,6 +1,6 @@
 # Apixis family — status board (one page, every AI reads this first)
 
-**Owner:** Awad (313aidaroos). **Rules:** `AGENTS.md` §0 (D1–D16). **Last updated: 2026-10-05 12:25 AM CT, notes and status sync (Grok); before that 2026-10-04 9:25 PM CT, notes and status sync (Grok).** Owner to-do: **`docs/OWNER_CHECKLIST.md`**. Keys go in with the launch kit: **`docs/LAUNCH_KIT.md`** (`npm run launch`). Previous brief: `docs/MORNING_BRIEF_2026-10-01.md`.
+**Owner:** Awad (313aidaroos). **Rules:** `AGENTS.md` §0 (D1–D16). **Last updated: 2026-10-06 12:40 AM CT, AI Receptionist approved (Claude); before that 2026-10-05 12:25 AM CT, notes and status sync (Grok); before that 2026-10-04 9:25 PM CT, notes and status sync (Grok).** Owner to-do: **`docs/OWNER_CHECKLIST.md`**. Keys go in with the launch kit: **`docs/LAUNCH_KIT.md`** (`npm run launch`). Previous brief: `docs/MORNING_BRIEF_2026-10-01.md`.
 
 This is the only family-wide status board (D15). Per-repo `NOTES/*.md`, `JUNOAI_NOTES.md`, `WORKBOARD.md`
 and `LAUNCH_NOTES.md` are archives. If you change family status, change it here. Every code change: `AI_CHANGELOG.md` in that repo.
@@ -15,6 +15,14 @@ and `LAUNCH_NOTES.md` are archives. If you change family status, change it here.
 - **World kit:** Apixis.dev `sdk/apixis-world*.ts` + `POST /api/agent/provision`. Every sign-up gets a wallet + avatar agent. **Correction (2026-10-04):** the "1,000 starter Ixis" provision gave went to the agent's *in-world* balance (`apixis.agents.ixix_balance` / `apixis.ixix_ledger`), not the shared Wallet. That in-world starter is going to 0 (hub, Apixis.dev). The real grant is the Wallet's welcome grant below.
 - **Welcome grant (D11, Wallet migration 013):** 1,000 free Ixis per Apixis ID, once, in the shared Wallet's bonus bucket, on the first confirmed sign-in (lazy backfill, no cutoff). Shows on every balance pill via `/api/v1/balance`. Live in Wallet Production with `SIGNUP_GRANT_ENABLED=true`; Apixis.dev's in-world visitor starter is 0.
 - **Cixy:** one persona, `sdk/apixis-cixy.*` (`docs/CIXY.md`). Product role is the only site-specific text. Brain down → calm 503, never a vendor error.
+
+## 2026-10-06 — AI Receptionist approved (Claude, 12:40 AM CT)
+
+Awad approved an **AI Receptionist add-on at $100/month (10,000 Ixis)** for every customer-facing family site (D18).
+**Every AI: read `docs/AI_RECEPTIONIST.md` before building anything phone-related.** Do not build your own receptionist,
+voice agent or phone feature, and do not add or price a receptionist SKU. One engine in Apixis.dev, one Wallet SKU.
+Status: spec and notes done on every site; Wallet SKU, engine and the Contraxis pilot are being built by Claude on branches, not live.
+Open for Awad: Pinixis payment method (Ixis is off there, D17) and the 300-minute cap.
 
 ## 2026-10-05 current product status, 12:25 AM CT (Grok notes sync)
 
