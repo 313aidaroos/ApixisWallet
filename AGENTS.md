@@ -71,6 +71,7 @@ The table in §0b is history (those PRs are merged or superseded). **Live family
 | D15 | **One log, one board per repo.** `AI_CHANGELOG.md` is the only change log; `docs/FAMILY_STATUS.md` (here) is the only family status board. Per-repo `NOTES/*.md`, `JUNOAI_NOTES.md`, `WORKBOARD.md`, `LAUNCH_NOTES.md` are archives — do not update them, do not create new ones. | Every AI appends to `AI_CHANGELOG.md` and, when family status changes, edits `docs/FAMILY_STATUS.md` in this repo. |
 | D16 | **`verifyOtp({ type: "email" })` everywhere.** GoTrue mints a `signup` token for a never-seen address, which `type: "magiclink"` rejects; `"email"` accepts both. | Fixed in `app/auth/callback` and `sdk/apixis-login-next.ts`; copy the kit, never patch a site's copy by hand. |
 | D17 | **Pinixis takes card payments through its own Stripe** (owner, 2026-10-02). | Physical arcade builds (deposit + balance) and marketplace listings (Stripe Connect sellers). Second exception to D14 after qahwahworld coffee. Ixis stay Wallet-only. |
+| D18 | **AI Receptionist is a family add-on, $100/mo** (owner, 2026-10-06). Every customer-facing site offers it; one engine in Apixis.dev; one SKU. | **Read `docs/AI_RECEPTIONIST.md` before anything phone-related.** SKU `apixis.receptionist.monthly` (app `Family`, 10,000 Ixis, `days: 30`). No site builds its own receptionist or prices it. |
 
 **Next steps, in order:**
 1. **Merge `claude/epic-rubin-oen8nu` → `main`** (safe now that 007/008 are live). In Vercel, set `CRON_SECRET` and `TERMS_VERSION`, then redeploy.

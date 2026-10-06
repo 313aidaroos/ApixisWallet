@@ -151,3 +151,7 @@ Entry format:
 - Updated the canonical family board for Launchixis PR #25: private workspaces, delivery of the existing checklist SKU, admin support queue, security/dependency upgrades, and automated coverage. The owner requested the improvements and merge.
 - Recorded remaining delivery and verification limits explicitly. No Wallet application, SDK, catalog, pricing, ledger, or database changes.
 - Documentation verification: compared the status against Launchixis code and test results; Launchixis production migration preserves all 14 internal launches and 3 existing support tickets.
+
+## 2026-10-06 — Claude (family lead): AI Receptionist notes (D18)
+- Changed: new `docs/AI_RECEPTIONIST.md` (the family spec); `AGENTS.md` §0c row D18; `docs/FAMILY_STATUS.md` 2026-10-06 entry.
+- Why: Awad approved an AI Receptionist add-on at $100/month for every customer-facing site and asked that every bot and agent follow one plan. Notes only; no code or price change in this commit.
