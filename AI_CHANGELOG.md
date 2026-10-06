@@ -146,3 +146,8 @@ Entry format:
 - Replaced the top-left coin mark with the exact raster Apixis Family Company logo from apixis.dev, stored locally and served through Next Image. Updated the local review preview with the same logo.
 - Verification: npm run check passed (lint, typecheck, 154 tests, production build). Browser checks passed for all eight tabs at 320px, the populated activity chart, pause control, and console errors. The previous branch revision's app and ledger-sql CI jobs passed; final revision must pass before merging. No real purchases or redemptions were made. No backend, database, catalog, package, or environment changes.
 - Why: owner approved the new preview and requested the Apixis logo before merging. Undo: revert this PR's squash commit.
+
+## 2026-10-06 — Codex: Launchixis customer release status
+- Updated the canonical family board for Launchixis PR #25: private workspaces, delivery of the existing checklist SKU, admin support queue, security/dependency upgrades, and automated coverage. The owner requested the improvements and merge.
+- Recorded remaining delivery and verification limits explicitly. No Wallet application, SDK, catalog, pricing, ledger, or database changes.
+- Documentation verification: compared the status against Launchixis code and test results; Launchixis production migration preserves all 14 internal launches and 3 existing support tickets.

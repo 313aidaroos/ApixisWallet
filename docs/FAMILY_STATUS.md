@@ -34,7 +34,7 @@ Shared status: Apixis ID is now the only way to create a new account on every fa
 - **Deduxis:** Apixis-ID-only signup (PR #27). Open: none recorded.
 - **Recovra:** Apixis-ID-only signup (PR #27). Open: production service key.
 - **Geoxis:** Apixis-ID-only signup re-verified (PR #26, notes only). Open: none recorded.
-- **Launchixis:** Apixis-ID-only signup (PR #24). Open: none recorded.
+- **Launchixis:** Apixis-ID-only signup (PR #24); customer workspaces and checklist delivery (PR #25). Tests use a fake Wallet, with no real Ixis spent. See the backend row below for remaining limits.
 - **Ominix:** Leftover email/password signup form removed (PR #17). Open: none recorded.
 - **qahwahworld:** Apixis-ID-only signup (PR #23); welcome card now says 1,000 starter Ixis instead of 200 (Hermes daily QA). Open: the support form saves tickets but its success message does not show (not a blocker).
 - **awad-command:** Internal HQ, no feed tab, no changes this window. Open: set `WALLET_STATS_KEY` on its Vercel project so the wallet views connect.
@@ -206,7 +206,7 @@ Legend: **Sell** = can take Ixis for something today once its `WALLET_API_KEY` i
 | Rawixis | Buyer seats via Wallet, admin key isolated, Cixy on shared core. 288 tests. | Yes (seats) | ✓ | Anthropic credits; end-to-end deal not verified. |
 | qahwahworld | Roaster seat via Wallet, PKCE, Cixy on shared core (neutral opener). 28 tests. | Yes (seat) | ✓ | Seller seat / featured listing SKUs unused. |
 | Halaxis | PKCE, world-agent wiring. Payments intentionally off. | No SKUs | ✓ | Do not enable trading features. |
-| Launchixis | Redeem answers 409 "not on sale" by design. Cixy on shared core + fallback. 24 tests. | Off | ✓ | — |
+| Launchixis | PR #25: private admin board and one isolated workspace/customer; durable checklist fulfillment via shared Wallet; support queue; contextual Cixy; safe redirects and shared rate limits. Next 16.3.8. 39 unit tests plus isolated SQL and production-route integration. Customer-workspaces migration live 2026-10-06. | Checklist only (existing 1,000-Ixis SKU) | ✓ | Brand kits, operator seats and enterprise remain off. Live paid spending/new-account SSO untested; support replies use admin mailbox; leaked-password advisory remains. |
 | PersonalContentBot | Clip redeem via Wallet; durable jobs (retry-safe, reconcile cron) behind `PCB_DURABLE_JOBS`; Cixy on shared core + fallback. 15 tests, tsc clean. | Yes | ✓ | Awad: SQL + 2 env vars. |
 | Apixis.dev | Hub, world kit, provision endpoint, pulse cron. Starter 1,000. Redeem requires `attemptId`, owner = Apixis `sub`. 218 tests. | Hub | ✓ | PRs #58/#59 superseded (#59 DO NOT MERGE). |
 | Geoxis | JS SDK takes Apixis `sub`; Cixy on shared core + fallback. `PLANS_ON_SALE=false`. | Off | ✓ (added) | — |
