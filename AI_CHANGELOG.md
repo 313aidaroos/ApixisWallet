@@ -155,3 +155,7 @@ Entry format:
 ## 2026-10-06 — Claude (family lead): AI Receptionist notes (D18)
 - Changed: new `docs/AI_RECEPTIONIST.md` (the family spec); `AGENTS.md` §0c row D18; `docs/FAMILY_STATUS.md` 2026-10-06 entry.
 - Why: Awad approved an AI Receptionist add-on at $100/month for every customer-facing site and asked that every bot and agent follow one plan. Notes only; no code or price change in this commit.
+
+## 2026-10-06 — Claude (family lead): AI Receptionist SKU (D18), branch `claude/ai-receptionist-sku`, not merged
+- Changed: `lib/catalog.ts` adds `apixis.receptionist.monthly` (app `Family`, 10,000 Ixis, `days: 30`); new `supabase/migrations/015_receptionist_family_scope.sql` (not applied) adds `family` to Apixis.dev's key.
+- Why: Awad approved the price ($100/mo) on 2026-10-06. Held unmerged until the Apixis.dev engine is reviewed, so nothing is sellable before it can be delivered.
