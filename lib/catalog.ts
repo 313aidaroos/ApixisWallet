@@ -51,6 +51,8 @@ export const redeemCatalog = [
   { key: "contraxis.seat.starter", app: "Contraxis", name: "Pro Starter", xp: 9900, color: "#22d3ee", includes: "Was $99/mo card. Now XP.", days: 30 },
   { key: "contraxis.seat.pro", app: "Contraxis", name: "Pro Professional", xp: 39900, color: "#22d3ee", includes: "Was $399/mo card. Now XP.", days: 30 },
 
+  // AI Receptionist (D18, Awad 2026-10-06): one family SKU, sold on every customer-facing site by the Apixis.dev engine. Spec: docs/AI_RECEPTIONIST.md.
+  { key: "apixis.receptionist.monthly", app: "Family", name: "AI Receptionist", xp: 10000, color: "#46e6ff", includes: "AI phone answering · own number · 300 min · $100/mo", days: 30 },
   { key: "apixis.file.unit", app: "Family", name: "Any file / template / skin", xp: UNIT_XP, color: "#9dff4a", includes: "$10 unit · same on every site" },
   { key: "renoxis.file.listing", app: "Renoxis", name: "Listing file", xp: UNIT_XP, color: "#c8ff63", includes: "One listing template" },
   { key: "renoxis.file.offer", app: "Renoxis", name: "Offer file", xp: UNIT_XP, color: "#c8ff63", includes: "One offer template" },
