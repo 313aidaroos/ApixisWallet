@@ -155,3 +155,7 @@ Entry format:
 ## 2026-10-06 — Claude (family lead): AI Receptionist notes (D18)
 - Changed: new `docs/AI_RECEPTIONIST.md` (the family spec); `AGENTS.md` §0c row D18; `docs/FAMILY_STATUS.md` 2026-10-06 entry.
 - Why: Awad approved an AI Receptionist add-on at $100/month for every customer-facing site and asked that every bot and agent follow one plan. Notes only; no code or price change in this commit.
+
+## 2026-10-06 — Claude (family lead): AI Receptionist spec update (R4 one per business, Socixis built)
+- Changed: `docs/AI_RECEPTIONIST.md` (decision R4, brand header, rollout table with PR numbers, Socixis row).
+- Why: Awad said "go" on one receptionist per brand and asked for the Socixis version; every bot needs the current plan.

@@ -17,6 +17,7 @@ details and sends the owner a summary by text, email, and inside the family site
 | R1 | **Every customer-facing family site offers the AI Receptionist** as a buyable add-on. | Each site gets the same add-on (§6). Sites listed in §8. |
 | R2 | **Price: $100/month = 10,000 Ixis**, renewing every 30 days like every seat (D2). | One Wallet SKU for the whole family: `apixis.receptionist.monthly`, app `Family`, `xp: 10000`, `days: 30`, in `lib/catalog.ts` only. |
 | R3 | **Built once, shared by every site.** No site builds its own (D10). | The engine lives in **Apixis.dev**, next to the shared feed and `/api/agent/provision`. |
+| R4 | **One receptionist per business** (Awad's go, 2026-10-06). A person with several businesses or Socixis brands buys one per business. | Engine accounts are keyed on (person, site, brand). Sites with several businesses per person send `X-Apixis-Brand` (Socixis: `business_profiles.id`); each brand has its own number, minutes and $100/mo. |
 
 ## 3. Defaults Claude set (Awad may change these)
 
@@ -51,7 +52,7 @@ Caller ─► owner's phone ─(no answer / after hours)─► AI number (phone 
 
 - **Engine:** Apixis.dev `api/receptionist/*`, Apixis.dev Supabase (schema `apixis`, tables `receptionist_*`).
 - **Engine-only env (Apixis.dev Vercel):** `VOICE_PROVIDER` (`vapi` or `retell`), the provider's API key and webhook secret, the phone provider's keys (Twilio). Awad's developer creates these accounts and sets the keys.
-- **Site → engine auth:** the same as the shared feed (`Apixis.dev docs/FEED_API.md` §1a): `Authorization: Bearer <APIXIS_WORLD_KEY>`, `X-Apixis-Client: <site>`, `X-Apixis-Sub`, `X-Apixis-Email`. No new key per site.
+- **Site → engine auth:** the same as the shared feed (`Apixis.dev docs/FEED_API.md` §1a): `Authorization: Bearer <APIXIS_WORLD_KEY>`, `X-Apixis-Client: <site>`, `X-Apixis-Sub`, `X-Apixis-Email`, plus optional `X-Apixis-Brand` (R4). No new key per site. Full contract: Apixis.dev `docs/RECEPTIONIST_API.md`.
 - **Payment:** the engine reserves `apixis.receptionist.monthly` with Apixis.dev's own Wallet key (the key needs the `family` app scope), provisions the number, then captures. Sites never charge for it themselves, so a site with no SKUs of its own can still offer it.
 - **Planned endpoints (v1):**
   - `GET /api/receptionist/status` → `{ active, renews_at, phone_number, minutes_used, minutes_included }`
@@ -75,9 +76,10 @@ The client helper will ship as `sdk/apixis-receptionist.ts` in Apixis.dev. Sites
 | Step | What | Status (2026-10-06) |
 |---|---|---|
 | 1 | This spec, D18, and a pointer in every site's `docs/APIXIS_FAMILY.md` | Done |
-| 2 | Wallet SKU `apixis.receptionist.monthly` + `family` scope on Apixis.dev's key | Claude, branch, not live |
-| 3 | Engine in Apixis.dev | Claude, branch, not live |
-| 4 | Contraxis pilot (card, setup, calls, calls become leads) | Claude, branch, not live |
+| 2 | Wallet SKU `apixis.receptionist.monthly` + `family` scope on Apixis.dev's key | Built: ApixisWallet PR #59, **held** (merging makes it sellable) |
+| 3 | Engine in Apixis.dev (one per business, R4) | Built: Apixis.dev PR #85, held, 16 tests pass |
+| 4 | Contraxis pilot (card, setup, calls become phone leads) | Built: Contraxis PR #60, held, CI green |
+| 4b | Socixis (one per brand, prefilled from Brand Kit + Website brief, calls → Tasks + Customers) | Built on Awad's request: Socixis PR #81, held |
 | 5 | Awad reviews · developer sets up voice + phone accounts · one real contractor tests | Waiting on 2–4 |
 | 6 | Add-on on every other site in §8 | After step 5 |
 
@@ -87,8 +89,8 @@ Nothing goes live until Awad reviews step 5.
 
 | Site | Preset | Note |
 |---|---|---|
-| Contraxis.dev | contractor | Pilot. Calls become Contraxis leads. |
-| Socixis | restaurant | |
+| Contraxis.dev | contractor | Pilot, PR #60. Calls become phone leads for the pro. |
+| Socixis | restaurant (food brands) / general | Built, PR #81. One receptionist per brand (R4). |
 | qahwahworld | restaurant | |
 | Apixis.dev | general | Also hosts the engine. |
 | Renoxis.dev | general | |
