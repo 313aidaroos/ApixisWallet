@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "product": "ApixisWallet",
+  "orbitCore": "313aidaroos/Apixis.dev",
+  "runtimeConnected": false,
+  "role": "future-capability",
+  "capabilities": [
+    {
+      "id": "wallet.ixis.balance.read",
+      "mode": "read",
+      "status": "planned",
+      "requiresOwnerTenantBinding": true,
+      "requiresTests": true
+    }
+  ],
+  "notes": "Roadmap metadata, not a live Orbit service or payment integration."
+}
