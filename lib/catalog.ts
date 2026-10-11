@@ -83,6 +83,11 @@ export const redeemCatalog = [
   { key: "launchixis.brandkit", app: "Launchixis", name: "Brand Kit One-off", xp: 1000, color: "#7c3aed", includes: "One-off brand kit · $10" },
   { key: "launchixis.seat.monthly", app: "Launchixis", name: "Launch Ops Seat", xp: 10000, color: "#7c3aed", includes: "Monthly operator seat · $100/mo", days: 30 },
   { key: "launchixis.suite.monthly", app: "Launchixis", name: "Enterprise Launch Suite", xp: 30000, color: "#7c3aed", includes: "Monthly enterprise suite · $300/mo", days: 30 },
+  // Wattixis — locked pricing 2026-10-06 (NOTES/PRICING.md): buyers $20+$20/mo, sellers $50+$100/mo, fee 5% <$1M / 2.5% >$1M (policy text only; settlement code follows Ominix pattern when transactions happen)
+  { key: "wattixis.buyer.activate", app: "Wattixis", name: "Buyer activation", xp: 2000, color: "#4ade80", includes: "One-time activation · $20" },
+  { key: "wattixis.buyer.monthly", app: "Wattixis", name: "Buyer seat", xp: 2000, color: "#4ade80", includes: "Monthly buyer seat · $20/mo", days: 30 },
+  { key: "wattixis.seller.activate", app: "Wattixis", name: "Seller activation", xp: 5000, color: "#4ade80", includes: "One-time activation · $50" },
+  { key: "wattixis.seller.monthly", app: "Wattixis", name: "Seller seat", xp: 10000, color: "#4ade80", includes: "Monthly seller seat · $100/mo", days: 30 },
 ] as const;
 
 /**
