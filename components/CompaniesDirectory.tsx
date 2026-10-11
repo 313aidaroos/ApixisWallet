@@ -96,7 +96,7 @@ const companies = [
   },
   {
     name: "Recovix",
-    url: "https://recovix.vercel.app",
+    url: "https://recovix-dev.vercel.app",
     description: "Recover overcharges and control business spend with AI.",
     kind: "recovery",
     color: "#8fd3e0",

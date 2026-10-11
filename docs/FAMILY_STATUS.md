@@ -173,7 +173,7 @@ All six projects were redeployed from their current `main` build so the new valu
 **How the family connects (checked live 2026-10-02 late night, all match):**
 - Sign-in return addresses in the Wallet DB (`wallet_api_clients.redirect_uris`) match each site's live address:
   apixis.dev, renoxis.dev, socixis.dev (+www), and `<name>.vercel.app` for the rest, except Recovix
-  (`recovix.vercel.app`), Contraxis (`contraxis-dev.vercel.app`), Ominix (`ominix-app.vercel.app`), Geoxis
+  (`recovix-dev.vercel.app`), Contraxis (`contraxis-dev.vercel.app`), Ominix (`ominix-app.vercel.app`), Geoxis
   (`spatial-dashboard-xi.vercel.app`), ContentBot (`personalcontentbot.vercel.app`).
 - The Wallet's checkout "return to site" list (`lib/checkout/return-url.ts`) covers every one of those hosts; Geoxis's host
   is now in the code list too (it was only in the `CHECKOUT_RETURN_HOSTS` env var).

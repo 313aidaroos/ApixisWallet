@@ -327,7 +327,7 @@ Not touched: AwadBot, awad-command, AFCCommand.
 |---|---|
 | renoxis | renoxis.dev |
 | socixis | socixis.dev |
-| recovix | recovix.vercel.app |
+| recovix | recovix-dev.vercel.app |
 | lyrixis | lyrixis.vercel.app |
 | rawixis | rawixis.vercel.app |
 | contraxis | contraxis-dev.vercel.app |

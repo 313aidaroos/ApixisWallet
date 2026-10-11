@@ -53,7 +53,7 @@ The keys are shown once. If you lose one, run the command again. Before re-runni
 |---|---|
 | renoxis | renoxis.dev |
 | socixis | socixis.dev |
-| recovix | recovix.vercel.app |
+| recovix | recovix-dev.vercel.app |
 | lyrixis | lyrixis.vercel.app |
 | rawixis | rawixis.vercel.app |
 | contraxis | contraxis-dev.vercel.app |
