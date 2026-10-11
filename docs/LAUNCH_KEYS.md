@@ -53,7 +53,7 @@ The keys are shown once. If you lose one, run the command again. Before re-runni
 |---|---|
 | renoxis | renoxis.dev |
 | socixis | socixis.dev |
-| recovra | recovra-three.vercel.app |
+| recovix | recovix.vercel.app |
 | lyrixis | lyrixis.vercel.app |
 | rawixis | rawixis.vercel.app |
 | contraxis | contraxis-dev.vercel.app |
@@ -72,7 +72,7 @@ If a site has a custom domain the Wallet doesn't know yet, also add it to the Wa
 "Sign in with Apixis" needs each site's **own** Supabase service key on its server.
 - **Where to find it:** Supabase → that site's project → Settings → API → `service_role` secret.
 - **Where it goes:** that site's Vercel project, as `SUPABASE_SERVICE_ROLE_KEY`.
-- **Needed on:** every site with the sign-in button. Recovra and Lyrixis definitely didn't have it before.
+- **Needed on:** every site with the sign-in button. Recovix and Lyrixis definitely didn't have it before.
 - **Probably already set on:** Renoxis, Rawixis, Socixis and Contraxis. Check the others (Launchixis, Qahwah World, PersonalContentBot, Deduxis, Halaxis).
 
 ## Step 6: Merge (in this order)
@@ -81,7 +81,7 @@ If a site has a custom domain the Wallet doesn't know yet, also add it to the Wa
 2. Each site's PR, each titled "Sign in with Apixis + shared Apixis Wallet":
    - Renoxis #18
    - Socixis #32
-   - Recovra #4 (merge **together with** running its migration `20260923000001_plan_entitlement_service_only.sql` on the recovra Supabase project)
+   - Recovix #4 (merge **together with** running its migration `20260923000001_plan_entitlement_service_only.sql` on the recovix Supabase project)
    - Lyrixis #6
    - Rawixis #15
    - Contraxis #22

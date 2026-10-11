@@ -15,5 +15,5 @@ The rule above is code now: **`sdk/apixis-cixy.ts`** (JS twin `sdk/apixis-cixy.j
 - When the brain fails (no key, out of credit, 429, 5xx) the route answers `cixyUnavailableReply(status)`: a calm sentence, HTTP 503/429, never a vendor error and never a fake answer.
 - Voice: `docs/CIXY_VOICE.md` (ElevenLabs id is the family voice; not for sale).
 
-Sites aligned in this pass: Rawixis, qahwahworld, Deduxis, Launchixis, NurseryToons, AwadBot, Contraxis, Wattixis, Geoxis, Recovra, PersonalContentBot.
+Sites aligned in this pass: Rawixis, qahwahworld, Deduxis, Launchixis, NurseryToons, AwadBot, Contraxis, Wattixis, Geoxis, Recovix, PersonalContentBot.
 Sites whose prompt already matched the rule and keep their own wording until their next touch: Socixis, Lyrixis, Renoxis, Apixis.dev, Halaxis, Ominix.

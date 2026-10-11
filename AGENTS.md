@@ -44,7 +44,7 @@ Last updated: 2026-09-23 (launch hardening 007, legal record 008, SDK v2).
 | ApixisWallet | #7 | Wallet screen shows real data · Apixis ID · `/api/v1/balance` · SDK v3 · family keys · `LAUNCH_KEYS.md` | Open. Apply migration 009 first |
 | Renoxis.dev | #18 | Apixis sign-in · shared balance · office Ixis ledger retired (drafts paid from Wallet) | Open |
 | Socixis | #32 | Apixis sign-in · shared balance on the Wallet page | Open. `socixis-app/lib/stripe-checkout.js` still needs a policy review |
-| Recovra | #4 | Apixis sign-in · shared balance · **free-plan hole closed** (service-only grant + migration) | Open. Merge together with its migration; needs `SUPABASE_SERVICE_ROLE_KEY` |
+| Recovix | #4 | Apixis sign-in · shared balance · **free-plan hole closed** (service-only grant + migration) | Open. Merge together with its migration; needs `SUPABASE_SERVICE_ROLE_KEY` |
 | Lyrixis | #6 | Apixis sign-in · shared balance in the nav | Open; needs `SUPABASE_SERVICE_ROLE_KEY` |
 | Rawixis.dev | #15 | Apixis sign-in · real balance · red build fixed | Open (3 test failures already on main) |
 | Contraxis.dev | #22 | Apixis sign-in · shared balance on the dashboard | Open |
@@ -80,8 +80,8 @@ The table in §0b is history (those PRs are merged or superseded). **Live family
    - The Wallet Supabase project becomes the identity provider.
    - Sister sites use "Sign in with Apixis".
    - The Wallet verifies Apixis ID tokens instead of trusting `owner_email`.
-   - Needs access to the sister-site repos, plus Awad's answer on moving sites to `*.apixis.dev` subdomains. Every sister site has its own Supabase project in the same org (renoxis, Socixis, Lyrixis, recovra, deduxis, rawixis, geoxis, nurserytoons, launchixis, halaxis, Contraxis).
-3b. **Sister-site security:** see `docs/SECURITY_SCAN_2026-09-23.md`. The Geoxis and Lyrixis critical holes are fixed live. Recovra's `grant_plan_entitlement` (free paid plans) is still open. Awad has authorised security fixes on all his Supabase projects and GitHub repos.
+   - Needs access to the sister-site repos, plus Awad's answer on moving sites to `*.apixis.dev` subdomains. Every sister site has its own Supabase project in the same org (renoxis, Socixis, Lyrixis, recovix, deduxis, rawixis, geoxis, nurserytoons, launchixis, halaxis, Contraxis).
+3b. **Sister-site security:** see `docs/SECURITY_SCAN_2026-09-23.md`. The Geoxis and Lyrixis critical holes are fixed live. Recovix's `grant_plan_entitlement` (free paid plans) is still open. Awad has authorised security fixes on all his Supabase projects and GitHub repos.
 4. Per-site API keys for each sister site, then `WALLET_ALLOW_LEGACY_SERVICE_KEY=false` and rotate the Supabase secret.
 
 ## 1. Who owns what
@@ -99,7 +99,7 @@ The table in §0b is history (those PRs are merged or superseded). **Live family
 
 The one cash register and ledger for the Apixis family. **100 Ixis = $1.**
 - People pay dollars **only here** (Stripe Checkout) and get Ixis.
-- They spend Ixis ("redeem") on SKUs of sister sites: Renoxis, Socixis, Recovra, Rawixis, Contraxis, Qahwahworld, Geoxis, Launchixis, Nursery Toons, Lyrixis, Apixis.dev and others.
+- They spend Ixis ("redeem") on SKUs of sister sites: Renoxis, Socixis, Recovix, Rawixis, Contraxis, Qahwahworld, Geoxis, Launchixis, Nursery Toons, Lyrixis, Apixis.dev and others.
 - Closed loop: no cash-out, no transfers between people, no investment language, no chain (Phase 5, legal-gated). See `POLICY.md`.
 
 ## 3. Rules that must never break

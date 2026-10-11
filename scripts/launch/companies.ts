@@ -126,9 +126,9 @@ export const COMPANIES: Company[] = [
     required: [...SITE_BASE, "ANTHROPIC_API_KEY"],
   },
   {
-    id: "recovra",
-    label: "Recovra",
-    repos: ["recovra"],
+    id: "recovix",
+    label: "Recovix",
+    repos: ["recovix"],
     supabase: { ref: "ewvgpfufzeyzyutjxuoh", ...NEXT },
     wallet: true,
     world: true,

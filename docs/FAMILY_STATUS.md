@@ -40,7 +40,7 @@ Shared status: Apixis ID is now the only way to create a new account on every fa
 - **Halaxis.dev:** Apixis-ID-only signup (PR #25). Open: Tavily key.
 - **Lyrixis:** Apixis-ID-only signup (PR #31). Open: Redis and transcription key; upload-worker work not merged.
 - **Deduxis:** Apixis-ID-only signup (PR #27). Open: none recorded.
-- **Recovra:** Apixis-ID-only signup (PR #27). Open: production service key.
+- **Recovix:** Apixis-ID-only signup (PR #27). Open: production service key.
 - **Geoxis:** Apixis-ID-only signup re-verified (PR #26, notes only). Open: none recorded.
 - **Launchixis:** Apixis-ID-only signup (PR #24); customer workspaces and checklist delivery (PR #25). Tests use a fake Wallet, with no real Ixis spent. See the backend row below for remaining limits.
 - **Ominix:** Leftover email/password signup form removed (PR #17). Open: none recorded.
@@ -52,7 +52,7 @@ Shared status: Apixis ID is now the only way to create a new account on every fa
 
 Awad asked for all 24 repos to be read twice and for a plain status (done / not done / who does what). Every repo now has a `NOTES/CLAUDE.md` entry with its own slice (Awad's instruction of 2026-10-04 — for Claude's notes it supersedes D15's "notes are archives" until Awad settles the rule). **This review changed no code, env, database or deploy.** Awad approved merging the notes on 2026-10-04; they are on `main` in every repo (read `NOTES/CLAUDE.md` there for the repo's own slice).
 
-**Verified locally (Node 22, 2026-10-04 22:39–22:53Z):** lint / typecheck / tests / production build all pass on ApixisWallet, Qahwah World, Rawixis, Apixis.dev, Contraxis, Wattixis, Aidaroos Holding, Pinixis, Ominix (incl. marketplace RLS tests), Lyrixis, PersonalContentBot, Deduxis, Launchixis, Recovra, Halaxis, Renoxis, Geoxis, AwadBot (dashboard + 336 pytest), AWAD COMMAND (pnpm; app + worker) and Nursery Toons (6 node tests by hand). Socixis: typecheck + build pass; the 2 root-test failures on `e4ebeea` were the hard-coded date that #59 fixed; `socixis-app`'s `next lint` has no ESLint config and CI never runs it. thenightexchange: lockfile out of sync, `npm ci` fails — not verifiable.
+**Verified locally (Node 22, 2026-10-04 22:39–22:53Z):** lint / typecheck / tests / production build all pass on ApixisWallet, Qahwah World, Rawixis, Apixis.dev, Contraxis, Wattixis, Aidaroos Holding, Pinixis, Ominix (incl. marketplace RLS tests), Lyrixis, PersonalContentBot, Deduxis, Launchixis, Recovix, Halaxis, Renoxis, Geoxis, AwadBot (dashboard + 336 pytest), AWAD COMMAND (pnpm; app + worker) and Nursery Toons (6 node tests by hand). Socixis: typecheck + build pass; the 2 root-test failures on `e4ebeea` were the hard-coded date that #59 fixed; `socixis-app`'s `next lint` has no ESLint config and CI never runs it. thenightexchange: lockfile out of sync, `npm ci` fails — not verifiable.
 
 **Live cross-check (Vercel, Supabase, GitHub — read-only):**
 - Every real site's production deployment is READY on the latest `main`. Vercel `awadbot`: last two production deployments **BLOCKED**. `temporary-turbo-sienna-p6yqsjd` ERRORs on every Contraxis merge. `aw-live`, `workspace`, `contraxis-design-demo` are duplicates (Awad to delete).
@@ -61,7 +61,7 @@ Awad asked for all 24 repos to be read twice and for a plain status (done / not 
 
 **Findings this board did not have (all fixable by Claude on Awad's go):**
 1. "1,000 starter Ixis wording everywhere" is not true on 4 sites. User-facing "200 Ixis" is live on Qahwah World (`components/world-welcome-card.tsx`), Renoxis (`components/ApixisWorldWelcome.tsx`, `app/login/page.tsx`), Deduxis and Contraxis (`ApixisWorldWelcome.tsx`); also in Apixis.dev README / `APIXIS_FAMILY.md` / `LAUNCH_READY.md` and the Wattixis + Geoxis `PROVISION_KIT.md`.
-2. The copied "Apixis Companies" directory on 12 sites (Wallet `CompaniesDirectory.tsx`, Ominix's own page, Lyrixis, Pinixis, Wattixis footer, Recovra, Halaxis, Renoxis, Deduxis, Socixis, Contraxis, Rawixis, Geoxis `companies.html`, Apixis.dev `companies.html` + `apixis-clients.js` fallback) links Ominix to the retired `nexxis-tau.vercel.app` instead of `ominix-app.vercel.app`.
+2. The copied "Apixis Companies" directory on 12 sites (Wallet `CompaniesDirectory.tsx`, Ominix's own page, Lyrixis, Pinixis, Wattixis footer, Recovix, Halaxis, Renoxis, Deduxis, Socixis, Contraxis, Rawixis, Geoxis `companies.html`, Apixis.dev `companies.html` + `apixis-clients.js` fallback) links Ominix to the retired `nexxis-tau.vercel.app` instead of `ominix-app.vercel.app`.
 3. World-kit drift: `apixis-world.ts` on all 15 sites is one revision behind Apixis.dev (missing `aidaroosholding`); `apixis-world-agent.ts` on Deduxis, Halaxis and Contraxis is the old 200-Ixis variant. Wallet SDK copies are byte-identical everywhere ✓; the Launchixis and Rawixis login copies differ on purpose; Geoxis, Wattixis and Apixis.dev carry three different hand-written JS ports because no canonical JS SDK exists in `sdk/`.
 4. CI gaps: aidaroosholding and awad-command have no CI at all; Deduxis and Halaxis have no `test` script; Nursery Toons has no `package.json`; AwadBot's bot `tests/` (23 files, 336 tests) run in no workflow (`ci/bot-tests.yml` is not under `.github/workflows`); the shared `node-ci`'s `--if-present` hides all of this.
 5. Rule misses: aidaroosholding had no `AI_CHANGELOG.md` (created by this review); Renoxis #37 / #38 merged without entries; Grok keeps updating WORKBOARD / NOTES despite D15.
@@ -71,9 +71,9 @@ Awad asked for all 24 repos to be read twice and for a plain status (done / not 
 9. PersonalContentBot's `maxDuration: 300` needs a Vercel plan that allows it; its `.env.example` and `env.example` differ.
 10. Nursery Toons now has accounts, an LLM chat and a world-agent card on a site for 2–4-year-olds — COPPA / parental-consent is Awad's decision before testers with children.
 
-**Open PRs at 22:40Z:** Wallet #21 · Socixis #60 (DO NOT MERGE) · Apixis.dev #70, #59 (DO NOT MERGE), #58, #57 · Rawixis #43 · Wattixis #20 · Contraxis #21 (draft) · Ominix #1 (draft) · Nursery Toons #8 · Qahwah World #11 · awad-command #55, #52, #17 (draft) · thenightexchange #2; footer PRs on Renoxis #32, Recovra #13, Deduxis #10, Lyrixis #14 (+ #16 Release Tool), Halaxis #12, Geoxis #7 per the earlier board.
+**Open PRs at 22:40Z:** Wallet #21 · Socixis #60 (DO NOT MERGE) · Apixis.dev #70, #59 (DO NOT MERGE), #58, #57 · Rawixis #43 · Wattixis #20 · Contraxis #21 (draft) · Ominix #1 (draft) · Nursery Toons #8 · Qahwah World #11 · awad-command #55, #52, #17 (draft) · thenightexchange #2; footer PRs on Renoxis #32, Recovix #13, Deduxis #10, Lyrixis #14 (+ #16 Release Tool), Halaxis #12, Geoxis #7 per the earlier board.
 
-**Only Awad can (summary; detail per repo in `NOTES/CLAUDE.md`):** the keys and tokens in `docs/OWNER_CHECKLIST.md` (Anthropic credits, Vercel + Supabase tokens, Stripe live key / prices / webhooks for the Wallet, Qahwah World coffee and Pinixis), Recovra `SUPABASE_SERVICE_ROLE_KEY`, Lyrixis Redis + transcription key + worker host, Apixis.dev KV, Halaxis Tavily, the four Vercel project deletions, leaked-password toggles, the hub lint SQL (or a Supabase token for the kit), lawyer review of Terms / Privacy, the design PRs, the `SIGNUP_GRANT_ENABLED` cutover, what Wattixis / Geoxis / Launchixis / Nursery Toons sell, keep-or-archive for thenightexchange and afccommand.
+**Only Awad can (summary; detail per repo in `NOTES/CLAUDE.md`):** the keys and tokens in `docs/OWNER_CHECKLIST.md` (Anthropic credits, Vercel + Supabase tokens, Stripe live key / prices / webhooks for the Wallet, Qahwah World coffee and Pinixis), Recovix `SUPABASE_SERVICE_ROLE_KEY`, Lyrixis Redis + transcription key + worker host, Apixis.dev KV, Halaxis Tavily, the four Vercel project deletions, leaked-password toggles, the hub lint SQL (or a Supabase token for the kit), lawyer review of Terms / Privacy, the design PRs, the `SIGNUP_GRANT_ENABLED` cutover, what Wattixis / Geoxis / Launchixis / Nursery Toons sell, keep-or-archive for thenightexchange and afccommand.
 
 ## Wallet welcome grant + bonus-safe payouts — 2026-10-04 (Grok, Wallet executor)
 - **What shipped:** Wallet migration `013_signup_grant` (`signup_grants` table; `grant_signup_xp`, `revoke_signup_grant`, `settle_marketplace_payout`, all service_role-only) and `lib/signup-grant.ts`, called from `/auth/callback`, the password login and `POST /api/sso/token`. 1,000 bonus Ixis once per Apixis ID; confirmed email + real sign-in; disposable-domain block; per-IP/domain/global limits; mint-ceiling check and `signup_grant` audit row in SQL. Details: `AGENTS.md` §4.
@@ -92,7 +92,7 @@ Twelve `purchase` rows on 2026-09-22/23 CT were credited by hand during launch Q
 | `e2e-top-657a78` | 6,000 | e2e-•••@apixis.dev | e2e test user |
 | `awad-test-grant-1790062430` | 5,000 | a•••@apixis.dev | Awad |
 | `awad-test-grant-2-1790062899` | 5,000 | a•••@apixis.dev | Awad |
-| `recovra-test-1790091549` | 22,000 | a•••+recovra@apixis.dev | Awad (Recovra QA) |
+| `recovix-test-1790091549` | 22,000 | a•••+recovix@apixis.dev | Awad (Recovix QA) |
 | `qa-lyrixis-1790094477.050110` | 300 | a•••+lyrixis@apixis.dev | Awad (Lyrixis QA) |
 | `qa-nursery-1790095044.424794` | 1,000 | a•••+nursery@apixis.dev | Awad (Nursery QA) |
 | `qa-qw-1790095749.602540` | 10,000 | a•••+qahwah@apixis.dev | Awad (Qahwah QA) |
@@ -101,7 +101,7 @@ Twelve `purchase` rows on 2026-09-22/23 CT were credited by hand during launch Q
 | `qa-rx3-1790128653.088279` | 5,000 | a•••+renoxis@apixis.dev | Awad (Renoxis QA) |
 
 ## Shared Anthropic key — 2026-10-04 (Developer Bot)
-On Awad's ask, every project's `ANTHROPIC_API_KEY` in Vercel is now set to one shared key (production, preview, development), and each project's production was redeployed (all READY). 22 projects: aidaroosholding, apixis-dev, apixis-wallet, awad-command, awadbot, contraxis-dev, deduxis, halaxis, launchixis, lyrixis, nurserytoons, ominix, personalcontentbot, pinixis, qahwahworld, rawixis, recovra, renoxis, socixis, spatial-dashboard, wattixis, workspace. Existing entries were updated in place (Socixis branch-scoped preview entries kept); entries already marked Sensitive stay Sensitive because Vercel cannot change their type. Missing development (and Socixis all-branch preview) entries were added as Encrypted. `ANTHROPIC_MODEL` and other variables unchanged. Undo: set the old key back in Vercel for the project, then redeploy.
+On Awad's ask, every project's `ANTHROPIC_API_KEY` in Vercel is now set to one shared key (production, preview, development), and each project's production was redeployed (all READY). 22 projects: aidaroosholding, apixis-dev, apixis-wallet, awad-command, awadbot, contraxis-dev, deduxis, halaxis, launchixis, lyrixis, nurserytoons, ominix, personalcontentbot, pinixis, qahwahworld, rawixis, recovix, renoxis, socixis, spatial-dashboard, wattixis, workspace. Existing entries were updated in place (Socixis branch-scoped preview entries kept); entries already marked Sensitive stay Sensitive because Vercel cannot change their type. Missing development (and Socixis all-branch preview) entries were added as Encrypted. `ANTHROPIC_MODEL` and other variables unchanged. Undo: set the old key back in Vercel for the project, then redeploy.
 
 ## Launch-prep pass — 2026-10-02 late night (Claude)
 
@@ -110,7 +110,7 @@ On Awad's ask, every project's `ANTHROPIC_API_KEY` in Vercel is now set to one s
   order** button. Its database change is **live** (Supabase `iwhvzfplvczqqxmhfkpa`), plus one tightening: signed-in users
   can only change a job's `status` directly. Security advisors: only known items.
 - **Starter Ixis wording = 1,000** everywhere (was "200" on 9 repos; Apixis.dev really grants 1,000 — D11):
-  Socixis #54, Lyrixis #20, qahwahworld #17, Recovra #19, Apixis.dev #63, Wattixis #9, NurseryToons #13, Geoxis #13, Ominix #8.
+  Socixis #54, Lyrixis #20, qahwahworld #17, Recovix #19, Apixis.dev #63, Wattixis #9, NurseryToons #13, Geoxis #13, Ominix #8.
 - **Socixis #54** also: CEO-brief Cixy follows the family greeting rule (match the greeting, never open with salaam);
   recorded platform cut 5% (D12).
 - **Wattixis #10:** three live bugs fixed — Save draft never opened the draft, Cixy replies were blank, Delete draft
@@ -120,7 +120,7 @@ On Awad's ask, every project's `ANTHROPIC_API_KEY` in Vercel is now set to one s
 Vercel runtime logs are not readable with the connector (403) — use the dashboard if a site misbehaves.
 
 **PRs:** 51 stale/superseded PRs closed with a one-line reason (branches kept). **Still open — Awad's call:**
-"Other Ixis companies" footer links on 12 sites (Wallet #21, Apixis.dev #57, Socixis #46, Renoxis #32, Recovra #13,
+"Other Ixis companies" footer links on 12 sites (Wallet #21, Apixis.dev #57, Socixis #46, Renoxis #32, Recovix #13,
 Rawixis #23, Deduxis #10, Lyrixis #14, Halaxis #12, qahwahworld #11, NurseryToons #8, Geoxis #7) — design, say
 "merge footers"; Socixis #47 and Apixis.dev #58 (launch copy/visual fixes, pending your review); Apixis.dev #59
 ("do not merge" until you review); Lyrixis #16 (Release Tool — new paid feature); Contraxis #21 (insurance-claims
@@ -142,7 +142,7 @@ This replaces every earlier "what is missing" list. Re-check any time with `npm 
 merges behind (not connected to GitHub; one hand upload had failed) — redeployed from `main` (`5102a50`), READY.
 
 **Wallet clients (Apixis ID + Wallet keys):** 16 active, one per name: apixis, contentbot, contraxis, deduxis, geoxis,
-halaxis, launchixis, lyrixis, nurserytoons, ominix, qahwahworld, rawixis, recovra, renoxis, socixis, wattixis
+halaxis, launchixis, lyrixis, nurserytoons, ominix, qahwahworld, rawixis, recovix, renoxis, socixis, wattixis
 (ominix + wattixis registered 2026-10-02 late night). All `require_sso=false` until sign-in is verified live.
 
 **Filled by Claude 2026-10-02 late night via the Vercel connector (names only; values never written down):**
@@ -162,7 +162,7 @@ All six projects were redeployed from their current `main` build so the new valu
 
 | Company (Vercel project) | Missing | Effect until set |
 |---|---|---|
-| Recovra (`recovra`) | `SUPABASE_SERVICE_ROLE_KEY` (or run the launch kit with a Supabase token) | Paid plans can't activate |
+| Recovix (`recovix`) | `SUPABASE_SERVICE_ROLE_KEY` (or run the launch kit with a Supabase token) | Paid plans can't activate |
 | Lyrixis (`lyrixis`) | `REDIS_URL`, `TRANSCRIPTION_API_KEY` | Upload → transcript off |
 | Apixis.dev (`apixis-dev`) | `KV_REST_API_URL`, `KV_REST_API_TOKEN` (or Upstash) | World/citizen state not durable |
 | Halaxis (`halaxis`) | `TAVILY_API_KEY` | Research off |
@@ -172,8 +172,8 @@ All six projects were redeployed from their current `main` build so the new valu
 
 **How the family connects (checked live 2026-10-02 late night, all match):**
 - Sign-in return addresses in the Wallet DB (`wallet_api_clients.redirect_uris`) match each site's live address:
-  apixis.dev, renoxis.dev, socixis.dev (+www), and `<name>.vercel.app` for the rest, except Recovra
-  (`recovra-three.vercel.app`), Contraxis (`contraxis-dev.vercel.app`), Ominix (`ominix-app.vercel.app`), Geoxis
+  apixis.dev, renoxis.dev, socixis.dev (+www), and `<name>.vercel.app` for the rest, except Recovix
+  (`recovix.vercel.app`), Contraxis (`contraxis-dev.vercel.app`), Ominix (`ominix-app.vercel.app`), Geoxis
   (`spatial-dashboard-xi.vercel.app`), ContentBot (`personalcontentbot.vercel.app`).
 - The Wallet's checkout "return to site" list (`lib/checkout/return-url.ts`) covers every one of those hosts; Geoxis's host
   is now in the code list too (it was only in the `CHECKOUT_RETURN_HOSTS` env var).
@@ -190,7 +190,7 @@ hub `pcb_jobs_durable.sql`, Pinixis sign-up trigger (optional), leaked-password 
 4. **`APIXIS_WALLET_API_KEY`** (old shared Wallet secret) still set beside the per-site `WALLET_API_KEY` on 12 projects. The SDK
    uses `WALLET_API_KEY` first, so it is unused; remove it everywhere when legacy access is switched off (step "flip SSO").
 5. **`STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET`** copies on sites where Stripe is off by rule (D14): Contraxis, Socixis, Lyrixis,
-   Rawixis, Recovra, Halaxis, Launchixis, ContentBot, NurseryToons, awad-command (+ old `STRIPE_PRICE_*`). Unused secrets; remove.
+   Rawixis, Recovix, Halaxis, Launchixis, ContentBot, NurseryToons, awad-command (+ old `STRIPE_PRICE_*`). Unused secrets; remove.
 6. Socixis: five branch-only `ANTHROPIC_API_KEY` copies for old `cursor/*` preview branches. Remove.
 7. Docs: `docs/MORNING_BRIEF_2026-10-01.md` and per-repo `LAUNCH_NOTES.md` key lists are archives — the only owner to-do is
    `docs/OWNER_CHECKLIST.md`, the only status is this board.
@@ -208,7 +208,7 @@ Legend: **Sell** = can take Ixis for something today once its `WALLET_API_KEY` i
 | Renoxis | Seats via Wallet, PKCE, `apixisSubOf`. Cixy prompt already matched the rule. | Yes | ✓ (added) | — |
 | Socixis | Skins/packs/autopilot via Wallet. Stripe webhook 410 (D14). Cixy matched. | Yes | ✓ (added) | Render SKUs gated off; PRs #47/#48 unreviewed. |
 | Contraxis | Pro redeem via Wallet. Stripe webhook 410. Cixy on shared core. | Yes | ✓ (added) | Delete duplicate Vercel project `temporary-turbo-sienna…`. |
-| Recovra | Reserve/capture-first plans, Apixis ID routes, Cixy on shared core + calm fallback. 65 tests. | After key | ✓ | Production service key not configured. |
+| Recovix | Reserve/capture-first plans, Apixis ID routes, Cixy on shared core + calm fallback. 65 tests. | After key | ✓ | Production service key not configured. |
 | Deduxis | Callback `type: "email"`, owner = Apixis `sub`, Cixy on shared core + fallback. `receipts` + `category_overrides` tables and private `receipts` bucket created live 2026-10-02 (were missing). | Yes | ✓ (added) | — |
 | Lyrixis | Track unlock via Wallet, OTP login. Cixy matched. 39 tests. | Yes | ✓ | `REDIS_URL`, `TRANSCRIPTION_API_KEY`, worker host. |
 | Rawixis | Buyer seats via Wallet, admin key isolated, Cixy on shared core. 288 tests. | Yes (seats) | ✓ | Anthropic credits; end-to-end deal not verified. |
@@ -235,7 +235,7 @@ Legend: **Sell** = can take Ixis for something today once its `WALLET_API_KEY` i
 | Renoxis | Apixis sign-in → buy seat → retry → 409 keeps access | Wallet balance | not yet | |
 | Socixis | Apixis sign-in → skin unlock | Wallet balance | not yet | |
 | Contraxis | Apixis sign-in → pro seat | Wallet balance | not yet | |
-| Recovra | Apixis sign-in → paid plan activation receipt | service key in Vercel | not yet | |
+| Recovix | Apixis sign-in → paid plan activation receipt | service key in Vercel | not yet | |
 | Ominix | Apixis sign-in → award bid → complete → seller paid − 5% | Wallet key in Vercel | not yet | migrations verified by SQL |
 | Any site | Cixy with the shared key out of credit → calm "resting" reply, HTTP 503 | — | code + tests | |
 

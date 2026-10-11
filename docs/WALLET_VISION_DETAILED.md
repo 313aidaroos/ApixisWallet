@@ -27,7 +27,7 @@ This document is a **product and architecture vision**, not legal, tax, securiti
 | **Ixis** | Shared unit of account and spend |
 | **Apixis Wallet** | The only place cash becomes Ixis; the ledger of truth |
 
-Sister products (Socixis, Renoxis, Rawixis, Contraxis, Halaxis, Lyrixis, AwadBot, COMMAND, Qahwahworld, Nursery, Recovra, Launchixis, Apixis.dev, …) **do not** run their own Stripe for plans/coins. They show a Wallet entry, send users to Wallet to buy, then redeem Ixis back home.
+Sister products (Socixis, Renoxis, Rawixis, Contraxis, Halaxis, Lyrixis, AwadBot, COMMAND, Qahwahworld, Nursery, Recovix, Launchixis, Apixis.dev, …) **do not** run their own Stripe for plans/coins. They show a Wallet entry, send users to Wallet to buy, then redeem Ixis back home.
 
 ### 2.2 Peg and rules (locked)
 

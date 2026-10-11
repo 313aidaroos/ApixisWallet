@@ -41,9 +41,9 @@ Every family site needs these three from step A:
 | wattixis | the three above (**new** — Apixis ID sign-in and balance shipped overnight), `ANTHROPIC_API_KEY`, `APIXIS_WORLD_KEY`, `SUPABASE_SERVICE_ROLE_KEY` |
 | halaxis | the three above (new), `ANTHROPIC_API_KEY`, `APIXIS_WORLD_KEY` |
 | personalcontentbot | `PCB_DURABLE_JOBS=true` **after** SQL C2, `CRON_SECRET` (any long random string) |
-| recovra | `SUPABASE_SERVICE_ROLE_KEY` (Codex validated it; never configured) |
+| recovix | `SUPABASE_SERVICE_ROLE_KEY` (Codex validated it; never configured) |
 | lyrixis | `REDIS_URL`, `TRANSCRIPTION_API_KEY` (upload path + worker; both absent today) |
-| every site with Cixy | `ANTHROPIC_API_KEY` — **and Anthropic credits**: Rawixis/Recovra report "insufficient credits"; until topped up Cixy answers "resting" everywhere the key is shared |
+| every site with Cixy | `ANTHROPIC_API_KEY` — **and Anthropic credits**: Rawixis/Recovix report "insufficient credits"; until topped up Cixy answers "resting" everywhere the key is shared |
 | every site with the world kit | `APIXIS_WORLD_KEY` (per-product key; hashes in `APIXIS_WORLD_KEYS` on apixis-dev) |
 
 ### C. Two SQL pastes (Supabase → project "313aidaroos's Project", ref `myfclypikkcvfurkbzmj`)

@@ -6,7 +6,7 @@
 
 Detailed vision, including the Phase 5 legal-gated own-chain / own-currency path: [docs/WALLET_VISION_DETAILED.md](docs/WALLET_VISION_DETAILED.md).
 
-Apixis Wallet is the shared commerce layer for Renoxis, Socixis, Lyrixis, Recovra, Deduxis, Rawixis, Halaxis, Apixis Command and future Apixis products. Customers buy Xis Points (XP), keep one universal balance, and spend it on subscriptions, usage, upgrades and personalization.
+Apixis Wallet is the shared commerce layer for Renoxis, Socixis, Lyrixis, Recovix, Deduxis, Rawixis, Halaxis, Apixis Command and future Apixis products. Customers buy Xis Points (XP), keep one universal balance, and spend it on subscriptions, usage, upgrades and personalization.
 
 Source was unpacked from the original MVP archive onto `main` on 2026-09-19 (archive removed; history keeps it).
 

@@ -84,7 +84,7 @@ _Backfilled 2026-10-02 by Grok (Wallet Lead), read from git history._ Sources: `
 ### 2026-10-02 (CT)
 - **Codex** — PR #34 (`codex/companies-tab-20261002`) opened 1:28 AM, merged 2:21 AM, `19bae46`: "Apixis Companies" nav item + animated family directory (`components/CompaniesDirectory.tsx`, `app/companies.css`, `app/layout.tsx`, `components/WalletScreen.tsx`, `public/companies/*.jpg`). It's a tab inside the Wallet screen, not a `/companies` route. Deploy `dpl_2HdP4MfNXF6CViXfjUsY9vcF8syX` READY. Undo: `git revert 19bae46`.
 - **Codex** — PR #35 (`codex/refine-companies-motion-20261002`) merged 2:46 AM, `4e7513b`: drops the orbit/spark overlays and the badge bounce, keeps reduced-motion handling, matches the directory copy (`CompaniesDirectory.tsx`, `companies.css`). Deploy `dpl_7owRJ926DfW2579pt5Qbv7KGjGZi` READY. Undo: `git revert 4e7513b`.
-- **Codex** — PR #36 (`codex/fix-recovra-company-link-20261002`) merged 3:18 AM, `1552abd`: Recovra card points to `recovra-three.vercel.app` (`recovra.vercel.app` is a different app). Deploy `dpl_8DaPVvutyTCTWUWyFwEA6Ck2fFX2` READY (prod as of this backfill). Undo: `git revert 1552abd`.
+- **Codex** — PR #36 (`codex/fix-recovix-company-link-20261002`) merged 3:18 AM, `1552abd`: Recovix card points to `recovix.vercel.app` (`recovix.vercel.app` is a different app). Deploy `dpl_8DaPVvutyTCTWUWyFwEA6Ck2fFX2` READY (prod as of this backfill). Undo: `git revert 1552abd`.
 
 ## 2026-10-04 (CT) — Grok (Wallet Lead): Socixis avatar render SKUs + free website packs / avatar base
 - Who/why: Grok (Wallet Lead), at Socixis' request (Socixis `NOTES/GROK.md` @ `fc8950e`), approved by Awad 2026-10-04 4:27 PM CT.

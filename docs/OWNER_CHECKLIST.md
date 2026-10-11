@@ -8,7 +8,7 @@ Backend is done. Keys now go in through the **launch kit**: one file, one comman
 - [ ] **Supabase access token** (Supabase → Account → Access Tokens).
 - [ ] Only these are still missing (checked live 2026-10-02 late night; table in `docs/FAMILY_STATUS.md`):
       Redis URL + transcription key for Lyrixis, Upstash/KV for Apixis.dev, a Tavily key for Halaxis, Pinixis Stripe keys,
-      and Recovra's Supabase key (or just give the kit your Supabase token). Claude already set Ominix/Wattixis Wallet keys,
+      and Recovix's Supabase key (or just give the kit your Supabase token). Claude already set Ominix/Wattixis Wallet keys,
       cron secrets, Launchixis admins, and Pinixis Anthropic/Resend/admin email. Put what you have in `.env.launch`.
 
 ## Step 2 — Run the kit (on your Mac)
@@ -45,7 +45,7 @@ Wallet keys, every site's world key, ContentBot durable jobs, Supabase keys, red
 | Renoxis | Sign in with Apixis → buy seat → refresh → still has access |
 | Socixis | Sign in with Apixis → unlock a skin |
 | Contraxis | Sign in with Apixis → pro seat |
-| Recovra | Sign in with Apixis → paid plan → receipt shows |
+| Recovix | Sign in with Apixis → paid plan → receipt shows |
 | Deduxis | Buy seat → upload a receipt photo → it appears → export CSV |
 | Lyrixis | Upload a song → transcript (needs `REDIS_URL` + transcription key + a worker host) |
 | Rawixis | Buyer seat via Apixis |

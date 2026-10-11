@@ -99,7 +99,7 @@ Nothing goes live until Awad reviews step 5.
 | Wattixis | general | |
 | Lyrixis | general | |
 | Deduxis | general | |
-| Recovra | general | |
+| Recovix | general | |
 | Geoxis | general | |
 | Launchixis | general | |
 | Ominix | general | |

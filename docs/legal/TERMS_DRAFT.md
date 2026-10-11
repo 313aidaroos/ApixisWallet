@@ -8,7 +8,7 @@
 
 ## 1. Who we are
 These terms are an agreement between you and **[LEGAL ENTITY]** ("Apixis", "we"), [ADDRESS]. They cover the Apixis
-Wallet and every Apixis family product that uses Apixis ID or Ixis: Apixis.dev, Renoxis, Socixis, Recovra, Deduxis,
+Wallet and every Apixis family product that uses Apixis ID or Ixis: Apixis.dev, Renoxis, Socixis, Recovix, Deduxis,
 Contraxis, Rawixis, Lyrixis, Halaxis, Launchixis, Geoxis, Nursery Toons, Ominix, Wattixis, Personal Content Bot and
 Qahwah World (together, the "Services"). Some products have extra terms for their own features; where they conflict
 with these terms on Ixis or payments, these terms win.

@@ -39,7 +39,7 @@ export const xpTape: SeriesPoint[] = [
 export const productTape = [
   { key: "renoxis.agent.monthly", symbol: "RNX", name: "Renoxis", color: "#c8ff63", volume30: 180000, redeemXp: [8, 8, 15, 15, 15, 0, 15, 15, 15, 20, 15, 15, 0, 15, 15, 15, 0, 15, 15, 15, 20, 15, 30, 15, 15, 20, 15, 15, 15, 15] },
   { key: "socixis.autopilot.monthly", symbol: "SOC", name: "Socixis", color: "#ff6bce", volume30: 140000, redeemXp: [0, 0, 20, 0, 20, 0, 20, 0, 20, 20, 0, 20, 0, 20, 0, 20, 0, 20, 0, 20, 20, 0, 40, 0, 20, 20, 0, 20, 0, 20] },
-  { key: "recovra.intel.monthly", symbol: "RCV", name: "Recovra", color: "#58c8ff", volume30: 72000, redeemXp: [0, 12, 0, 0, 12, 0, 0, 12, 0, 12, 0, 0, 0, 12, 0, 0, 12, 0, 0, 0, 12, 0, 24, 0, 0, 12, 0, 0, 12, 0] },
+  { key: "recovix.intel.monthly", symbol: "RCV", name: "Recovix", color: "#58c8ff", volume30: 72000, redeemXp: [0, 12, 0, 0, 12, 0, 0, 12, 0, 12, 0, 0, 0, 12, 0, 0, 12, 0, 0, 0, 12, 0, 24, 0, 0, 12, 0, 0, 12, 0] },
   { key: "deduxis.receipts.monthly", symbol: "DDX", name: "Deduxis", color: "#ffbd59", volume30: 48000, redeemXp: [8, 0, 8, 0, 8, 0, 8, 0, 8, 0, 8, 0, 0, 8, 0, 8, 0, 8, 0, 8, 0, 0, 16, 0, 8, 0, 8, 0, 8, 8] },
 ];
 

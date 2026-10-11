@@ -50,7 +50,7 @@ Owner accounts: business/master email **awad@apixis.dev** (`ALLOWED_EMAIL`, the 
 
 - **Repo:** `313aidaroos/ApixisWallet`. Next.js 16, React 19, Supabase, Stripe. Deployed on Vercel at `https://apixis-wallet.vercel.app`.
 - **Database:** Supabase project `apixis-wallet` (`kzneeksminozmhnqaaun`). It's dedicated to the Wallet and not shared with other apps. Tables live in `public`.
-- **Every other site has its own Supabase project** (renoxis, Socixis, Lyrixis, recovra, deduxis, rawixis, geoxis, nurserytoons, launchixis, halaxis, Contraxis; "313aidaroos's Project" holds the apixis / awad_command / qahwah / rawixis schemas). That's why identity must be the Apixis ID `sub` (or email), never a site uid.
+- **Every other site has its own Supabase project** (renoxis, Socixis, Lyrixis, recovix, deduxis, rawixis, geoxis, nurserytoons, launchixis, halaxis, Contraxis; "313aidaroos's Project" holds the apixis / awad_command / qahwah / rawixis schemas). That's why identity must be the Apixis ID `sub` (or email), never a site uid.
 
 ### 2.1 Money flow
 ```
@@ -232,7 +232,7 @@ Live check before applying 007: the ledger held **test/QA data only** (57 rows, 
 - **Lyrixis** (`mkuvgkjakxkytscfvnkf`): `magic_links` (email + token) was readable and writable by anon, which allowed account takeover. It's locked to the service role. `support_tickets` was fully open; now anyone can insert, users read only their own, and there's no anon read/edit/delete. **If Lyrixis's custom magic-link login reads `magic_links` with the anon key, it must move server-side.**
 
 **Fixed in code, needs its migration at merge:**
-- **Recovra:** `grant_plan_entitlement()` let any signed-in member grant a paid plan for free. PR #4 adds the service-only `grant_plan_entitlement_for()` (migration `20260923000001_plan_entitlement_service_only.sql`) and the server-side call. **Apply the migration and merge together.**
+- **Recovix:** `grant_plan_entitlement()` let any signed-in member grant a paid plan for free. PR #4 adds the service-only `grant_plan_entitlement_for()` (migration `20260923000001_plan_entitlement_service_only.sql`) and the server-side call. **Apply the migration and merge together.**
 
 **Open (from `docs/SECURITY_SCAN_2026-09-23.md`):**
 - Lyrixis view `my_track_unlocks` and Geoxis view `current_asset_positions` are SECURITY DEFINER; switch them to `security_invoker`.
@@ -260,7 +260,7 @@ Every Next.js site below received the same package:
 |---|---|---|---|---|---|
 | Renoxis | Renoxis.dev #18 | Office Ixis ledger **retired**: email/offer drafts are paid from the Wallet (`lib/renoxis/wallet-charge.ts`, SKUs `renoxis.email_draft`/`renoxis.offer_letter`); free actions don't touch any ledger; `/api/brokerage/grant` returns 410; Team board and Command desk show the shared balance (`useWalletBalance`); login button; seat redeem uses the Apixis owner; `redeem-safety` tests updated to the v3 contract, plus a new lost-capture test | `WALLET_API_KEY`, `APIXIS_CLIENT_ID=renoxis` | 53/53 tests, tsc, lint 0 errors, build | The team-billing behaviour changed: the person who clicks pays from their own Wallet. The old `renoxis_*_ixis` SQL functions and tables remain in the Renoxis DB but are unused. |
 | Socixis | Socixis #32 (app in `socixis-app/`) | Wallet page shows the balance (replaces "does not display your balance") | `WALLET_API_KEY`, `APIXIS_CLIENT_ID=socixis` | 116/116, tsc, lint, build | `socixis-app/lib/stripe-checkout.js` exists; review it against the no-site-Stripe policy |
-| Recovra | Recovra #4 | Free-plan hole closed (§4); wallet panel shows the balance; `src/lib/supabase/service.ts` added | `WALLET_API_KEY`, `APIXIS_CLIENT_ID=recovra`, **`SUPABASE_SERVICE_ROLE_KEY` (new, required)** | 56/56, tsc, lint 0 errors, build | Merge **with** its migration |
+| Recovix | Recovix #4 | Free-plan hole closed (§4); wallet panel shows the balance; `src/lib/supabase/service.ts` added | `WALLET_API_KEY`, `APIXIS_CLIENT_ID=recovix`, **`SUPABASE_SERVICE_ROLE_KEY` (new, required)** | 56/56, tsc, lint 0 errors, build | Merge **with** its migration |
 | Lyrixis | Lyrixis #6 | App nav shows the balance; track-unlock redeem uses the Apixis owner; `CLAUDE.md` created | `WALLET_API_KEY`, `APIXIS_CLIENT_ID=lyrixis`, **`SUPABASE_SERVICE_ROLE_KEY` (new)** | 23/23, tsc, lint, build | See the magic_links note in §4 |
 | Rawixis | Rawixis.dev #15 | `readSessionIxisBalance` now uses the Wallet SDK (the old probe hit a nonexistent endpoint keyed on the Rawixis uid; `fetchIxisBalance` kept, marked deprecated); login uses `createAdminClient()` for key isolation; **fixed the red build** (2 unused-var lint errors) | `WALLET_API_KEY`, `APIXIS_CLIENT_ID=rawixis` | tsc, lint 0 errors, build; tests 242/245 | 3 failures already on `main`: 2 landing-copy tests + 1 `fetchIxisBalance` env test |
 | Contraxis | Contraxis.dev #22 | Contractor dashboard shows the balance; Pro redeem uses the Apixis owner; `CLAUDE.md` created | `WALLET_API_KEY`, `APIXIS_CLIENT_ID=contraxis` | 24/24, tsc, lint, build | |
@@ -327,7 +327,7 @@ Not touched: AwadBot, awad-command, AFCCommand.
 |---|---|
 | renoxis | renoxis.dev |
 | socixis | socixis.dev |
-| recovra | recovra-three.vercel.app |
+| recovix | recovix.vercel.app |
 | lyrixis | lyrixis.vercel.app |
 | rawixis | rawixis.vercel.app |
 | contraxis | contraxis-dev.vercel.app |
@@ -396,7 +396,7 @@ Not touched: AwadBot, awad-command, AFCCommand.
 
 1. Apply Wallet migration **009** (when the Supabase connector is enabled, or Awad runs it). Then merge ApixisWallet #7.
 2. Help Awad through `docs/LAUNCH_KEYS.md`: family keys, Vercel env, Stripe events, leaked-password protection. Merge the site PRs in order and run the 5-minute Stripe test-mode check.
-3. Recovra: apply migration `20260923000001` together with merging #4.
+3. Recovix: apply migration `20260923000001` together with merging #4.
 4. Apixis sign-in for the static sites (Geoxis, Nursery Toons, Apixis.dev), using serverless start/callback routes.
 5. Policy review: Socixis `stripe-checkout.js` and Apixis.dev `api/checkout.js`. Retire any direct Stripe checkout for plans or Ixis.
 6. Open security items in §4 (definer views, anon-callable helpers, search_path) and the Halaxis project scan.
@@ -427,7 +427,7 @@ Not touched: AwadBot, awad-command, AFCCommand.
    - paste its SQL into the Wallet database
    - paste each site's env block into its Vercel project
    - add `SUPABASE_SERVICE_ROLE_KEY` to each site
-4. **Site PRs:** merge each one: Renoxis #18, Socixis #32, Recovra #4 (**with its migration**), Lyrixis #6, Rawixis #15, Contraxis #22, Launchixis #3, Qahwah World #5, PersonalContentBot #1, Deduxis #1, Halaxis #5. The notes-only PRs (Geoxis #1, NurseryToons #1, Apixis.dev #38) are safe any time.
+4. **Site PRs:** merge each one: Renoxis #18, Socixis #32, Recovix #4 (**with its migration**), Lyrixis #6, Rawixis #15, Contraxis #22, Launchixis #3, Qahwah World #5, PersonalContentBot #1, Deduxis #1, Halaxis #5. The notes-only PRs (Geoxis #1, NurseryToons #1, Apixis.dev #38) are safe any time.
 5. **Test:** the Stripe test-mode run: sign in with Apixis → Buy Ixis → return with the balance → redeem → check the audit export. Then switch to live keys.
 
 Questions go to the lead developer, through Awad. Keep this file and `AGENTS.md` accurate: if you change something, update both.

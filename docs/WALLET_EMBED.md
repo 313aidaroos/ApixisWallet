@@ -30,7 +30,7 @@ https://apixis-wallet.vercel.app/buy?product=socixis&return_url=https%3A%2F%2Fso
 
 | Query | Required | Meaning |
 | --- | --- | --- |
-| `product` (alias `app`) | no | Origin product: `socixis`, `renoxis`, `recovra`, `deduxis`, `contraxis`, `contentbot`, `apixis`, `family`, `cixy`, or `wallet`. |
+| `product` (alias `app`) | no | Origin product: `socixis`, `renoxis`, `recovix`, `deduxis`, `contraxis`, `contentbot`, `apixis`, `family`, `cixy`, or `wallet`. |
 | `return_url` | no | Absolute `https` URL on an allowlisted host. Wallet opens it only after the webhook credit. |
 
 `return_url` must be URL-encoded. Allowed hosts are `apixis.dev` (and subdomains) and the exact production hosts in `lib/checkout/return-url.ts` (`socixis.vercel.app`, `renoxis.vercel.app`, and the other family `project.vercel.app` names). A lookalike such as `socixis-git-main.vercel.app` is rejected. Preview hosts go in `CHECKOUT_RETURN_HOSTS` as exact hostnames, not wildcards.

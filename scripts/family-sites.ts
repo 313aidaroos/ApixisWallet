@@ -2,7 +2,7 @@
 export const FAMILY_SITES = [
   { name: "renoxis", apps: ["renoxis"], domain: "renoxis.dev" },
   { name: "socixis", apps: ["socixis", "family"], domain: "socixis.dev" },
-  { name: "recovra", apps: ["recovra"], domain: "recovra-three.vercel.app" },
+  { name: "recovix", apps: ["recovix"], domain: "recovix.vercel.app" },
   { name: "lyrixis", apps: ["lyrixis"], domain: "lyrixis.vercel.app" },
   { name: "rawixis", apps: ["rawixis"], domain: "rawixis.vercel.app" },
   { name: "contraxis", apps: ["contraxis"], domain: "contraxis-dev.vercel.app" },

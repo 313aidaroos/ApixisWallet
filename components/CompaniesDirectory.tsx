@@ -95,8 +95,8 @@ const companies = [
     path: "M13 34 10 41l7-3m18-3 7-3-3 7M17 31c1-9 5-16 15-23 7 5 9 12 8 19L29 38l-12-7Zm7-10 10 10m-4-14h.1",
   },
   {
-    name: "Recovra",
-    url: "https://recovra-three.vercel.app",
+    name: "Recovix",
+    url: "https://recovix.vercel.app",
     description: "Recover overcharges and control business spend with AI.",
     kind: "recovery",
     color: "#8fd3e0",
@@ -139,7 +139,7 @@ const videos: Record<string, string> = {
     "https://d8j0ntlcm91z4.cloudfront.net/user_3I9IxN8XAUFfWP3X6OzJQUZLlWx/hf_20261005_024539_021c17b7-6471-4541-a946-a3e6aeb4d0d2.mp4",
   "scenes-5":
     "https://d8j0ntlcm91z4.cloudfront.net/user_3I9IxN8XAUFfWP3X6OzJQUZLlWx/hf_20261005_024537_be17da6b-bdf8-466b-b952-a37f2a62e92d.mp4",
-  recovra:
+  recovix:
     "https://d8j0ntlcm91z4.cloudfront.net/user_3I9IxN8XAUFfWP3X6OzJQUZLlWx/hf_20261005_024538_80d442d8-499d-4ccf-8e5b-f714ca399d4b.mp4",
 };
 
@@ -155,7 +155,7 @@ function CompanyCard({
   const video = useRef<HTMLVideoElement>(null),
     badge = useRef<HTMLCanvasElement>(null);
   const scene =
-    index === 11 ? "recovra" : `scenes-${Math.floor(index / 3) + 1}`;
+    index === 11 ? "recovix" : `scenes-${Math.floor(index / 3) + 1}`;
   const panel = index === 11 ? 0 : index % 3;
   const bounds =
     index === 11

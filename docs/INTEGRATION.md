@@ -34,7 +34,7 @@ https://apixis-wallet.vercel.app/buy?return_url=https%3A%2F%2Fsocixis.vercel.app
 | Param | Required | Meaning |
 | --- | --- | --- |
 | `return_url` | no | Absolute URL opened after the pack is credited. The host must be allowlisted. |
-| `product`, `app`, or `destination` | no | Sister app slug: `socixis`, `renoxis`, `recovra`, `deduxis`, `contraxis`, `contentbot`, `apixis`, `family`, `cixy`, or `wallet`. |
+| `product`, `app`, or `destination` | no | Sister app slug: `socixis`, `renoxis`, `recovix`, `deduxis`, `contraxis`, `contentbot`, `apixis`, `family`, `cixy`, or `wallet`. |
 
 Allowlist (`lib/checkout/return-url.ts`):
 
@@ -302,7 +302,7 @@ Current SKUs (as of 2026-09-21):
 | `renoxis.activate`                | Renoxis     | Renoxis Activate          | 5,000   | $50      |
 | `renoxis.agent.monthly`           | Renoxis     | Renoxis Monthly           | 5,000   | $50/mo   |
 | `socixis.autopilot.monthly`       | Socixis     | Social Autopilot          | 45,000  | $450/mo  |
-| `recovra.intel.monthly`           | Recovra     | Recovery Intelligence     | 22,000  | $220/mo  |
+| `recovix.intel.monthly`           | Recovix     | Recovery Intelligence     | 22,000  | $220/mo  |
 | `deduxis.receipts.monthly`        | Deduxis     | Receipt Intelligence      | 15,000  | $150/mo  |
 | `contraxis.seat.starter`          | Contraxis   | Pro Starter               | 9,900   | $99/mo   |
 | `contraxis.seat.pro`              | Contraxis   | Pro Professional          | 39,900  | $399/mo  |

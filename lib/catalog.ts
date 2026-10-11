@@ -35,8 +35,8 @@ export const redeemCatalog = [
   { key: "socixis.avatar.render.120s", app: "Socixis", name: "Avatar video: 120s render", xp: 4000, color: "#ff8a3d", includes: "One avatar video up to 120s · $40" },
   // Content Studio "Generate image" (Socixis PR #67): consumable, no `days`: one reserve → capture per image, release on failure (Wallet Lead, 2026-10-04).
   { key: "socixis.image.generate", app: "Socixis", name: "Content Studio image", xp: 25, color: "#ff6bce", includes: "One generated brand image · $0.25 (per-use, floor-exempt)" },
-  { key: "recovra.intel.monthly", app: "Recovra", name: "Recovery Intelligence · Starter", xp: 22000, color: "#58c8ff", includes: "Seat + 120 extracts · $220/mo", days: 30 },
-  { key: "recovra.intel.growth", app: "Recovra", name: "Recovery Intelligence · Growth", xp: 44000, color: "#58c8ff", includes: "Multi-module · workflows · reporting · $440/mo", days: 30 },
+  { key: "recovix.intel.monthly", app: "Recovix", name: "Recovery Intelligence · Starter", xp: 22000, color: "#58c8ff", includes: "Seat + 120 extracts · $220/mo", days: 30 },
+  { key: "recovix.intel.growth", app: "Recovix", name: "Recovery Intelligence · Growth", xp: 44000, color: "#58c8ff", includes: "Multi-module · workflows · reporting · $440/mo", days: 30 },
   { key: "deduxis.receipts.monthly", app: "Deduxis", name: "Receipt Intelligence", xp: 15000, color: "#ffbd59", includes: "Seat + 200 receipts", days: 30 },
   { key: "contentbot.creator.monthly", app: "PersonalContentBot", name: "Creator Seat", xp: 20000, color: "#a855f7", includes: "Unlimited 60s videos · 30 days", days: 30 },
   { key: "rawixis.buyer.seat.base", app: "Rawixis", name: "Buyer seat (Base)", xp: 15000, color: "#d4af37", includes: "10 RFQs · basic verification · 30 days", days: 30 },

@@ -20,7 +20,7 @@ Use a new address (e.g. `you+launch1@…`). Prices are in Ixis; buy the Spark pa
 | 4 | Renoxis | Buy a seat → refresh | Still has access; balance down by the seat price | reserve → capture, `entitlements.renews_at` = +30 days |
 | 5 | Socixis | Unlock a skin | Unlocked; one charge | one capture per idempotency key |
 | 6 | Contraxis | Pro seat | Pro features on | capture + entitlement |
-| 7 | Recovra | Paid plan | Plan active, receipt shown | needs `SUPABASE_SERVICE_ROLE_KEY` on `recovra` |
+| 7 | Recovix | Paid plan | Plan active, receipt shown | needs `SUPABASE_SERVICE_ROLE_KEY` on `recovix` |
 | 8 | Deduxis | Seat → upload a receipt photo → export CSV | Photo appears in the list; CSV downloads | file in private `receipts` bucket under your user id |
 | 9 | Lyrixis | Upload a song | Transcript appears | needs Redis + transcription key + worker |
 | 10 | Rawixis | Buyer seat | Seat active | capture |

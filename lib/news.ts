@@ -13,7 +13,7 @@ export const bulletins: Bulletin[] = [
     source: "Apixis Family",
     tag: "ANNOUNCE",
     title: "One checkout across the empire",
-    body: "Apixis Wallet is the only place dollars enter. Renoxis, Socixis, Recovra and Deduxis redeem Ixis.",
+    body: "Apixis Wallet is the only place dollars enter. Renoxis, Socixis, Recovix and Deduxis redeem Ixis.",
     at: "2026-09-19 15:00 CDT",
   },
   {
