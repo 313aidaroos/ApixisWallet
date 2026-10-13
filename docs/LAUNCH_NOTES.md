@@ -119,3 +119,17 @@ _Changes are backend and plumbing only. Pages, design and UI are not changed exc
 | `contraxis.plan_b.monthly` | Contraxis | Contraxis Business | 39,900 | $399/mo |
 
 All 30-day monthly seats, no aliases. `renoxis.agent.monthly` (5,000 Ixis) is unchanged.
+
+## 2026-10-13 — Lyrixis voice and Socixis plan SKUs (Wallet Lead, Awad approved 1:41 PM CT)
+
+| Product Key | App | Name | Ixis | USD |
+|---|---|---|---|---|
+| `lyrixis.voice.setup` | Lyrixis | Voice setup | 500 | $5 |
+| `lyrixis.voice.song` | Lyrixis | Voice song | 600 | $6/song |
+| `lyrixis.voice.take` | Lyrixis | Extra take | 100 | $1 |
+| `lyrixis.voice.release` | Lyrixis | Release to streaming | 900 | $9 |
+| `lyrixis.all_access.monthly` | Lyrixis | All-Access | 3,000 | $30/mo |
+| `socixis.creator.monthly` | Socixis | Creator | 5,000 | $50/mo |
+| `socixis.small_business.monthly` | Socixis | Small Business | 30,000 | $300/mo |
+
+`lyrixis.all_access.monthly`, `socixis.creator.monthly`, and `socixis.small_business.monthly` are 30-day seats. The four Lyrixis voice rows are one-time (no `days`). All-Access includes "Voice model + 4 songs + 1 release/mo". No aliases. `lyrixis.track.unlock` (300 Ixis) and `socixis.autopilot.monthly` (45,000 Ixis) are unchanged.
