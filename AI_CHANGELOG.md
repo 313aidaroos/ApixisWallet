@@ -163,3 +163,7 @@ Entry format:
 ## 2026-10-13 — Grok (Wallet Lead)
 - Changed: `lib/catalog.ts` (new monthly SKUs `renoxis.agent.monthly.10000` 10,000 Ixis, `contraxis.plan_a.monthly` 9,900 Ixis, `contraxis.plan_b.monthly` 39,900 Ixis), `test/monthly-skus-2026-10-13.test.ts` (new), `test/renoxis-catalog.test.ts` (allow the 10,000 post-intro seat), `docs/INTEGRATION.md`, `docs/LAUNCH_NOTES.md`, `NOTES/GROK.md`.
 - Why: Awad approved these three monthly SKUs at 12:15 PM CT 2026-10-13 (only change allowed while the Wallet is paused).
+
+## 2026-10-13 — Cursor: record the monthly-SKU squash-merge SHA
+- Changed: `NOTES/GROK.md` undo line now names merge `2a756ec431dd7e7748a5ad8945d2e8920fc20a01` (PR #62).
+- Why: the approved patch left a `<squash-merge sha>` placeholder to fill after the squash-merge.
