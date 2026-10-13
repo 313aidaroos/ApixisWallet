@@ -171,3 +171,7 @@ Entry format:
 ## 2026-10-13 — Cursor (Wallet Lead)
 - Changed: `lib/catalog.ts` (new SKUs `lyrixis.voice.setup` 500, `lyrixis.voice.song` 600, `lyrixis.voice.take` 100, `lyrixis.voice.release` 900, `lyrixis.all_access.monthly` 3,000 with `days: 30`, `socixis.creator.monthly` 5,000 with `days: 30`, `socixis.small_business.monthly` 30,000 with `days: 30`; existing `lyrixis.track.unlock` and `socixis.autopilot.monthly` unchanged; no aliases), `test/lyrixis-socixis-skus-2026-10-13.test.ts` (new), `docs/INTEGRATION.md`, `docs/LAUNCH_NOTES.md`, `NOTES/GROK.md`.
 - Why: Awad approved these Lyrixis voice and Socixis plan SKUs at 1:41 PM CT 2026-10-13.
+
+## 2026-10-13 — Cursor: record the Lyrixis and Socixis SKU squash-merge SHA
+- Changed: `NOTES/GROK.md` undo line now names merge `fccd4ccef7d90a9a0b480becf9579c278b78b1e8` (PR #63).
+- Why: the approved patch left a `<squash-merge sha>` placeholder to fill after the squash-merge.
