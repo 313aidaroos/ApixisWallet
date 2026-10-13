@@ -19,6 +19,7 @@ export const UNIT_XP = 1000;
 export const redeemCatalog = [
   { key: "renoxis.activate", app: "Renoxis", name: "Renoxis Activate", xp: 5000, color: "#c8ff63", includes: "One-time activation · $50" },
   { key: "renoxis.agent.monthly", app: "Renoxis", name: "Renoxis Monthly", xp: 5000, color: "#c8ff63", includes: "Month seat · $50/mo", days: 30 },
+  { key: "renoxis.agent.monthly.10000", app: "Renoxis", name: "Renoxis Monthly (post-intro)", xp: 10000, color: "#c8ff63", includes: "Month seat · $100/mo (post-intro price)", days: 30 },
   { key: "socixis.autopilot.monthly", app: "Socixis", name: "Social Autopilot", xp: 45000, color: "#ff6bce", includes: "20 posts + 20 images", days: 30 },
   { key: "socixis.avatar.skin.cartoon", app: "Socixis", name: "Skin: Cartoon", xp: UNIT_XP, color: "#ff8a3d", includes: "Look unlock" },
   { key: "socixis.avatar.skin.anime", app: "Socixis", name: "Skin: Anime", xp: UNIT_XP, color: "#ff8a3d", includes: "Look unlock" },
@@ -50,6 +51,8 @@ export const redeemCatalog = [
   { key: "apixis.ixis.pack", app: "Apixis.dev", name: "Ixis top-up", xp: UNIT_XP, color: "#46e6ff", includes: "1,000 Ixis in-world. Bought with XP." },
   { key: "contraxis.seat.starter", app: "Contraxis", name: "Pro Starter", xp: 9900, color: "#22d3ee", includes: "Was $99/mo card. Now XP.", days: 30 },
   { key: "contraxis.seat.pro", app: "Contraxis", name: "Pro Professional", xp: 39900, color: "#22d3ee", includes: "Was $399/mo card. Now XP.", days: 30 },
+  { key: "contraxis.plan_a.monthly", app: "Contraxis", name: "Contraxis Pro", xp: 9900, color: "#22d3ee", includes: "Monthly Pro plan · $99/mo", days: 30 },
+  { key: "contraxis.plan_b.monthly", app: "Contraxis", name: "Contraxis Business", xp: 39900, color: "#22d3ee", includes: "Monthly Business plan · $399/mo", days: 30 },
 
   { key: "apixis.file.unit", app: "Family", name: "Any file / template / skin", xp: UNIT_XP, color: "#9dff4a", includes: "$10 unit · same on every site" },
   { key: "renoxis.file.listing", app: "Renoxis", name: "Listing file", xp: UNIT_XP, color: "#c8ff63", includes: "One listing template" },
@@ -143,6 +146,7 @@ export const shopCatalog = [
 /**
  * Aliases resolve to one catalog row. Renoxis monthly is only
  * `renoxis.agent.monthly` — do not add a second 5,000 Ixis month key.
+ * `renoxis.agent.monthly.10000` is the separate 10,000 Ixis post-intro month seat (no aliases).
  */
 const catalogAliases: Record<string, string> = {
   "renoxis-activate": "renoxis.activate",

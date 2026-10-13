@@ -109,3 +109,13 @@ Each changed backend code file also starts with a one-line `Change note (Claude,
 **Removed:** `Apixis_Wallet_MVP_GitHub_Ready.zip`: stale copy of the app already on main.
 
 _Changes are backend and plumbing only. Pages, design and UI are not changed except where noted as a build or lint fix with no visual change._
+
+## 2026-10-13 — monthly catalog SKUs (Wallet Lead, Awad approved 12:15 PM CT)
+
+| Product Key | App | Name | Ixis | USD |
+|---|---|---|---|---|
+| `renoxis.agent.monthly.10000` | Renoxis | Renoxis Monthly (post-intro) | 10,000 | $100/mo |
+| `contraxis.plan_a.monthly` | Contraxis | Contraxis Pro | 9,900 | $99/mo |
+| `contraxis.plan_b.monthly` | Contraxis | Contraxis Business | 39,900 | $399/mo |
+
+All 30-day monthly seats, no aliases. `renoxis.agent.monthly` (5,000 Ixis) is unchanged.

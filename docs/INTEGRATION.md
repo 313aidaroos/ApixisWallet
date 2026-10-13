@@ -301,11 +301,14 @@ Current SKUs (as of 2026-09-21):
 | `apixis.founder.monthly`          | Apixis.dev  | Founder seat              | 10,000  | $100/mo  |
 | `renoxis.activate`                | Renoxis     | Renoxis Activate          | 5,000   | $50      |
 | `renoxis.agent.monthly`           | Renoxis     | Renoxis Monthly           | 5,000   | $50/mo   |
+| `renoxis.agent.monthly.10000`     | Renoxis     | Renoxis Monthly (post-intro) | 10,000 | $100/mo |
 | `socixis.autopilot.monthly`       | Socixis     | Social Autopilot          | 45,000  | $450/mo  |
 | `recovix.intel.monthly`           | Recovix     | Recovery Intelligence     | 22,000  | $220/mo  |
 | `deduxis.receipts.monthly`        | Deduxis     | Receipt Intelligence      | 15,000  | $150/mo  |
 | `contraxis.seat.starter`          | Contraxis   | Pro Starter               | 9,900   | $99/mo   |
 | `contraxis.seat.pro`              | Contraxis   | Pro Professional          | 39,900  | $399/mo  |
+| `contraxis.plan_a.monthly`        | Contraxis   | Contraxis Pro             | 9,900   | $99/mo   |
+| `contraxis.plan_b.monthly`        | Contraxis   | Contraxis Business        | 39,900  | $399/mo  |
 | `apixis.file.unit`                | Family      | File / template / skin    | 1,000   | $10      |
 | `socixis.avatar.skin.*`           | Socixis     | Avatar skin (various)     | 1,000   | $10/each |
 | `socixis.avatar.pack.all`         | Socixis     | Skin pack: All skins      | 5,000   | $50      |
