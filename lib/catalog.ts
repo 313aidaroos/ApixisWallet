@@ -21,6 +21,9 @@ export const redeemCatalog = [
   { key: "renoxis.agent.monthly", app: "Renoxis", name: "Renoxis Monthly", xp: 5000, color: "#c8ff63", includes: "Month seat · $50/mo", days: 30 },
   { key: "renoxis.agent.monthly.10000", app: "Renoxis", name: "Renoxis Monthly (post-intro)", xp: 10000, color: "#c8ff63", includes: "Month seat · $100/mo (post-intro price)", days: 30 },
   { key: "socixis.autopilot.monthly", app: "Socixis", name: "Social Autopilot", xp: 45000, color: "#ff6bce", includes: "20 posts + 20 images", days: 30 },
+  // Socixis Creator and Small Business (Awad approved 2026-10-13 1:41 PM CT). No aliases. socixis.autopilot.monthly stays 45,000.
+  { key: "socixis.creator.monthly", app: "Socixis", name: "Creator", xp: 5000, color: "#ff6bce", includes: "Monthly Creator plan · $50/mo", days: 30 },
+  { key: "socixis.small_business.monthly", app: "Socixis", name: "Small Business", xp: 30000, color: "#ff6bce", includes: "Monthly Small Business plan · $300/mo", days: 30 },
   { key: "socixis.avatar.skin.cartoon", app: "Socixis", name: "Skin: Cartoon", xp: UNIT_XP, color: "#ff8a3d", includes: "Look unlock" },
   { key: "socixis.avatar.skin.anime", app: "Socixis", name: "Skin: Anime", xp: UNIT_XP, color: "#ff8a3d", includes: "Look unlock" },
   { key: "socixis.avatar.skin.hero", app: "Socixis", name: "Skin: Comic hero", xp: UNIT_XP, color: "#ff8a3d", includes: "Look unlock" },
@@ -69,6 +72,12 @@ export const redeemCatalog = [
   { key: "rawixis.logistics.quote", app: "Rawixis", name: "Logistics quote", xp: 1500, color: "#d4af37", includes: "Freight + duty + landed cost calc" },
   // Lyrixis
   { key: "lyrixis.track.unlock", app: "Lyrixis", name: "Unlock 1 track export", xp: 300, color: "#22d3ee", includes: "Metered per-track unlock · $3 (per-use, floor-exempt)" },
+  // Lyrixis voice + All-Access (Awad approved 2026-10-13 1:41 PM CT). Same color as lyrixis.track.unlock. No aliases.
+  { key: "lyrixis.voice.setup", app: "Lyrixis", name: "Voice setup", xp: 500, color: "#22d3ee", includes: "One-time voice setup · $5 (per-use, floor-exempt)" },
+  { key: "lyrixis.voice.song", app: "Lyrixis", name: "Voice song", xp: 600, color: "#22d3ee", includes: "Per song · $6 (per-use, floor-exempt)" },
+  { key: "lyrixis.voice.take", app: "Lyrixis", name: "Extra take", xp: 100, color: "#22d3ee", includes: "One extra take · $1 (per-use, floor-exempt)" },
+  { key: "lyrixis.voice.release", app: "Lyrixis", name: "Release to streaming", xp: 900, color: "#22d3ee", includes: "One release to streaming · $9 (per-use, floor-exempt)" },
+  { key: "lyrixis.all_access.monthly", app: "Lyrixis", name: "All-Access", xp: 3000, color: "#22d3ee", includes: "Voice model + 4 songs + 1 release/mo", days: 30 },
   // Qahwahworld — key must match what the site sends (roaster_seat_monthly)
   { key: "roaster_seat_monthly", app: "Qahwahworld", name: "Roaster seat", xp: 10000, color: "#a0522d", includes: "Monthly roaster seat · $100/mo", days: 30 },
   { key: "seller_seat_monthly", app: "Qahwahworld", name: "Seller seat", xp: 20000, color: "#a0522d", includes: "Monthly seller seat · $200/mo", days: 30 },

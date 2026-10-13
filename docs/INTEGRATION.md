@@ -303,6 +303,8 @@ Current SKUs (as of 2026-09-21):
 | `renoxis.agent.monthly`           | Renoxis     | Renoxis Monthly           | 5,000   | $50/mo   |
 | `renoxis.agent.monthly.10000`     | Renoxis     | Renoxis Monthly (post-intro) | 10,000 | $100/mo |
 | `socixis.autopilot.monthly`       | Socixis     | Social Autopilot          | 45,000  | $450/mo  |
+| `socixis.creator.monthly`         | Socixis     | Creator                   | 5,000   | $50/mo   |
+| `socixis.small_business.monthly`  | Socixis     | Small Business            | 30,000  | $300/mo  |
 | `recovix.intel.monthly`           | Recovix     | Recovery Intelligence     | 22,000  | $220/mo  |
 | `deduxis.receipts.monthly`        | Deduxis     | Receipt Intelligence      | 15,000  | $150/mo  |
 | `contraxis.seat.starter`          | Contraxis   | Pro Starter               | 9,900   | $99/mo   |
@@ -317,6 +319,11 @@ Current SKUs (as of 2026-09-21):
 | `socixis.avatar.render.90s`       | Socixis     | Avatar video: 90s render  | 3,000   | $30/video |
 | `socixis.avatar.render.120s`      | Socixis     | Avatar video: 120s render | 4,000   | $40/video |
 | `socixis.image.generate`          | Socixis     | Content Studio image      | 25      | $0.25/image |
+| `lyrixis.voice.setup`             | Lyrixis     | Voice setup               | 500     | $5       |
+| `lyrixis.voice.song`              | Lyrixis     | Voice song                | 600     | $6/song  |
+| `lyrixis.voice.take`              | Lyrixis     | Extra take                | 100     | $1       |
+| `lyrixis.voice.release`           | Lyrixis     | Release to streaming      | 900     | $9       |
+| `lyrixis.all_access.monthly`      | Lyrixis     | All-Access                | 3,000   | $30/mo   |
 | `renoxis.file.*`                  | Renoxis     | Listing/offer file        | 1,000   | $10/each |
 
 **Free (no Wallet charge, 2026-10-04):** `socixis.avatar.base`, `socixis.site.*` (saas, restaurant, portfolio, local, shop, agency) and `shop.template.site.saas` / `shop.template.site.shop` are free per Awad. They live in `freeCatalog` (price 0 on record); quotes and reservations return 404 for them because `reserve_xp` rejects a zero amount, so sites unlock them without calling the Wallet. Free avatar videos are capped at 30s (Socixis-side, no Wallet SKU; there is no paid 30s SKU). The 45s/60s/90s/120s renders are consumables: reserve one per video, capture when the video is ready, release on failure; use the capture receipt, not the entitlement row, to track renders.
