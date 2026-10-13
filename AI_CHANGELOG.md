@@ -159,3 +159,7 @@ Entry format:
 ## 2026-10-06 — Claude (family lead): AI Receptionist spec update (R4 one per business, Socixis built)
 - Changed: `docs/AI_RECEPTIONIST.md` (decision R4, brand header, rollout table with PR numbers, Socixis row).
 - Why: Awad said "go" on one receptionist per brand and asked for the Socixis version; every bot needs the current plan.
+
+## 2026-10-13 — Grok (Wallet Lead)
+- Changed: `lib/catalog.ts` (new monthly SKUs `renoxis.agent.monthly.10000` 10,000 Ixis, `contraxis.plan_a.monthly` 9,900 Ixis, `contraxis.plan_b.monthly` 39,900 Ixis), `test/monthly-skus-2026-10-13.test.ts` (new), `test/renoxis-catalog.test.ts` (allow the 10,000 post-intro seat), `docs/INTEGRATION.md`, `docs/LAUNCH_NOTES.md`, `NOTES/GROK.md`.
+- Why: Awad approved these three monthly SKUs at 12:15 PM CT 2026-10-13 (only change allowed while the Wallet is paused).

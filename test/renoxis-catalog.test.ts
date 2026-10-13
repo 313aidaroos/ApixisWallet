@@ -48,10 +48,12 @@ describe("Renoxis 5k launch SKUs", () => {
     assert.equal(hyphenMonth.usdEquivalent, 50);
   });
 
-  it("does not keep a 30000 Ixis Renoxis seat or a second monthly key", () => {
+  it("does not keep a 30000 Ixis Renoxis seat or a second 5000 monthly key (10000 post-intro seat approved 2026-10-13)", () => {
     const months = redeemCatalog.filter((item) => item.key.startsWith("renoxis.") && item.key.includes("monthly"));
-    assert.deepEqual(months.map((item) => item.key), ["renoxis.agent.monthly"]);
+    assert.deepEqual(months.map((item) => item.key), ["renoxis.agent.monthly", "renoxis.agent.monthly.10000"]);
     assert.equal(months[0]?.xp, 5000);
+    assert.equal(months[1]?.xp, 10000);
+    assert.equal(months.filter((item) => Number(item.xp) === 5000).length, 1);
     assert.equal(redeemCatalog.some((item) => item.app === "Renoxis" && Number(item.xp) === 30000), false);
     assert.equal(findCatalogProduct("renoxis-monthly")?.key, findCatalogProduct("renoxis.agent.monthly")?.key);
   });
