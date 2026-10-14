@@ -312,6 +312,7 @@ export function WalletScreen({
   const [buying, setBuying] = useState<string | null>(null);
   const [pendingProduct, setPendingProduct] = useState<Product | null>(null);
   const [redeeming, setRedeeming] = useState(false);
+  const [renewalsOn, setRenewalsOn] = useState(false);
   const [subscriptions, setSubscriptions] = useState<
     Array<{
       id: string;
@@ -379,7 +380,9 @@ export function WalletScreen({
     void fetch("/api/v1/subscriptions", { credentials: "same-origin", cache: "no-store" })
       .then((response) => (response.ok ? response.json() : null))
       .then((data) => {
-        if (!cancelled && data && Array.isArray(data.subscriptions)) setSubscriptions(data.subscriptions);
+        if (cancelled || !data) return;
+        setRenewalsOn(data.enabled === true);
+        if (Array.isArray(data.subscriptions)) setSubscriptions(data.subscriptions);
       })
       .catch(() => undefined);
     return () => {
@@ -477,7 +480,7 @@ export function WalletScreen({
       setNotice("Refresh your wallet before redeeming.");
       return;
     }
-    if (!isMonthlySku(item.key) && balance.available < item.xp) {
+    if (!(renewalsOn && isMonthlySku(item.key)) && balance.available < item.xp) {
       setNotice(`You need ${fmt(item.xp - balance.available)} more ${unit}.`);
       navigate("buy");
       return;
@@ -1093,7 +1096,7 @@ export function WalletScreen({
                         disabled={redeeming || status === "loading"}
                         onClick={() => requestRedeem(item)}
                       >
-                        {isMonthlySku(item.key) ? "Renew" : "Redeem"} <ArrowUpRight />
+                        {renewalsOn && isMonthlySku(item.key) ? "Renew" : "Redeem"} <ArrowUpRight />
                       </button>
                     </article>
                   ))}
@@ -1277,7 +1280,7 @@ export function WalletScreen({
           product={dialogProduct}
           unit={unit}
           busy={redeeming}
-          monthly={isMonthlySku(dialogProduct.key)}
+          monthly={(renewalsOn || Boolean(previewRenew && !previewDismissed)) && isMonthlySku(dialogProduct.key)}
           onClose={() => {
             setPendingProduct(null);
             setPreviewDismissed(true);

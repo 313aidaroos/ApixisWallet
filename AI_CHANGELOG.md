@@ -205,3 +205,7 @@ Entry format:
 ## 2026-10-14 — Cursor (Wallet Lead)
 - Changed: combined the #65–#69 work onto `cursor/launch-combined-e71a`. `docs/LAUNCH_READINESS_2027.md` now says those changes live in this one draft. `supabase/tests/66_monthly_subscriptions_test.sql` uses auth user `88888888-8888-4888-8888-888888888888`.
 - Why: one draft instead of five conflicting pull requests. The monthly SQL test had inserted `66666666-…`, the same `auth.users` id `scripts/test-sql.sh` inserts later for the welcome-grant race, so ledger CI failed after the concurrency check. Migrations 015 and 016 are unchanged. No env change.
+
+## 2026-10-14 — Cursor (Wallet Lead)
+- Changed: monthly renewal calls `subscriptionsReady` before `enroll_subscription`, the subscriptions table, card Checkout, or the renewal cron. Wallet redeem of a monthly SKU stays a one-shot spend until that table exists. `checkout_payment_failed` stays a best-effort audit write.
+- Why: migrations 015 and 016 are not applied on production. A redeem that spent Ixis and then called a missing function would have returned an error. Buy, `/buy/complete`, marketplace settle, and one-shot redeem do not use the new table.

@@ -6,6 +6,7 @@ import { getStripe } from "@/lib/stripe";
 import { recordAudit, requestContext } from "@/lib/audit";
 import { sameOriginRequest } from "@/lib/api/origin";
 import { ledgerErrorResponse } from "@/lib/api/errors";
+import { subscriptionsReady } from "@/lib/subscriptions/ready";
 
 const bodySchema = z.object({ productKey: z.string().min(1).max(80) });
 
@@ -29,6 +30,9 @@ export async function POST(request: Request) {
 
   const supabase = createServiceSupabase();
   if (!supabase) return NextResponse.json({ error: "Service configuration missing" }, { status: 503 });
+  if (!(await subscriptionsReady(supabase))) {
+    return NextResponse.json({ error: "No live seat for that product" }, { status: 404 });
+  }
 
   const live = await supabase
     .from("subscriptions")

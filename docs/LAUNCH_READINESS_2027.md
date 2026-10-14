@@ -49,7 +49,7 @@ Existing PR [#59](https://github.com/313aidaroos/ApixisWallet/pull/59) (AI Recep
 
 These were not changed from this pass.
 
-1. **Apply migrations** `015_checkout_payment_failed.sql` and `016_monthly_subscriptions.sql` on the Wallet database (`kzneeksminozmhnqaaun`). They are in this draft and are not applied from the pull request. Until 016 is applied, enroll and renew fail. Until 015 is applied, the failed-payment audit insert is skipped; the page still uses the PaymentIntent status.
+1. **Apply migrations** `015_checkout_payment_failed.sql` and `016_monthly_subscriptions.sql` on the Wallet database (`kzneeksminozmhnqaaun`). They are in this draft and are not applied from the pull request. Until `public.subscriptions` exists, monthly card checkout is refused, Ixis auto-renew is skipped, and the renewal cron does not move Ixis. A one-shot SKU redeem still spends. Until 015 is applied, the `checkout_payment_failed` audit insert is rejected by the existing check and ignored; `/buy/complete` still uses the PaymentIntent status.
 2. **Stripe webhook events to add** (Dashboard, not this repo): `invoice.paid`, `invoice.payment_failed`, `customer.subscription.updated`, `customer.subscription.deleted`. Keep the events already required for packs, including `checkout.session.async_payment_failed`.
 3. **Stripe restricted key**: Subscriptions write, or a card seat’s “Stop next renewal” returns 502 and the card keeps charging. Pack checkout still needs Checkout Sessions write plus PaymentIntents and Charges read.
 4. **`CRON_SECRET`** must be set in Vercel production. Release-holds already depends on it. The new Ixis renewal cron returns 503 without it. `vercel.json` only adds the path; it does not set the secret.

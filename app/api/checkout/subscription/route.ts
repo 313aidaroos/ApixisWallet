@@ -7,6 +7,7 @@ import { recordAudit, requestContext, termsVersion } from "@/lib/audit";
 import { createServiceSupabase } from "@/lib/supabase/service";
 import { productApp } from "@/lib/api/reserve";
 import { isMonthlySku, monthlySubscriptionParams } from "@/lib/subscriptions";
+import { subscriptionsReady } from "@/lib/subscriptions/ready";
 
 const bodySchema = z.object({ productKey: z.string().min(1).max(80) });
 
@@ -27,6 +28,12 @@ export async function POST(request: Request) {
   const viewer = await checkoutViewer();
   if ("response" in viewer) return viewer.response;
 
+  const supabase = createServiceSupabase();
+  if (!supabase) return NextResponse.json({ error: "Service configuration missing" }, { status: 503 });
+  if (!(await subscriptionsReady(supabase))) {
+    return NextResponse.json({ error: "Monthly card renewal is not available yet" }, { status: 409 });
+  }
+
   const origin = process.env.NEXT_PUBLIC_APP_URL ?? url.origin;
   const params = monthlySubscriptionParams({
     origin,
@@ -39,9 +46,7 @@ export async function POST(request: Request) {
   try {
     const stripe = getStripe();
     const session = await stripe.checkout.sessions.create(params);
-    const supabase = createServiceSupabase();
-    if (supabase) {
-      await recordAudit(supabase, {
+    await recordAudit(supabase, {
         event_type: "checkout_started",
         dedupe_key: `checkout_started:${session.id}`,
         actor: "wallet-ui",
@@ -56,8 +61,7 @@ export async function POST(request: Request) {
         terms_version: termsVersion(),
         ...requestContext(request),
         details: { sku_type: "monthly_seat", product_name: product.name },
-      });
-    }
+    });
     return NextResponse.json({ url: session.url });
   } catch (error) {
     const message = error instanceof Error ? error.message : "";

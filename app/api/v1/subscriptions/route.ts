@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { findCatalogProduct } from "@/lib/catalog";
 import { getAuthenticatedUser } from "@/lib/supabase/server";
 import { createServiceSupabase } from "@/lib/supabase/service";
+import { subscriptionsReady } from "@/lib/subscriptions/ready";
 
 /** Live monthly seats for the signed-in Apixis ID. */
 export async function GET() {
@@ -15,6 +16,9 @@ export async function GET() {
 
   const supabase = createServiceSupabase();
   if (!supabase) return NextResponse.json({ error: "Service configuration missing" }, { status: 503 });
+  if (!(await subscriptionsReady(supabase))) {
+    return NextResponse.json({ enabled: false, subscriptions: [] });
+  }
   const rows = await supabase
     .from("subscriptions")
     .select("id, product_key, source, status, amount_ixis, renews_at, cancel_at_period_end")
@@ -24,6 +28,7 @@ export async function GET() {
   if (rows.error) return NextResponse.json({ error: "Could not read subscriptions" }, { status: 500 });
 
   return NextResponse.json({
+    enabled: true,
     subscriptions: (rows.data ?? []).map((row) => {
       const product = findCatalogProduct(row.product_key);
       return {

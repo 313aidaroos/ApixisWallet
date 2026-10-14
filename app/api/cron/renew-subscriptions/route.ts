@@ -2,6 +2,7 @@ import { timingSafeEqual } from "node:crypto";
 import { NextResponse } from "next/server";
 import { createServiceSupabase } from "@/lib/supabase/service";
 import { renewDueIxisSubscriptions } from "@/lib/subscriptions/renew";
+import { subscriptionsReady } from "@/lib/subscriptions/ready";
 
 export const runtime = "nodejs";
 
@@ -21,6 +22,9 @@ export async function GET(request: Request) {
 
   const supabase = createServiceSupabase();
   if (!supabase) return NextResponse.json({ error: "Service configuration missing" }, { status: 503 });
+  if (!(await subscriptionsReady(supabase))) {
+    return NextResponse.json({ renewed: 0, past_due: 0, canceled: 0, failed: 0, skipped: "subscriptions_not_ready" });
+  }
   try {
     const counts = await renewDueIxisSubscriptions(supabase);
     if (counts.failed > 0) return NextResponse.json(counts, { status: 500 });

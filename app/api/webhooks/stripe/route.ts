@@ -4,7 +4,9 @@ import type Stripe from "stripe";
 import { pointPacks } from "@/lib/catalog";
 import { getStripe } from "@/lib/stripe";
 import { decideChargeRefund, decideCheckoutCredit, decideDisputeReversal, type FulfillmentDecision } from "@/lib/stripe/fulfillment";
+import { decideMonthlyInvoice } from "@/lib/subscriptions";
 import { fulfillMonthlyInvoice, monthlyInvoiceInput } from "@/lib/subscriptions/invoice";
+import { subscriptionsReady } from "@/lib/subscriptions/ready";
 import { creditPaidPack, findRefundForCharge, refundPaidPack } from "@/lib/stripe/ledger";
 import { createServiceSupabase } from "@/lib/supabase/service";
 import { recordAudit, type AuditEvent } from "@/lib/audit";
@@ -200,6 +202,9 @@ async function markCardSeat(invoice: Stripe.Invoice, status: "past_due") {
   }
   const { supabase, response } = serviceOr503();
   if (!supabase) return response;
+  if (!(await subscriptionsReady(supabase))) {
+    return NextResponse.json({ received: true, applied: false, reason: "subscriptions_not_ready" });
+  }
   const synced = await supabase.rpc("sync_card_subscription", {
     p_stripe_subscription_id: input.stripeSubscriptionId,
     p_status: status,
@@ -225,6 +230,9 @@ async function syncCardSeat(subscription: Stripe.Subscription) {
   }
   const { supabase, response } = serviceOr503();
   if (!supabase) return response;
+  if (!(await subscriptionsReady(supabase))) {
+    return NextResponse.json({ received: true, applied: false, reason: "subscriptions_not_ready" });
+  }
   const item = subscription.items?.data?.[0] as { current_period_end?: number } | undefined;
   const renewsAt = typeof item?.current_period_end === "number" ? new Date(item.current_period_end * 1000).toISOString() : null;
   const synced = await supabase.rpc("sync_card_subscription", {
@@ -284,6 +292,8 @@ export async function POST(request: Request) {
       console.warn("stripe async checkout payment failed", { eventId: event.id, session: session.id });
       const { supabase } = serviceOr503();
       if (supabase) {
+        // Best effort. Migration 015 only widens the audit check. If it is not applied, this insert
+        // is rejected and recordAudit ignores it. The page still uses the PaymentIntent status.
         const ownerId = session.client_reference_id ?? "";
         await recordAudit(supabase, {
           event_type: "checkout_payment_failed",
@@ -302,8 +312,15 @@ export async function POST(request: Request) {
       return NextResponse.json({ received: true, credited: false, reason: "async_payment_failed" });
     }
     if (event.type === "invoice.paid") {
+      const decision = decideMonthlyInvoice(monthlyInvoiceInput(event.data.object));
+      if (decision.action === "ignore") {
+        return NextResponse.json({ received: true, credited: false, reason: decision.reason });
+      }
       const { supabase, response } = serviceOr503();
       if (!supabase) return response;
+      if (!(await subscriptionsReady(supabase))) {
+        return NextResponse.json({ received: true, credited: false, reason: "subscriptions_not_ready" });
+      }
       const result = await fulfillMonthlyInvoice(supabase, event.data.object);
       if (result.action === "ignore") {
         return NextResponse.json({ received: true, credited: false, reason: result.reason });

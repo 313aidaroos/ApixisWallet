@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { findCatalogProduct } from "@/lib/catalog";
 import { addDays, isMonthlySku } from "@/lib/subscriptions";
+import { subscriptionsReady } from "@/lib/subscriptions/ready";
 import { getAuthenticatedUser } from "@/lib/supabase/server";
 import { createServiceSupabase } from "@/lib/supabase/service";
 import { ledgerErrorResponse } from "@/lib/api/errors";
@@ -66,7 +67,8 @@ export async function POST(request: Request) {
   }
 
   let subscriptionId: string | null = null;
-  if (parsed.data.autoRenew && isMonthlySku(product.key)) {
+  // Without migration 016 the spend still stands. Auto-renew is skipped, same as a one-shot redeem.
+  if (parsed.data.autoRenew && isMonthlySku(product.key) && (await subscriptionsReady(supabase))) {
     const enrolled = await supabase.rpc("enroll_subscription", {
       p_owner_id: userId,
       p_product_key: product.key,
