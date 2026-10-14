@@ -201,3 +201,7 @@ Entry format:
 ## 2026-10-14 — Cursor (Wallet Lead)
 - Changed: `docs/LAUNCH_READINESS_2027.md`. Launch board for 1 January 2027: what is already on `main`, what the 14 October audit found, and draft PRs #64–#68. No application code.
 - Why: the January launch needs one list of done work, open draft fixes, and the items that need Awad or env/DNS/Stripe access.
+
+## 2026-10-14 — Cursor (Wallet Lead)
+- Changed: combined the #65–#69 work onto `cursor/launch-combined-e71a`. `docs/LAUNCH_READINESS_2027.md` now says those changes live in this one draft. `supabase/tests/66_monthly_subscriptions_test.sql` uses auth user `88888888-8888-4888-8888-888888888888`.
+- Why: one draft instead of five conflicting pull requests. The monthly SQL test had inserted `66666666-…`, the same `auth.users` id `scripts/test-sql.sh` inserts later for the welcome-grant race, so ledger CI failed after the concurrency check. Migrations 015 and 016 are unchanged. No env change.

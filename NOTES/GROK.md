@@ -252,3 +252,6 @@ Recorded by Grok (Developer Bot, notes and status sync at 12:25 AM CT on Oct 5).
 
 ## 2026-10-14 (CT) — January 2027 launch board
 - 2026-10-14 ~5:40 PM CT — Wallet Lead — What: wrote `docs/LAUNCH_READINESS_2027.md`. It records the 14 October audit and points at draft PRs #64 (legal pages), #65 (5% fee lock), #66 (failed checkout), #67 (Geoxis return hosts), and #68 (monthly card or Ixis renew). Where: that file only. Who: Wallet Lead. Undo: `git revert` this PR’s squash commit. No env, DNS, Stripe, database, or mint.
+
+## 2026-10-14 (CT) — one draft for the launch fixes
+- 2026-10-14 ~5:50 PM CT — Wallet Lead — What: the changes from #65 (fee lock), #66 (failed checkout), #67 (return hosts), #68 (monthly renew), and #69 (this board) are one branch, `cursor/launch-combined-e71a`. Every NOTES and changelog entry above is kept. The monthly SQL test user is `88888888-8888-4888-8888-888888888888` so it does not collide with the welcome-grant race user in `scripts/test-sql.sh`. Where: this branch. Who: Wallet Lead. Undo: close this draft without merging. Migrations 015 and 016 are included as written and are not applied. No env, DNS, or Stripe dashboard change.

@@ -1,7 +1,8 @@
 -- Monthly seats: one live row per person and product, source switch cancels the other, customers cannot write.
 \set ON_ERROR_STOP 1
 
-insert into auth.users (id, email) values ('66666666-6666-4666-8666-666666666666', 'sub-test@example.com')
+-- Not 66666666-…: scripts/test-sql.sh inserts that id later for the welcome-grant race.
+insert into auth.users (id, email) values ('88888888-8888-4888-8888-888888888888', 'sub-test@example.com')
 on conflict do nothing;
 
 set role service_role;
@@ -10,21 +11,21 @@ do $$
 declare n int; live_source text; live_id uuid;
 begin
   perform public.enroll_subscription(
-    '66666666-6666-4666-8666-666666666666', 'renoxis.agent.monthly', 'ixis', 5000, now() + interval '30 days'
+    '88888888-8888-4888-8888-888888888888', 'renoxis.agent.monthly', 'ixis', 5000, now() + interval '30 days'
   );
   perform public.enroll_subscription(
-    '66666666-6666-4666-8666-666666666666', 'renoxis.agent.monthly', 'ixis', 5000, now() + interval '30 days'
+    '88888888-8888-4888-8888-888888888888', 'renoxis.agent.monthly', 'ixis', 5000, now() + interval '30 days'
   );
   select count(*) into n from public.subscriptions
-   where owner_id = '66666666-6666-4666-8666-666666666666' and status in ('active', 'past_due');
+   where owner_id = '88888888-8888-4888-8888-888888888888' and status in ('active', 'past_due');
   if n <> 1 then raise exception 'expected 1 live subscription, got %', n; end if;
 
   perform public.enroll_subscription(
-    '66666666-6666-4666-8666-666666666666', 'renoxis.agent.monthly', 'card', 5000,
+    '88888888-8888-4888-8888-888888888888', 'renoxis.agent.monthly', 'card', 5000,
     now() + interval '30 days', 'sub_test_card', 'cus_test'
   );
   select count(*), max(source) into n, live_source from public.subscriptions
-   where owner_id = '66666666-6666-4666-8666-666666666666' and status in ('active', 'past_due');
+   where owner_id = '88888888-8888-4888-8888-888888888888' and status in ('active', 'past_due');
   if n <> 1 or live_source <> 'card' then
     raise exception 'card switch left % live rows source %', n, live_source;
   end if;
@@ -35,7 +36,7 @@ begin
     select 1 from public.subscriptions where id = live_id and status = 'past_due'
   ) then raise exception 'past_due did not stick'; end if;
 
-  perform public.request_subscription_cancel('66666666-6666-4666-8666-666666666666', 'renoxis.agent.monthly');
+  perform public.request_subscription_cancel('88888888-8888-4888-8888-888888888888', 'renoxis.agent.monthly');
   if not exists (
     select 1 from public.subscriptions where id = live_id and cancel_at_period_end
   ) then raise exception 'cancel_at_period_end did not stick'; end if;
