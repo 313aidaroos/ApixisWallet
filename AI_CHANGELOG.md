@@ -179,3 +179,7 @@ Entry format:
 ## 2026-10-14 — Cursor (Wallet Lead)
 - Changed: `app/terms/page.tsx`, `app/privacy/page.tsx`, `app/refund/page.tsx`, `components/LegalDraft.tsx`, `lib/legal.ts`, footer links on the Wallet screen and the buy-complete page, `app/wallet-cyber.css`, `test/legal-draft.test.ts`.
 - Why: Launch readiness. The Wallet had counsel drafts in `docs/legal/` but no public `/terms`, `/privacy`, or `/refund` routes (all 404 on production). These pages are marked DRAFT pending counsel. `TERMS_VERSION` is not bumped.
+
+## 2026-10-14 — Cursor (Wallet Lead)
+- Changed: `lib/api/marketplace.ts` `planSettle` locks plain marketplace orders and tips at 500 bps. Other `feeBps` values return `fee_locked`, the same as world trades. Catalog redeem and Ixis pack purchase paths are unchanged and take no fee. Docs and SDK comment updated.
+- Why: The 5% Apixis Bank fee is for marketplace and world orders only. A settle caller could previously pass 0% or 8%.

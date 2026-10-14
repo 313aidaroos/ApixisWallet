@@ -49,9 +49,11 @@ test("world order rules: app apixis, Apixis ID buyer, pinned counterparty, no se
   assert.equal((checkWorldOrder({ kind: "tip", app: "apixis", buyerId: BUYER, sellerId: SELLER }) as { code: string }).code, "seller_not_allowed");
 });
 
-test("settle plan: plain orders unchanged (seller required, caller fee)", () => {
+test("settle plan: plain orders are locked at 5% (seller required)", () => {
   assert.equal(planSettle(null, {}).mode, "error");
-  assert.deepEqual(planSettle(null, { seller_email: "s@example.com", feeBps: 800 }), { mode: "payout", sellerId: null, sellerEmail: "s@example.com", feeBps: 800, kind: "order" });
+  assert.equal((planSettle(null, { seller_email: "s@example.com", feeBps: 800 }) as { code: string }).code, "fee_locked");
+  assert.equal((planSettle(null, { seller_email: "s@example.com", feeBps: 0 }) as { code: string }).code, "fee_locked");
+  assert.deepEqual(planSettle(null, { seller_email: "s@example.com", feeBps: 500 }), { mode: "payout", sellerId: null, sellerEmail: "s@example.com", feeBps: 500, kind: "order" });
   assert.deepEqual(planSettle(null, { seller_id: SELLER }), { mode: "payout", sellerId: SELLER, sellerEmail: null, feeBps: 500, kind: "order" });
 });
 

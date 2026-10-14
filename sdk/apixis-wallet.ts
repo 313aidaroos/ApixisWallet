@@ -188,7 +188,7 @@ export async function marketplaceOrder(opts: {
 
 /**
  * Settle a delivered order: the buyer's hold is captured and the seller is paid amount − fee
- * (family fee 5% unless you pass feeBps). Idempotent — retry the same call after a lost response.
+ * (family fee locked at 5%). Pass feeBps only as 500, or omit it. Idempotent — retry the same call after a lost response.
  * A WalletError with code "payout_pending" means the buyer WAS charged and the seller payout must
  * be retried (call again with the same arguments); never refund the buyer on that code.
  */

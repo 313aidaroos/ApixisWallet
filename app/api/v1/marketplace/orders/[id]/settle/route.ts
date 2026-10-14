@@ -13,7 +13,7 @@ const bodySchema = z
   .object({
     seller_id: z.string().uuid().optional(),
     seller_email: z.string().email().max(320).optional(),
-    /** Apixis Bank fee in basis points. Family default 500 (5%, D12). */
+    /** Must be omitted or 500. Marketplace and world orders are locked at 5%. */
     feeBps: z.number().int().min(0).max(MAX_FEE_BPS).optional(),
     description: z.string().min(1).max(120).optional(),
   });
@@ -37,7 +37,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   if (!UUID.test(id)) return NextResponse.json({ error: "Order not found", code: "not_found" }, { status: 404 });
 
   const parsed = bodySchema.safeParse(await request.json().catch(() => null));
-  if (!parsed.success) return NextResponse.json({ error: "Invalid settle request (seller_id or seller_email, feeBps 0–5000)" }, { status: 400 });
+  if (!parsed.success) return NextResponse.json({ error: "Invalid settle request (seller_id or seller_email, feeBps omitted or 500)" }, { status: 400 });
 
   const supabase = createServiceSupabase();
   if (!supabase) return NextResponse.json({ error: "Service configuration missing" }, { status: 503 });
