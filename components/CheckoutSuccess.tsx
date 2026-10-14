@@ -254,7 +254,11 @@ export function CheckoutSuccess({ unitLabel = "Ixis" }: { unitLabel?: string }) 
           ) : null}
         </nav>
 
-        <footer>APIXIS FAMILY CO. · coins only · peg 100 {unit} = $1</footer>
+        <footer>
+          APIXIS FAMILY CO. · coins only · peg 100 {unit} = $1 ·{" "}
+          <Link href="/terms">Terms (draft)</Link> · <Link href="/privacy">Privacy (draft)</Link> ·{" "}
+          <Link href="/refund">Refunds (draft)</Link>
+        </footer>
       </section>
     </main>
   );

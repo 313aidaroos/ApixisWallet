@@ -1126,6 +1126,11 @@ export function WalletScreen({
             <footer className="ix-footer">
               <span>APIXIS FAMILY COMPANY · 100 {unit} = $1</span>
               <span>ONE IDENTITY. ONE WALLET.</span>
+              <nav className="ix-footer-links" aria-label="Legal">
+                <a href="/terms">Terms (draft)</a>
+                <a href="/privacy">Privacy (draft)</a>
+                <a href="/refund">Refunds (draft)</a>
+              </nav>
             </footer>
           </div>
         </main>

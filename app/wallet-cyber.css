@@ -1234,3 +1234,50 @@ body {
     width: 160px;
   }
 }
+
+.ix-legal {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 48px 24px 80px;
+  color: #e8e6f2;
+  line-height: 1.65;
+}
+.ix-legal h1 {
+  font-size: 32px;
+  margin: 8px 0 16px;
+}
+.ix-legal h2 {
+  font-size: 18px;
+  margin: 28px 0 8px;
+}
+.ix-legal a {
+  color: #ffd783;
+}
+.ix-legal-kicker {
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-size: 12px;
+  color: #63f6f0;
+}
+.ix-legal-banner {
+  border: 1px solid #ffd783;
+  color: #ffd783;
+  background: #ffd78314;
+  border-radius: 12px;
+  padding: 12px 16px;
+}
+.ix-legal-nav {
+  display: flex;
+  gap: 16px;
+  margin-top: 36px;
+  font-size: 14px;
+}
+#ix-universe .ix-footer-links {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+#ix-universe .ix-footer-links a {
+  color: #ffd783;
+  text-decoration: none;
+}
