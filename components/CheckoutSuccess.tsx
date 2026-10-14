@@ -36,22 +36,7 @@ export function CheckoutSuccess({ unitLabel = "Ixis" }: { unitLabel?: string }) 
   useEffect(() => {
     if (process.env.NODE_ENV !== "production") {
       const preview = params.get("preview");
-      if (preview === "failed" || preview === "bank") {
-        setPhase({
-          kind: "ready",
-          status: {
-            status: preview === "failed" ? "failed" : "pending",
-            next: "wait",
-            waitReason: preview === "bank" ? "bank" : null,
-            pack: { id: "spark", name: "Spark", ixis: 1000 },
-            destinationApp: "socixis",
-            destinationLabel: "Socixis",
-            returnHost: "socixis.vercel.app",
-            ledgerUnreachable: false,
-          },
-        });
-        return;
-      }
+      if (preview === "failed" || preview === "bank") return;
     }
     if (!sessionId) return;
     let cancelled = false;
@@ -105,15 +90,34 @@ export function CheckoutSuccess({ unitLabel = "Ixis" }: { unitLabel?: string }) 
     return () => window.clearTimeout(timer);
   }, [phase, sessionId]);
 
+  const previewName = process.env.NODE_ENV === "production" ? null : params.get("preview");
+  const previewPhase: Phase | null =
+    previewName === "failed" || previewName === "bank"
+      ? {
+          kind: "ready",
+          status: {
+            status: previewName === "failed" ? "failed" : "pending",
+            next: "wait",
+            waitReason: previewName === "bank" ? "bank" : null,
+            pack: { id: "spark", name: "Spark", ixis: 1000 },
+            destinationApp: "socixis",
+            destinationLabel: "Socixis",
+            returnHost: "socixis.vercel.app",
+            ledgerUnreachable: false,
+          },
+        }
+      : null;
+  const view = previewPhase ?? phase;
+
   // "Back to <product>" only when the checkout stored an allowlisted return_url (returnHost is set
   // server-side from canonicalReturnUrl); the hop itself goes through /api/checkout/return.
   const backLabel =
-    phase.kind === "ready" && phase.status.returnHost && sessionId
-      ? phase.status.destinationApp && phase.status.destinationApp !== "wallet"
-        ? (phase.status.destinationLabel ?? phase.status.returnHost)
-        : phase.status.returnHost
+    view.kind === "ready" && view.status.returnHost && sessionId
+      ? view.status.destinationApp && view.status.destinationApp !== "wallet"
+        ? (view.status.destinationLabel ?? view.status.returnHost)
+        : view.status.returnHost
       : null;
-  const suggested = phase.kind === "ready" ? (phase.status.destinationApp ?? "wallet") : "wallet";
+  const suggested = view.kind === "ready" ? (view.status.destinationApp ?? "wallet") : "wallet";
   const selected = selectedOverride ?? suggested;
   const confirmedChoice = choices.find((choice) => choice.slug === confirmed) ?? null;
   const confirmedProducts = confirmed && confirmed !== "wallet" ? productsForDestination(confirmed) : [];
@@ -139,13 +143,13 @@ export function CheckoutSuccess({ unitLabel = "Ixis" }: { unitLabel?: string }) 
           </article>
         ) : null}
 
-        {sessionId && phase.kind === "loading" ? (
+        {sessionId && view.kind === "loading" ? (
           <article className="balance-card">
             <p className="live">Checking payment…</p>
           </article>
         ) : null}
 
-        {phase.kind === "signin" ? (
+        {view.kind === "signin" ? (
           <article className="balance-card">
             <h2>Sign in</h2>
             <p>Sign in with the same Apixis account you used at checkout. The webhook still credits that account. This page only shows where the Ixis landed.</p>
@@ -155,10 +159,10 @@ export function CheckoutSuccess({ unitLabel = "Ixis" }: { unitLabel?: string }) 
           </article>
         ) : null}
 
-        {phase.kind === "error" ? (
+        {view.kind === "error" ? (
           <article className="balance-card">
             <h2>Checkout</h2>
-            <p>{phase.message}</p>
+            <p>{view.message}</p>
             <div className="balance-actions">
               <button type="button" onClick={() => { setStalled(false); setNonce((value) => value + 1); }}>Check again</button>
               <Link className="go" href="/">Wallet</Link>
@@ -166,21 +170,21 @@ export function CheckoutSuccess({ unitLabel = "Ixis" }: { unitLabel?: string }) 
           </article>
         ) : null}
 
-        {phase.kind === "ready" ? (
+        {view.kind === "ready" ? (
           <article className="balance-card">
-            {phase.status.pack ? (
+            {view.status.pack ? (
               <>
-                <div className="eyebrow"><span>{phase.status.pack.name.toUpperCase()}</span></div>
-                <h2>{phase.status.pack.ixis.toLocaleString()} <small>{unit}</small></h2>
-                <p>{dollars(phase.status.pack.ixis)} · 100 {unit} = $1</p>
+                <div className="eyebrow"><span>{view.status.pack.name.toUpperCase()}</span></div>
+                <h2>{view.status.pack.ixis.toLocaleString()} <small>{unit}</small></h2>
+                <p>{dollars(view.status.pack.ixis)} · 100 {unit} = $1</p>
               </>
             ) : (
               <h2>Checkout</h2>
             )}
 
-            {phase.status.status === "expired" ? <p>This checkout expired before payment.</p> : null}
+            {view.status.status === "expired" ? <p>This checkout expired before payment.</p> : null}
 
-            {phase.status.status === "failed" ? (
+            {view.status.status === "failed" ? (
               <>
                 <p>This payment did not go through. No Ixis were added.</p>
                 <p>You can start again from Buy Ixis. If your bank later shows a successful charge, do not buy the pack again. The webhook still credits that payment.</p>
@@ -191,24 +195,24 @@ export function CheckoutSuccess({ unitLabel = "Ixis" }: { unitLabel?: string }) 
               </>
             ) : null}
 
-            {phase.status.status === "pending" ? (
+            {view.status.status === "pending" ? (
               <>
                 <p className="live">
-                  {phase.status.waitReason === "bank"
+                  {view.status.waitReason === "bank"
                     ? (stalled ? "Still processing with your bank." : "Your bank payment is still processing.")
-                    : phase.status.waitReason === "checkout"
+                    : view.status.waitReason === "checkout"
                       ? "This checkout is not paid yet."
                       : (stalled ? "Still waiting on the ledger." : "Waiting for the ledger…")}
                 </p>
                 <p>
-                  {phase.status.waitReason === "bank"
+                  {view.status.waitReason === "bank"
                     ? "Ixis are added when the payment clears. You can leave this page. Nothing is added from the browser."
-                    : phase.status.waitReason === "checkout"
+                    : view.status.waitReason === "checkout"
                       ? "Stripe has not confirmed a payment for this session. If you cancelled, start again from Buy Ixis."
                       : "Stripe is the cashier. This page waits until the webhook credits your paid balance. It does not add Ixis from the browser."}
                 </p>
-                {phase.status.returnHost ? <p>After the credit you return to {phase.status.returnHost}.</p> : null}
-                {phase.status.ledgerUnreachable ? <p>The ledger check is unreachable. The webhook can still credit you. Check again in a moment.</p> : null}
+                {view.status.returnHost ? <p>After the credit you return to {view.status.returnHost}.</p> : null}
+                {view.status.ledgerUnreachable ? <p>The ledger check is unreachable. The webhook can still credit you. Check again in a moment.</p> : null}
                 {stalled ? (
                   <div className="balance-actions">
                     <button type="button" onClick={() => { setStalled(false); setNonce((value) => value + 1); }}>Check again</button>
@@ -217,9 +221,9 @@ export function CheckoutSuccess({ unitLabel = "Ixis" }: { unitLabel?: string }) 
               </>
             ) : null}
 
-            {phase.status.status === "credited" && phase.status.next === "redirect" ? (
+            {view.status.status === "credited" && view.status.next === "redirect" ? (
               <>
-                <p>Paid Ixis is in your Apixis Wallet. Sending you back to {phase.status.returnHost ?? "the site you came from"}.</p>
+                <p>Paid Ixis is in your Apixis Wallet. Sending you back to {view.status.returnHost ?? "the site you came from"}.</p>
                 <div className="balance-actions">
                   <a className="go" href={`/api/checkout/return?session_id=${encodeURIComponent(sessionId)}`}>Continue</a>
                   <Link className="go secondary" href="/">Stay in Apixis Wallet</Link>
@@ -227,7 +231,7 @@ export function CheckoutSuccess({ unitLabel = "Ixis" }: { unitLabel?: string }) 
               </>
             ) : null}
 
-            {phase.status.status === "credited" && phase.status.next === "choose" ? (
+            {view.status.status === "credited" && view.status.next === "choose" ? (
               <form
                 onSubmit={(event) => {
                   event.preventDefault();

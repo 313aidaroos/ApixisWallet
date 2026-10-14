@@ -183,3 +183,5 @@ Entry format:
 ## 2026-10-14 — Cursor (Wallet Lead)
 - Changed: `/buy/complete` and `GET /api/checkout/status`. A complete unpaid Checkout Session is `failed` unless the PaymentIntent is still processing. `checkout.session.async_payment_failed` writes audit event `checkout_payment_failed` (migration 015, no Ixis movement). A bank payment that is still processing says so, instead of “waiting on the ledger” until the poll gives up.
 - Why: Failed delayed payments stayed `pending` forever, and the success page looked stalled.
+- Changed: the dev-only `/buy/complete?preview=` states are derived during render, so the success page does not call setState inside an effect.
+- Why: eslint `react-hooks/set-state-in-effect` failed CI on this branch.
