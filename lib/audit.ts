@@ -17,7 +17,8 @@ export type AuditEventType =
   | "hold_expiry_sweep"
   | "payout"
   | "signup_grant" // written inside grant_signup_xp (013)
-  | "signup_grant_revoke"; // written inside revoke_signup_grant (013)
+  | "signup_grant_revoke" // written inside revoke_signup_grant (013)
+  | "checkout_payment_failed"; // delayed Checkout payment failed; nothing was credited (015)
 
 export type AuditEvent = {
   event_type: AuditEventType;

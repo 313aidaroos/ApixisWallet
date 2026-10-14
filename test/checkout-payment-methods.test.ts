@@ -146,7 +146,10 @@ describe("webhook crediting for delayed (async) payment methods", () => {
     const result = await deliver("evt_async_failed", "checkout.session.async_payment_failed", session("unpaid"));
     assert.equal(result.status, 200);
     assert.deepEqual(result.body, { received: true, credited: false, reason: "async_payment_failed" });
-    assert.equal(calls.length, 0);
+    assert.equal(creditCalls().length, 0);
+    const audit = calls.filter((call) => call.path === "/rest/v1/audit_events");
+    assert.equal(audit.length, 1);
+    assert.equal((audit[0].body as { event_type: string }).event_type, "checkout_payment_failed");
   });
 
   it("does not credit async_payment_succeeded if the session is somehow not paid", async () => {

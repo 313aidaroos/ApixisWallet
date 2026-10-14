@@ -18,7 +18,7 @@ export async function loadCheckoutStatus(
 
   let session: Stripe.Checkout.Session;
   try {
-    session = await stripe.checkout.sessions.retrieve(sessionId);
+    session = await stripe.checkout.sessions.retrieve(sessionId, { expand: ["payment_intent"] });
   } catch {
     return { ok: false, status: 404, error: "Checkout session was not found" };
   }
@@ -30,11 +30,25 @@ export async function loadCheckoutStatus(
   const pack = packFromMetadata(session.metadata, pointPacks);
   const intent = readPackMetadata(session.metadata);
   const paid = session.payment_status === "paid";
+  const paymentIntent = session.payment_intent;
+  const paymentIntentStatus =
+    paymentIntent && typeof paymentIntent === "object" ? paymentIntent.status : null;
   let credited = false;
   let ledgerUnreachable = false;
+  let asyncPaymentFailed = false;
+  const supabase = createServiceSupabase();
+
+  if (supabase) {
+    const failed = await supabase
+      .from("audit_events")
+      .select("id")
+      .eq("event_type", "checkout_payment_failed")
+      .eq("stripe_checkout_session_id", sessionId)
+      .limit(1);
+    if (!failed.error) asyncPaymentFailed = (failed.data?.length ?? 0) > 0;
+  }
 
   if (paid && pack) {
-    const supabase = createServiceSupabase();
     if (!supabase) {
       ledgerUnreachable = true;
     } else {
@@ -57,6 +71,8 @@ export async function loadCheckoutStatus(
     payload: buildStatusPayload({
       sessionStatus: session.status ?? null,
       paymentStatus: session.payment_status ?? null,
+      paymentIntentStatus,
+      asyncPaymentFailed,
       credited,
       ledgerUnreachable,
       pack,

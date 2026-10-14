@@ -3,10 +3,14 @@ import { resolveDestination } from "@/lib/checkout/destinations";
 import { canonicalReturnUrl, type AllowOptions } from "@/lib/checkout/return-url";
 import { packPurchaseDescription } from "@/lib/stripe/fulfillment";
 
+export type CheckoutWaitReason = "ledger" | "bank" | "checkout";
+
 export type CheckoutStatusPayload = {
-  status: "pending" | "credited" | "expired";
+  status: "pending" | "credited" | "expired" | "failed";
   /** redirect: allowlisted return_url after credit. choose: Wallet vs sister app. wait: ledger not ready. */
   next: "wait" | "redirect" | "choose";
+  /** Why a pending page is still waiting. Null once the payment is credited, expired, or failed. */
+  waitReason: CheckoutWaitReason | null;
   pack: { id: string; name: string; ixis: number } | null;
   destinationApp: string | null;
   destinationLabel: string | null;
@@ -21,10 +25,40 @@ export type CheckoutStatusPayload = {
   ledgerUnreachable: boolean;
 };
 
+/**
+ * A Checkout Session that is complete and unpaid is not "still waiting on the ledger".
+ * Delayed methods sit in `processing` until Stripe sends async_payment_succeeded or
+ * async_payment_failed. A failed or canceled PaymentIntent, or the failure audit row,
+ * is a failed payment: nothing was credited.
+ */
+export function classifyCheckoutPayment(input: {
+  sessionStatus: string | null;
+  paymentStatus: string | null;
+  paymentIntentStatus?: string | null;
+  asyncPaymentFailed?: boolean;
+}): "paid" | "processing" | "failed" | "expired" | "open" {
+  if (input.asyncPaymentFailed) return "failed";
+  if (input.paymentStatus === "paid" || input.paymentStatus === "no_payment_required") return "paid";
+  if (input.sessionStatus === "expired") return "expired";
+  const intent = input.paymentIntentStatus ?? null;
+  if (
+    intent === "processing" ||
+    intent === "requires_action" ||
+    intent === "requires_confirmation" ||
+    intent === "requires_capture"
+  ) {
+    return "processing";
+  }
+  if (input.sessionStatus === "complete") return "failed";
+  return "open";
+}
+
 export function buildStatusPayload(
   input: {
     sessionStatus: string | null;
     paymentStatus: string | null;
+    paymentIntentStatus?: string | null;
+    asyncPaymentFailed?: boolean;
     credited: boolean;
     ledgerUnreachable: boolean;
     pack: { id: string; name: string; xp: number } | null;
@@ -37,6 +71,7 @@ export function buildStatusPayload(
   const returnUrl = input.returnUrl ? canonicalReturnUrl(input.returnUrl, options) : null;
   const returnHost = returnUrl ? new URL(returnUrl).host : null;
   const pack = input.pack ? { id: input.pack.id, name: input.pack.name, ixis: input.pack.xp } : null;
+  const progress = classifyCheckoutPayment(input);
   const base = {
     backUrl: returnUrl,
     pack,
@@ -44,9 +79,10 @@ export function buildStatusPayload(
     destinationLabel: destination?.label ?? null,
     returnHost,
     ledgerUnreachable: input.ledgerUnreachable,
+    waitReason: null as CheckoutWaitReason | null,
   };
 
-  if (input.credited && pack) {
+  if (input.credited && pack && progress === "paid") {
     return {
       ...base,
       status: "credited",
@@ -56,11 +92,21 @@ export function buildStatusPayload(
     };
   }
 
-  if (input.sessionStatus === "expired" && input.paymentStatus !== "paid") {
+  if (progress === "expired") {
     return { ...base, status: "expired", next: "wait", returnUrl: null };
   }
 
-  return { ...base, status: "pending", next: "wait", returnUrl: null };
+  if (progress === "failed") {
+    return { ...base, status: "failed", next: "wait", returnUrl: null };
+  }
+
+  return {
+    ...base,
+    status: "pending",
+    next: "wait",
+    returnUrl: null,
+    waitReason: progress === "processing" ? "bank" : progress === "paid" ? "ledger" : "checkout",
+  };
 }
 
 /** Strip the external URL before it reaches the browser. Redirects go through our route. */
@@ -68,6 +114,7 @@ export function toPublicStatus(payload: CheckoutStatusPayload) {
   return {
     status: payload.status,
     next: payload.next,
+    waitReason: payload.waitReason,
     pack: payload.pack,
     destinationApp: payload.destinationApp,
     destinationLabel: payload.destinationLabel,

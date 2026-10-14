@@ -218,8 +218,26 @@ export async function POST(request: Request) {
     }
     if (event.type === "checkout.session.async_payment_failed") {
       // The delayed payment failed: nothing was credited for this session, so nothing to reverse.
+      // The audit row lets /buy/complete stop saying "pending" after the PaymentIntent is no longer processing.
       const session = event.data.object;
       console.warn("stripe async checkout payment failed", { eventId: event.id, session: session.id });
+      const { supabase } = serviceOr503();
+      if (supabase) {
+        const ownerId = session.client_reference_id ?? "";
+        await recordAudit(supabase, {
+          event_type: "checkout_payment_failed",
+          dedupe_key: `checkout_payment_failed:${session.id}`,
+          actor: "stripe",
+          outcome: "failed",
+          owner_id: /^[0-9a-f-]{36}$/i.test(ownerId) ? ownerId : null,
+          stripe_event_id: event.id,
+          stripe_checkout_session_id: session.id,
+          stripe_payment_intent_id: idOf(session.payment_intent),
+          amount_cents: session.amount_total ?? null,
+          currency: session.currency ?? null,
+          details: { payment_status: session.payment_status, session_status: session.status },
+        });
+      }
       return NextResponse.json({ received: true, credited: false, reason: "async_payment_failed" });
     }
     if (event.type === "charge.refunded") {
