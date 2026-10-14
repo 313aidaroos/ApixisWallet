@@ -237,3 +237,6 @@ Recorded by Grok (Developer Bot, notes and status sync at 12:25 AM CT on Oct 5).
 
 ## 2026-10-14 (CT) — draft legal pages
 - 2026-10-14 ~4:30 PM CT — Wallet Lead — What: public draft pages `/terms`, `/privacy`, and `/refund`, plus footer links on the Wallet and the after-pay page. Each page shows a DRAFT banner pending counsel. The refund page states all Ixis sales are final and Ixis cannot be withdrawn. `TERMS_VERSION` is unchanged. Where: `app/terms/page.tsx`, `app/privacy/page.tsx`, `app/refund/page.tsx`, `components/LegalDraft.tsx`, `lib/legal.ts`, `components/WalletScreen.tsx`, `components/CheckoutSuccess.tsx`, `app/wallet-cyber.css`. Who: Wallet Lead. Undo: `git revert` this PR’s squash commit on main. Do not publish these as final terms, and do not set `TERMS_VERSION` or Stripe’s terms URL until counsel signs off.
+
+## 2026-10-14 (CT) — January 2027 launch board
+- 2026-10-14 ~5:40 PM CT — Wallet Lead — What: wrote `docs/LAUNCH_READINESS_2027.md`. It records the 14 October audit and points at draft PRs #64 (legal pages), #65 (5% fee lock), #66 (failed checkout), #67 (Geoxis return hosts), and #68 (monthly card or Ixis renew). Where: that file only. Who: Wallet Lead. Undo: `git revert` this PR’s squash commit. No env, DNS, Stripe, database, or mint.
