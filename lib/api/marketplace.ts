@@ -4,6 +4,8 @@ import { IDEMPOTENCY_KEY } from "@/lib/api/reserve";
 
 /**
  * Marketplace settlement: a person pays another person through the one ledger.
+ * The 5% Apixis Bank fee applies only here (marketplace orders, tips, and world trades).
+ * Catalog redeems and Ixis pack purchases take no cut: the buyer spends the catalog price.
  *
  * Catalog redeems move Ixis from a customer to the family (capture → clearing). A marketplace order
  * (Ominix job, a future Rawixis deal) moves Ixis from a buyer to a seller with the Apixis Bank fee
@@ -162,13 +164,17 @@ export type SettlePlan =
   | { mode: "error"; status: number; code: string; error: string };
 
 /**
- * How to settle a hold (pure). No terms = a plain order or tip: unchanged (seller required, caller fee).
+ * How to settle a hold (pure). No terms = a plain order or tip: seller required, fee locked at 5%.
  * world_trade: pays only the pinned seller, fee locked at 5%. world_purchase: capture only (sink).
+ * A caller cannot pick another rate. Catalog redeems never call this.
  */
 export function planSettle(terms: Pick<OrderTerms, "kind" | "seller_id" | "fee_bps"> | null, body: { seller_id?: string; seller_email?: string; feeBps?: number }): SettlePlan {
   if (!terms) {
     if (!body.seller_id && !body.seller_email) return { mode: "error", status: 400, code: "seller_required", error: "seller_id or seller_email required" };
-    return { mode: "payout", sellerId: body.seller_id ?? null, sellerEmail: body.seller_email ?? null, feeBps: body.feeBps ?? DEFAULT_FEE_BPS, kind: "order" };
+    if (body.feeBps !== undefined && body.feeBps !== DEFAULT_FEE_BPS) {
+      return { mode: "error", status: 400, code: "fee_locked", error: `Marketplace orders pay the family fee of ${DEFAULT_FEE_BPS} bps; feeBps cannot change it` };
+    }
+    return { mode: "payout", sellerId: body.seller_id ?? null, sellerEmail: body.seller_email ?? null, feeBps: DEFAULT_FEE_BPS, kind: "order" };
   }
   if (body.feeBps !== undefined && body.feeBps !== terms.fee_bps) {
     return { mode: "error", status: 400, code: "fee_locked", error: `World orders pay the family fee of ${terms.fee_bps} bps; feeBps cannot change it` };

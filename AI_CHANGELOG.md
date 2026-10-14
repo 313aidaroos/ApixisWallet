@@ -179,3 +179,33 @@ Entry format:
 ## 2026-10-14 — Cursor (Wallet Lead)
 - Changed: `app/terms/page.tsx`, `app/privacy/page.tsx`, `app/refund/page.tsx`, `components/LegalDraft.tsx`, `lib/legal.ts`, footer links on the Wallet screen and the buy-complete page, `app/wallet-cyber.css`, `test/legal-draft.test.ts`.
 - Why: Launch readiness. The Wallet had counsel drafts in `docs/legal/` but no public `/terms`, `/privacy`, or `/refund` routes (all 404 on production). These pages are marked DRAFT pending counsel. `TERMS_VERSION` is not bumped.
+
+## 2026-10-14 — Cursor (Wallet Lead)
+- Changed: `lib/api/marketplace.ts` `planSettle` locks plain marketplace orders and tips at 500 bps. Other `feeBps` values return `fee_locked`, the same as world trades. Catalog redeem and Ixis pack purchase paths are unchanged and take no fee. Docs and SDK comment updated.
+- Why: The 5% Apixis Bank fee is for marketplace and world orders only. A settle caller could previously pass 0% or 8%.
+
+## 2026-10-14 — Cursor (Wallet Lead)
+- Changed: `/buy/complete` and `GET /api/checkout/status`. A complete unpaid Checkout Session is `failed` unless the PaymentIntent is still processing. `checkout.session.async_payment_failed` writes audit event `checkout_payment_failed` (migration 015, no Ixis movement). A bank payment that is still processing says so, instead of “waiting on the ledger” until the poll gives up.
+- Why: Failed delayed payments stayed `pending` forever, and the success page looked stalled.
+- Changed: the dev-only `/buy/complete?preview=` states are derived during render, so the success page does not call setState inside an effect.
+- Why: eslint `react-hooks/set-state-in-effect` failed CI on this branch.
+
+## 2026-10-14 — Cursor (Wallet Lead)
+- Changed: `lib/checkout/return-url.ts`. Removed the second `recovix-dev.vercel.app` entry. Left both live Geoxis hosts (`geoxis.vercel.app` and `spatial-dashboard-xi.vercel.app`) with a comment. Did not add `recovra-three.vercel.app`.
+- Why: Both Geoxis hosts returned HTTP 200 on 2026-10-14. `recovra-three.vercel.app` is 404. The Recovix host was listed twice.
+
+## 2026-10-14 — Cursor (Wallet Lead)
+- Changed: monthly auto-renew for catalog keys named monthly. Wallet redeem dialog offers Pay with Ixis or Pay with card. Ixis renewals run on `GET /api/cron/renew-subscriptions` (reserve + capture, no mint). Card renewals are Stripe Checkout subscriptions with `price_data` (catalog Ixis as cents) and `invoice.paid` credits then spends that price. Migration `016_monthly_subscriptions.sql`. Stop-next-renewal keeps the current 30 days.
+- Why: every `*.monthly` SKU needs to renew from the source the customer chose. The 5% marketplace fee does not apply. Ixis stay non-withdrawable.
+
+## 2026-10-14 — Cursor (Wallet Lead)
+- Changed: `docs/LAUNCH_READINESS_2027.md`. Launch board for 1 January 2027: what is already on `main`, what the 14 October audit found, and draft PRs #64–#68. No application code.
+- Why: the January launch needs one list of done work, open draft fixes, and the items that need Awad or env/DNS/Stripe access.
+
+## 2026-10-14 — Cursor (Wallet Lead)
+- Changed: combined the #65–#69 work onto `cursor/launch-combined-e71a`. `docs/LAUNCH_READINESS_2027.md` now says those changes live in this one draft. `supabase/tests/66_monthly_subscriptions_test.sql` uses auth user `88888888-8888-4888-8888-888888888888`.
+- Why: one draft instead of five conflicting pull requests. The monthly SQL test had inserted `66666666-…`, the same `auth.users` id `scripts/test-sql.sh` inserts later for the welcome-grant race, so ledger CI failed after the concurrency check. Migrations 015 and 016 are unchanged. No env change.
+
+## 2026-10-14 — Cursor (Wallet Lead)
+- Changed: monthly renewal calls `subscriptionsReady` before `enroll_subscription`, the subscriptions table, card Checkout, or the renewal cron. Wallet redeem of a monthly SKU stays a one-shot spend until that table exists. `checkout_payment_failed` stays a best-effort audit write.
+- Why: migrations 015 and 016 are not applied on production. A redeem that spent Ixis and then called a missing function would have returned an error. Buy, `/buy/complete`, marketplace settle, and one-shot redeem do not use the new table.

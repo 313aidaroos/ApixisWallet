@@ -53,6 +53,7 @@ import {
   type Balance,
   type HistoryItem,
 } from "@/lib/wallet-client";
+import { isMonthlySku } from "@/lib/subscriptions";
 
 type Tab =
   | "companies"
@@ -180,14 +181,20 @@ function RedeemDialog({
   product,
   unit,
   busy,
+  monthly,
   onClose,
   onConfirm,
+  onPayIxis,
+  onPayCard,
 }: {
   product: Product;
   unit: string;
   busy: boolean;
+  monthly: boolean;
   onClose: () => void;
   onConfirm: () => void;
+  onPayIxis: () => void;
+  onPayCard: () => void;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   useEffect(() => {
@@ -204,8 +211,8 @@ function RedeemDialog({
     >
       <div className="ix-dialog-head">
         <div>
-          <p className="ix-eyebrow">REDEEM IXIS</p>
-          <h2>Confirm your redemption</h2>
+          <p className="ix-eyebrow">{monthly ? "MONTHLY SEAT" : "REDEEM IXIS"}</p>
+          <h2>{monthly ? "How should this renew?" : "Confirm your redemption"}</h2>
         </div>
         <button
           className="ix-icon-button"
@@ -223,18 +230,29 @@ function RedeemDialog({
           {fmt(product.xp)} {unit}
         </strong>
       </div>
-      <p className="ix-note">This spends Ixis from your Wallet.</p>
+      <p className="ix-note">
+        {monthly
+          ? `This seat renews every 30 days. Pay with a card through Stripe, or from your Ixis balance. 100 ${unit} = $1. Ixis cannot be withdrawn. Stopping the next renewal keeps the current 30 days.`
+          : "This spends Ixis from your Wallet."}
+      </p>
       <div className="ix-confirm-actions">
         <button className="ix-button" onClick={onClose} disabled={busy}>
           Cancel
         </button>
-        <button
-          className="ix-button ix-primary"
-          onClick={onConfirm}
-          disabled={busy}
-        >
-          {busy ? "Redeeming…" : "Confirm redemption"}
-        </button>
+        {monthly ? (
+          <>
+            <button className="ix-button" onClick={onPayIxis} disabled={busy}>
+              {busy ? "Working…" : "Pay with Ixis"}
+            </button>
+            <button className="ix-button ix-primary" onClick={onPayCard} disabled={busy}>
+              {busy ? "Working…" : "Pay with card"}
+            </button>
+          </>
+        ) : (
+          <button className="ix-button ix-primary" onClick={onConfirm} disabled={busy}>
+            {busy ? "Redeeming…" : "Confirm redemption"}
+          </button>
+        )}
       </div>
     </dialog>
   );
@@ -294,6 +312,18 @@ export function WalletScreen({
   const [buying, setBuying] = useState<string | null>(null);
   const [pendingProduct, setPendingProduct] = useState<Product | null>(null);
   const [redeeming, setRedeeming] = useState(false);
+  const [renewalsOn, setRenewalsOn] = useState(false);
+  const [subscriptions, setSubscriptions] = useState<
+    Array<{
+      id: string;
+      productKey: string;
+      productName: string;
+      source: string;
+      status: string;
+      renewsAt: string;
+      cancelAtPeriodEnd: boolean;
+    }>
+  >([]);
   const refreshPromise = useRef<Promise<void> | null>(null),
     purchaseLock = useRef(false),
     redeemLock = useRef(false),
@@ -338,6 +368,27 @@ export function WalletScreen({
     });
     return request;
   }, []);
+  const previewRenew =
+    process.env.NODE_ENV !== "production" && params.get("preview") === "renew"
+      ? ({ key: "renoxis.agent.monthly", name: "Renoxis Monthly", xp: 5000 } satisfies Product)
+      : null;
+  const [previewDismissed, setPreviewDismissed] = useState(false);
+  const dialogProduct = pendingProduct ?? (previewDismissed ? null : previewRenew);
+  useEffect(() => {
+    if (tab !== "redeem" || status !== "ready") return;
+    let cancelled = false;
+    void fetch("/api/v1/subscriptions", { credentials: "same-origin", cache: "no-store" })
+      .then((response) => (response.ok ? response.json() : null))
+      .then((data) => {
+        if (cancelled || !data) return;
+        setRenewalsOn(data.enabled === true);
+        if (Array.isArray(data.subscriptions)) setSubscriptions(data.subscriptions);
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, [tab, status, updatedAt]);
   useEffect(() => {
     // Initial fetch and visibility/focus refresh use the existing authenticated Wallet APIs.
     void refresh();
@@ -429,14 +480,14 @@ export function WalletScreen({
       setNotice("Refresh your wallet before redeeming.");
       return;
     }
-    if (balance.available < item.xp) {
+    if (!(renewalsOn && isMonthlySku(item.key)) && balance.available < item.xp) {
       setNotice(`You need ${fmt(item.xp - balance.available)} more ${unit}.`);
       navigate("buy");
       return;
     }
     setPendingProduct(item);
   };
-  const redeem = async () => {
+  const redeem = async (autoRenew = false) => {
     if (!pendingProduct || redeemLock.current) return;
     redeemLock.current = true;
     setRedeeming(true);
@@ -444,11 +495,13 @@ export function WalletScreen({
     const key = redeemKeys.current.get(item.key) ?? crypto.randomUUID();
     redeemKeys.current.set(item.key, key);
     try {
-      const result = await redeemProduct(item.key, key);
+      const result = await redeemProduct(item.key, key, { autoRenew });
       if (result.ok) {
         redeemKeys.current.delete(item.key);
         setNotice(
-          `${item.name} redeemed for ${fmt(item.xp)} ${unit}. Receipt ${result.receiptId}.`,
+          autoRenew
+            ? `${item.name} is active. It renews every 30 days from your Ixis balance. Receipt ${result.receiptId}.`
+            : `${item.name} redeemed for ${fmt(item.xp)} ${unit}. Receipt ${result.receiptId}.`,
         );
       } else if (result.reason === "signin") {
         signInHere();
@@ -469,6 +522,70 @@ export function WalletScreen({
       setRedeeming(false);
       setPendingProduct(null);
       await refresh();
+    }
+  };
+  const payWithIxis = () => {
+    if (!pendingProduct || !balance) return;
+    if (balance.available < pendingProduct.xp) {
+      setNotice(`You need ${fmt(pendingProduct.xp - balance.available)} more ${unit}.`);
+      setPendingProduct(null);
+      navigate("buy");
+      return;
+    }
+    void redeem(true);
+  };
+  const payWithCard = async () => {
+    if (!pendingProduct || purchaseLock.current) return;
+    purchaseLock.current = true;
+    setRedeeming(true);
+    const item = pendingProduct;
+    try {
+      const response = await fetch("/api/checkout/subscription", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ productKey: item.key }),
+      });
+      const data = await response.json().catch(() => null);
+      if (response.status === 401) {
+        signInHere();
+        return;
+      }
+      if (!response.ok || typeof data?.url !== "string") {
+        setNotice(typeof data?.error === "string" ? data.error : "Card renewal could not be opened.");
+        return;
+      }
+      window.location.assign(data.url);
+    } catch {
+      setNotice("Card renewal could not be opened. Please try again.");
+    } finally {
+      purchaseLock.current = false;
+      setRedeeming(false);
+    }
+  };
+  const stopRenewal = async (productKey: string) => {
+    try {
+      const response = await fetch("/api/v1/subscriptions/cancel", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ productKey }),
+      });
+      const data = await response.json().catch(() => null);
+      setNotice(
+        response.ok
+          ? "The next renewal is stopped. This period stays."
+          : typeof data?.error === "string"
+            ? data.error
+            : "Could not stop the next renewal.",
+      );
+      if (response.ok) {
+        setSubscriptions((current) =>
+          current.map((item) => (item.productKey === productKey ? { ...item, cancelAtPeriodEnd: true } : item)),
+        );
+      }
+    } catch {
+      setNotice("Could not stop the next renewal.");
     }
   };
   const exportHistory = () => {
@@ -892,6 +1009,29 @@ export function WalletScreen({
             )}
             {tab === "redeem" && (
               <>
+                {subscriptions.length > 0 ? (
+                  <section className="ix-panel" style={{ marginBottom: 16, padding: 16 }}>
+                    <p className="ix-eyebrow">MONTHLY SEATS</p>
+                    {subscriptions.map((seat) => (
+                      <p key={seat.id} className="ix-note">
+                        {seat.productName} · {seat.source === "card" ? "Card" : "Ixis"} ·{" "}
+                        {seat.cancelAtPeriodEnd
+                          ? "Stops after this period"
+                          : seat.status === "past_due"
+                            ? "Past due — the current period stays"
+                            : `Renews ${new Date(seat.renewsAt).toLocaleDateString()}`}
+                        {seat.cancelAtPeriodEnd ? null : (
+                          <>
+                            {" "}
+                            <button className="ix-text-button" type="button" onClick={() => void stopRenewal(seat.productKey)}>
+                              Stop next renewal
+                            </button>
+                          </>
+                        )}
+                      </p>
+                    ))}
+                  </section>
+                ) : null}
                 {destination && destination.slug !== "wallet" && (
                   <p className="ix-note">
                     {showAllRedeem
@@ -956,7 +1096,7 @@ export function WalletScreen({
                         disabled={redeeming || status === "loading"}
                         onClick={() => requestRedeem(item)}
                       >
-                        Redeem <ArrowUpRight />
+                        {renewalsOn && isMonthlySku(item.key) ? "Renew" : "Redeem"} <ArrowUpRight />
                       </button>
                     </article>
                   ))}
@@ -1135,13 +1275,19 @@ export function WalletScreen({
           </div>
         </main>
       </div>
-      {pendingProduct && (
+      {dialogProduct && (
         <RedeemDialog
-          product={pendingProduct}
+          product={dialogProduct}
           unit={unit}
           busy={redeeming}
-          onClose={() => setPendingProduct(null)}
-          onConfirm={() => void redeem()}
+          monthly={(renewalsOn || Boolean(previewRenew && !previewDismissed)) && isMonthlySku(dialogProduct.key)}
+          onClose={() => {
+            setPendingProduct(null);
+            setPreviewDismissed(true);
+          }}
+          onConfirm={() => void redeem(false)}
+          onPayIxis={payWithIxis}
+          onPayCard={() => void payWithCard()}
         />
       )}
     </div>

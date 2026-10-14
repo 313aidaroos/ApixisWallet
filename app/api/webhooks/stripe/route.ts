@@ -4,6 +4,9 @@ import type Stripe from "stripe";
 import { pointPacks } from "@/lib/catalog";
 import { getStripe } from "@/lib/stripe";
 import { decideChargeRefund, decideCheckoutCredit, decideDisputeReversal, type FulfillmentDecision } from "@/lib/stripe/fulfillment";
+import { decideMonthlyInvoice } from "@/lib/subscriptions";
+import { fulfillMonthlyInvoice, monthlyInvoiceInput } from "@/lib/subscriptions/invoice";
+import { subscriptionsReady } from "@/lib/subscriptions/ready";
 import { creditPaidPack, findRefundForCharge, refundPaidPack } from "@/lib/stripe/ledger";
 import { createServiceSupabase } from "@/lib/supabase/service";
 import { recordAudit, type AuditEvent } from "@/lib/audit";
@@ -42,6 +45,11 @@ function idOf(value: string | { id: string } | null | undefined) {
 }
 
 async function creditFromSession(stripe: Stripe, eventId: string, session: Stripe.Checkout.Session) {
+  // Subscription Checkout is not an Ixis pack. invoice.paid credits the seat. Returning 400 here
+  // would make Stripe retry the session forever.
+  if (session.mode === "subscription" || session.metadata?.sku_type === "monthly_seat") {
+    return NextResponse.json({ received: true, credited: false, reason: "monthly_seat_billed_on_invoice" });
+  }
   const decision = decideCheckoutCredit(session, pointPacks);
   if (decision.action === "ignore") {
     return NextResponse.json({ received: true, credited: false, reason: decision.reason });
@@ -187,6 +195,67 @@ async function reverseLostDispute(stripe: Stripe, eventId: string, dispute: Stri
   });
 }
 
+async function markCardSeat(invoice: Stripe.Invoice, status: "past_due") {
+  const input = monthlyInvoiceInput(invoice);
+  if (input.skuType !== "monthly_seat" || !input.stripeSubscriptionId) {
+    return NextResponse.json({ received: true, applied: false, reason: "not_monthly_seat" });
+  }
+  const { supabase, response } = serviceOr503();
+  if (!supabase) return response;
+  if (!(await subscriptionsReady(supabase))) {
+    return NextResponse.json({ received: true, applied: false, reason: "subscriptions_not_ready" });
+  }
+  const synced = await supabase.rpc("sync_card_subscription", {
+    p_stripe_subscription_id: input.stripeSubscriptionId,
+    p_status: status,
+    p_cancel_at_period_end: false,
+  });
+  if (synced.error) throw synced.error;
+  await recordAudit(supabase, {
+    event_type: "subscription_past_due",
+    dedupe_key: `subscription_past_due:${invoice.id}`,
+    actor: "stripe",
+    owner_id: input.ownerId,
+    product_key: input.productKey,
+    stripe_invoice_id: invoice.id,
+    outcome: "failed",
+    details: { stripe_subscription_id: input.stripeSubscriptionId },
+  });
+  return NextResponse.json({ received: true, applied: true, status });
+}
+
+async function syncCardSeat(subscription: Stripe.Subscription) {
+  if (subscription.metadata?.sku_type !== "monthly_seat") {
+    return NextResponse.json({ received: true, applied: false, reason: "not_monthly_seat" });
+  }
+  const { supabase, response } = serviceOr503();
+  if (!supabase) return response;
+  if (!(await subscriptionsReady(supabase))) {
+    return NextResponse.json({ received: true, applied: false, reason: "subscriptions_not_ready" });
+  }
+  const item = subscription.items?.data?.[0] as { current_period_end?: number } | undefined;
+  const renewsAt = typeof item?.current_period_end === "number" ? new Date(item.current_period_end * 1000).toISOString() : null;
+  const synced = await supabase.rpc("sync_card_subscription", {
+    p_stripe_subscription_id: subscription.id,
+    p_status: subscription.status,
+    p_cancel_at_period_end: subscription.cancel_at_period_end,
+    p_renews_at: renewsAt,
+  });
+  if (synced.error) throw synced.error;
+  if (subscription.status === "canceled" || subscription.status === "incomplete_expired") {
+    await recordAudit(supabase, {
+      event_type: "subscription_canceled",
+      dedupe_key: `subscription_canceled:${subscription.id}`,
+      actor: "stripe",
+      owner_id: subscription.metadata?.owner_id ?? null,
+      product_key: subscription.metadata?.product_key ?? null,
+      outcome: "ok",
+      details: { stripe_subscription_id: subscription.id },
+    });
+  }
+  return NextResponse.json({ received: true, applied: Boolean(synced.data), status: subscription.status });
+}
+
 export async function POST(request: Request) {
   const signature = request.headers.get("stripe-signature");
   const secret = process.env.STRIPE_WEBHOOK_SECRET;
@@ -218,9 +287,51 @@ export async function POST(request: Request) {
     }
     if (event.type === "checkout.session.async_payment_failed") {
       // The delayed payment failed: nothing was credited for this session, so nothing to reverse.
+      // The audit row lets /buy/complete stop saying "pending" after the PaymentIntent is no longer processing.
       const session = event.data.object;
       console.warn("stripe async checkout payment failed", { eventId: event.id, session: session.id });
+      const { supabase } = serviceOr503();
+      if (supabase) {
+        // Best effort. Migration 015 only widens the audit check. If it is not applied, this insert
+        // is rejected and recordAudit ignores it. The page still uses the PaymentIntent status.
+        const ownerId = session.client_reference_id ?? "";
+        await recordAudit(supabase, {
+          event_type: "checkout_payment_failed",
+          dedupe_key: `checkout_payment_failed:${session.id}`,
+          actor: "stripe",
+          outcome: "failed",
+          owner_id: /^[0-9a-f-]{36}$/i.test(ownerId) ? ownerId : null,
+          stripe_event_id: event.id,
+          stripe_checkout_session_id: session.id,
+          stripe_payment_intent_id: idOf(session.payment_intent),
+          amount_cents: session.amount_total ?? null,
+          currency: session.currency ?? null,
+          details: { payment_status: session.payment_status, session_status: session.status },
+        });
+      }
       return NextResponse.json({ received: true, credited: false, reason: "async_payment_failed" });
+    }
+    if (event.type === "invoice.paid") {
+      const decision = decideMonthlyInvoice(monthlyInvoiceInput(event.data.object));
+      if (decision.action === "ignore") {
+        return NextResponse.json({ received: true, credited: false, reason: decision.reason });
+      }
+      const { supabase, response } = serviceOr503();
+      if (!supabase) return response;
+      if (!(await subscriptionsReady(supabase))) {
+        return NextResponse.json({ received: true, credited: false, reason: "subscriptions_not_ready" });
+      }
+      const result = await fulfillMonthlyInvoice(supabase, event.data.object);
+      if (result.action === "ignore") {
+        return NextResponse.json({ received: true, credited: false, reason: result.reason });
+      }
+      return NextResponse.json({ received: true, credited: true, subscriptionId: result.subscriptionId });
+    }
+    if (event.type === "invoice.payment_failed") {
+      return await markCardSeat(event.data.object, "past_due");
+    }
+    if (event.type === "customer.subscription.updated" || event.type === "customer.subscription.deleted") {
+      return await syncCardSeat(event.data.object);
     }
     if (event.type === "charge.refunded") {
       return await refundFromCharge(stripe, event.id, event.data.object);
