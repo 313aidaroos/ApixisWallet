@@ -179,3 +179,7 @@ Entry format:
 ## 2026-10-14 — Cursor (Wallet Lead)
 - Changed: `app/terms/page.tsx`, `app/privacy/page.tsx`, `app/refund/page.tsx`, `components/LegalDraft.tsx`, `lib/legal.ts`, footer links on the Wallet screen and the buy-complete page, `app/wallet-cyber.css`, `test/legal-draft.test.ts`.
 - Why: Launch readiness. The Wallet had counsel drafts in `docs/legal/` but no public `/terms`, `/privacy`, or `/refund` routes (all 404 on production). These pages are marked DRAFT pending counsel. `TERMS_VERSION` is not bumped.
+
+## 2026-10-14 — Cursor (Wallet Lead)
+- Changed: `lib/checkout/return-url.ts`. Removed the second `recovix-dev.vercel.app` entry. Left both live Geoxis hosts (`geoxis.vercel.app` and `spatial-dashboard-xi.vercel.app`) with a comment. Did not add `recovra-three.vercel.app`.
+- Why: Both Geoxis hosts returned HTTP 200 on 2026-10-14. `recovra-three.vercel.app` is 404. The Recovix host was listed twice.

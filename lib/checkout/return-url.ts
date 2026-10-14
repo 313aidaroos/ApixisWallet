@@ -33,8 +33,11 @@ export const VERCEL_PRODUCT_HOSTS = [
   "launchixis.vercel.app",
   "awad-command.vercel.app",
   "awadbot.vercel.app",
+  // Both Geoxis hosts answered HTTP 200 on 2026-10-14: geoxis.vercel.app ("Geoxis")
+  // and spatial-dashboard-xi.vercel.app ("Geoxis — Live globe"). recovra-three.vercel.app
+  // is 404 and is not listed. The duplicate recovix-dev.vercel.app entry was removed;
+  // the first copy above stays.
   "geoxis.vercel.app",
-  "recovix-dev.vercel.app",
   "contraxis-dev.vercel.app",
   "ominix-app.vercel.app",
   "nexxis-tau.vercel.app",
