@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { findCatalogProduct } from "@/lib/catalog";
+import { addDays, isMonthlySku } from "@/lib/subscriptions";
 import { getAuthenticatedUser } from "@/lib/supabase/server";
 import { createServiceSupabase } from "@/lib/supabase/service";
 import { ledgerErrorResponse } from "@/lib/api/errors";
@@ -13,6 +14,8 @@ const bodySchema = z.object({
   productKey: z.string().min(1).max(80),
   /** Generate once per click (crypto.randomUUID()) and reuse it on retry. */
   idempotencyKey: z.string().regex(IDEMPOTENCY_KEY),
+  /** Monthly seats only. Charges this seat from the Ixis balance every 30 days. */
+  autoRenew: z.boolean().optional(),
 });
 
 /**
@@ -62,6 +65,31 @@ export async function POST(request: Request) {
     return ledgerErrorResponse(captured.error, "Redeem");
   }
 
+  let subscriptionId: string | null = null;
+  if (parsed.data.autoRenew && isMonthlySku(product.key)) {
+    const enrolled = await supabase.rpc("enroll_subscription", {
+      p_owner_id: userId,
+      p_product_key: product.key,
+      p_source: "ixis",
+      p_amount: product.xp,
+      p_renews_at: addDays(new Date(), 30).toISOString(),
+    });
+    if (enrolled.error) return ledgerErrorResponse(enrolled.error, "Enroll subscription");
+    subscriptionId = typeof enrolled.data === "string" ? enrolled.data : null;
+    await recordAudit(supabase, {
+      event_type: "subscription_enrolled",
+      dedupe_key: subscriptionId ? `subscription_enrolled:${subscriptionId}` : undefined,
+      actor: "wallet-ui",
+      app_slug: productApp(product),
+      owner_id: userId,
+      owner_email: user.email,
+      product_key: product.key,
+      amount_ixis: product.xp,
+      ...requestContext(request),
+      details: { source: "ixis" },
+    });
+  }
+
   await recordAudit(supabase, {
     event_type: "redeem",
     dedupe_key: `redeem:${held.data}`,
@@ -84,5 +112,6 @@ export async function POST(request: Request) {
     productKey: product.key,
     app: productApp(product),
     ixis: product.xp,
+    subscriptionId,
   });
 }

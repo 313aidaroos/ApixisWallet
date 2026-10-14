@@ -85,6 +85,8 @@ body:after {
   border: 1px solid #59617b;
   border-radius: 20px;
   width: min(450px, calc(100% - 32px));
+  max-height: calc(100% - 32px);
+  overflow: auto;
   box-shadow: 0 25px 80px #0007;
 }
 #ix-universe .ix-confirm::backdrop {
@@ -97,6 +99,7 @@ body:after {
 #ix-universe .ix-confirm-actions {
   display: flex;
   justify-content: flex-end;
+  flex-wrap: wrap;
   gap: 10px;
   margin-top: 24px;
 }

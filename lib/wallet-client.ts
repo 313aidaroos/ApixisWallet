@@ -67,12 +67,16 @@ export function fetchHistory(options: { limit?: number; offset?: number } = {}) 
  * Spend Ixis on a catalog SKU from inside the Wallet. Pass the same `idempotencyKey` when retrying
  * the same click so a double-click or retry never charges twice.
  */
-export async function redeemProduct(productKey: string, idempotencyKey: string = crypto.randomUUID()): Promise<RedeemResult> {
+export async function redeemProduct(
+  productKey: string,
+  idempotencyKey: string = crypto.randomUUID(),
+  options?: { autoRenew?: boolean },
+): Promise<RedeemResult> {
   const response = await fetch("/api/v1/redeem", {
     method: "POST",
     credentials: "same-origin",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({ productKey, idempotencyKey }),
+    body: JSON.stringify({ productKey, idempotencyKey, ...(options?.autoRenew ? { autoRenew: true } : {}) }),
   });
   const data = await response.json().catch(() => null);
   const message = (data && typeof data.error === "string" && data.error) || `Wallet ${response.status}`;

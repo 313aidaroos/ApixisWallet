@@ -193,3 +193,7 @@ Entry format:
 ## 2026-10-14 — Cursor (Wallet Lead)
 - Changed: `lib/checkout/return-url.ts`. Removed the second `recovix-dev.vercel.app` entry. Left both live Geoxis hosts (`geoxis.vercel.app` and `spatial-dashboard-xi.vercel.app`) with a comment. Did not add `recovra-three.vercel.app`.
 - Why: Both Geoxis hosts returned HTTP 200 on 2026-10-14. `recovra-three.vercel.app` is 404. The Recovix host was listed twice.
+
+## 2026-10-14 — Cursor (Wallet Lead)
+- Changed: monthly auto-renew for catalog keys named monthly. Wallet redeem dialog offers Pay with Ixis or Pay with card. Ixis renewals run on `GET /api/cron/renew-subscriptions` (reserve + capture, no mint). Card renewals are Stripe Checkout subscriptions with `price_data` (catalog Ixis as cents) and `invoice.paid` credits then spends that price. Migration `016_monthly_subscriptions.sql`. Stop-next-renewal keeps the current 30 days.
+- Why: every `*.monthly` SKU needs to renew from the source the customer chose. The 5% marketplace fee does not apply. Ixis stay non-withdrawable.
