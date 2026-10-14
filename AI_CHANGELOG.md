@@ -179,3 +179,7 @@ Entry format:
 ## 2026-10-14 — Cursor (Wallet Lead)
 - Changed: `app/terms/page.tsx`, `app/privacy/page.tsx`, `app/refund/page.tsx`, `components/LegalDraft.tsx`, `lib/legal.ts`, footer links on the Wallet screen and the buy-complete page, `app/wallet-cyber.css`, `test/legal-draft.test.ts`.
 - Why: Launch readiness. The Wallet had counsel drafts in `docs/legal/` but no public `/terms`, `/privacy`, or `/refund` routes (all 404 on production). These pages are marked DRAFT pending counsel. `TERMS_VERSION` is not bumped.
+
+## 2026-10-14 — Cursor (Wallet Lead)
+- Changed: monthly auto-renew for catalog keys named monthly. Wallet redeem dialog offers Pay with Ixis or Pay with card. Ixis renewals run on `GET /api/cron/renew-subscriptions` (reserve + capture, no mint). Card renewals are Stripe Checkout subscriptions with `price_data` (catalog Ixis as cents) and `invoice.paid` credits then spends that price. Migration `016_monthly_subscriptions.sql`. Stop-next-renewal keeps the current 30 days.
+- Why: every `*.monthly` SKU needs to renew from the source the customer chose. The 5% marketplace fee does not apply. Ixis stay non-withdrawable.

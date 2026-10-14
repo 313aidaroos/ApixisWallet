@@ -290,6 +290,12 @@ Tips of 10–19 Ixis pay no platform fee under the existing floor rounding. The 
 
 App `apixis` only, `buyer_id` (Apixis ID) required, whole Ixis. `world_trade` (min 20) pins `seller_id` when the order opens; settle pays only that Apixis ID at the locked 5% fee (`feeBps` other than 500 → 400 `fee_locked`; another seller → 409 `seller_mismatch`). `world_purchase` (min 1) has no seller; settle captures to clearing (`payout: 0`, `fee: amount`). Terms live in `marketplace_order_terms` (migration 014). No world kind credits an agent from nowhere. Full contract, error codes and the reconciliation plan: [`docs/WORLD_ECONOMY_CUTOVER.md`](WORLD_ECONOMY_CUTOVER.md).
 
+## Monthly seats
+
+A catalog key that contains `monthly` (`renoxis.agent.monthly`, `roaster_seat_monthly`, `nurserytoons-family-monthly`) can renew every 30 days. The customer chooses in the Wallet: Ixis balance, or a card (Stripe subscription). The price is the catalog Ixis amount. 100 Ixis = $1. Card payments credit that many Ixis and spend them on the seat in the same invoice. There is no platform fee on that spend. Sister-site reserve/capture of a monthly SKU still grants 30 days and does not start auto-renew. SKUs with `days: 30` that are not named monthly (Rawixis seats, Geoxis tracking, `recovix.intel.growth`, `contraxis.seat.*`) do not auto-renew.
+
+Stopping the next renewal keeps the current period. A short Ixis balance marks the seat past due and does not remove access already granted.
+
 ## Catalog
 
 Current SKUs (as of 2026-09-21):
