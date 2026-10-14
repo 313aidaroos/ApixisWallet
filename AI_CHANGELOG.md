@@ -189,3 +189,7 @@ Entry format:
 - Why: Failed delayed payments stayed `pending` forever, and the success page looked stalled.
 - Changed: the dev-only `/buy/complete?preview=` states are derived during render, so the success page does not call setState inside an effect.
 - Why: eslint `react-hooks/set-state-in-effect` failed CI on this branch.
+
+## 2026-10-14 — Cursor (Wallet Lead)
+- Changed: `lib/checkout/return-url.ts`. Removed the second `recovix-dev.vercel.app` entry. Left both live Geoxis hosts (`geoxis.vercel.app` and `spatial-dashboard-xi.vercel.app`) with a comment. Did not add `recovra-three.vercel.app`.
+- Why: Both Geoxis hosts returned HTTP 200 on 2026-10-14. `recovra-three.vercel.app` is 404. The Recovix host was listed twice.

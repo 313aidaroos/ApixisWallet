@@ -29,6 +29,10 @@ describe("return url allowlist", () => {
     for (const host of VERCEL_PRODUCT_HOSTS) {
       assert.equal(canonicalReturnUrl(`https://${host}/home`, locked), `https://${host}/home`);
     }
+    assert.equal(new Set(VERCEL_PRODUCT_HOSTS).size, VERCEL_PRODUCT_HOSTS.length);
+    assert.equal(canonicalReturnUrl("https://geoxis.vercel.app/map", locked), "https://geoxis.vercel.app/map");
+    assert.equal(canonicalReturnUrl("https://spatial-dashboard-xi.vercel.app/globe", locked), "https://spatial-dashboard-xi.vercel.app/globe");
+    assert.equal(canonicalReturnUrl("https://recovra-three.vercel.app/auth/apixis/callback", locked), null);
   });
 
   it("rejects open redirects, lookalike vercel hosts, and non-https", () => {
