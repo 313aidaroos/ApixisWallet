@@ -197,3 +197,7 @@ Entry format:
 ## 2026-10-14 — Cursor (Wallet Lead)
 - Changed: monthly auto-renew for catalog keys named monthly. Wallet redeem dialog offers Pay with Ixis or Pay with card. Ixis renewals run on `GET /api/cron/renew-subscriptions` (reserve + capture, no mint). Card renewals are Stripe Checkout subscriptions with `price_data` (catalog Ixis as cents) and `invoice.paid` credits then spends that price. Migration `016_monthly_subscriptions.sql`. Stop-next-renewal keeps the current 30 days.
 - Why: every `*.monthly` SKU needs to renew from the source the customer chose. The 5% marketplace fee does not apply. Ixis stay non-withdrawable.
+
+## 2026-10-14 — Cursor (Wallet Lead)
+- Changed: `docs/LAUNCH_READINESS_2027.md`. Launch board for 1 January 2027: what is already on `main`, what the 14 October audit found, and draft PRs #64–#68. No application code.
+- Why: the January launch needs one list of done work, open draft fixes, and the items that need Awad or env/DNS/Stripe access.
