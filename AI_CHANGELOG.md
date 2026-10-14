@@ -175,3 +175,7 @@ Entry format:
 ## 2026-10-13 — Cursor: record the Lyrixis and Socixis SKU squash-merge SHA
 - Changed: `NOTES/GROK.md` undo line now names merge `fccd4ccef7d90a9a0b480becf9579c278b78b1e8` (PR #63).
 - Why: the approved patch left a `<squash-merge sha>` placeholder to fill after the squash-merge.
+
+## 2026-10-14 — Cursor (Wallet Lead)
+- Changed: `app/terms/page.tsx`, `app/privacy/page.tsx`, `app/refund/page.tsx`, `components/LegalDraft.tsx`, `lib/legal.ts`, footer links on the Wallet screen and the buy-complete page, `app/wallet-cyber.css`, `test/legal-draft.test.ts`.
+- Why: Launch readiness. The Wallet had counsel drafts in `docs/legal/` but no public `/terms`, `/privacy`, or `/refund` routes (all 404 on production). These pages are marked DRAFT pending counsel. `TERMS_VERSION` is not bumped.
