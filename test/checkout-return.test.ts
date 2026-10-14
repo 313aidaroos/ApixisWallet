@@ -12,7 +12,7 @@ import {
   readPackMetadata,
 } from "../lib/checkout/intent";
 import { VERCEL_PRODUCT_HOSTS, canonicalReturnUrl } from "../lib/checkout/return-url";
-import { buildStatusPayload, findPaidPackCredit, returnRedirectTarget, toPublicStatus } from "../lib/checkout/status";
+import { buildStatusPayload, classifyCheckoutPayment, findPaidPackCredit, returnRedirectTarget, toPublicStatus } from "../lib/checkout/status";
 import { packPurchaseDescription } from "../lib/stripe/fulfillment";
 
 const locked = { extraHosts: [] as string[], allowHttpLocalhost: false };
@@ -284,5 +284,35 @@ describe("paid pack credit lookup", () => {
     assert.ok(calls.some((call) => call.table === "ledger_transactions" && call.method === "eq" && call.args[0] === "description" && call.args[1] === "Spark pack"));
     assert.ok(calls.some((call) => call.table === "ledger_entries" && call.method === "eq" && call.args[0] === "bucket" && call.args[1] === "paid"));
     assert.ok(calls.some((call) => call.table === "ledger_entries" && call.method === "eq" && call.args[0] === "amount" && call.args[1] === 1000));
+  });
+});
+
+describe("delayed payment failure is not pending forever", () => {
+  const pack = { id: "spark", name: "Spark", xp: 1000 };
+  const base = {
+    credited: false,
+    ledgerUnreachable: false,
+    pack,
+    returnUrl: "https://socixis.vercel.app/billing",
+    destinationApp: "socixis",
+  };
+
+  it("marks a complete unpaid session as failed once the payment is not processing", () => {
+    assert.equal(classifyCheckoutPayment({ sessionStatus: "complete", paymentStatus: "unpaid", paymentIntentStatus: "requires_payment_method" }), "failed");
+    assert.equal(classifyCheckoutPayment({ sessionStatus: "complete", paymentStatus: "unpaid", asyncPaymentFailed: true, paymentIntentStatus: "processing" }), "failed");
+    const failed = buildStatusPayload({ ...base, sessionStatus: "complete", paymentStatus: "unpaid", paymentIntentStatus: "canceled" }, locked);
+    assert.equal(failed.status, "failed");
+    assert.equal(failed.next, "wait");
+    assert.equal(toPublicStatus(failed).status, "failed");
+  });
+
+  it("keeps a processing bank payment pending, and a paid-but-uncredited pack on the ledger", () => {
+    assert.equal(classifyCheckoutPayment({ sessionStatus: "complete", paymentStatus: "unpaid", paymentIntentStatus: "processing" }), "processing");
+    const bank = buildStatusPayload({ ...base, sessionStatus: "complete", paymentStatus: "unpaid", paymentIntentStatus: "processing" }, locked);
+    assert.equal(bank.status, "pending");
+    assert.equal(bank.waitReason, "bank");
+    const ledger = buildStatusPayload({ ...base, sessionStatus: "complete", paymentStatus: "paid" }, locked);
+    assert.equal(ledger.status, "pending");
+    assert.equal(ledger.waitReason, "ledger");
   });
 });

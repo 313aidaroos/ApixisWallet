@@ -6,8 +6,9 @@ import { useSearchParams } from "next/navigation";
 import { destinationChoices, productsForDestination } from "@/lib/checkout/destinations";
 
 type PublicStatus = {
-  status: "pending" | "credited" | "expired";
+  status: "pending" | "credited" | "expired" | "failed";
   next: "wait" | "redirect" | "choose";
+  waitReason?: "ledger" | "bank" | "checkout" | null;
   pack: { id: string; name: string; ixis: number } | null;
   destinationApp: string | null;
   destinationLabel: string | null;
@@ -33,6 +34,25 @@ export function CheckoutSuccess({ unitLabel = "Ixis" }: { unitLabel?: string }) 
   const [confirmed, setConfirmed] = useState<string | null>(null);
 
   useEffect(() => {
+    if (process.env.NODE_ENV !== "production") {
+      const preview = params.get("preview");
+      if (preview === "failed" || preview === "bank") {
+        setPhase({
+          kind: "ready",
+          status: {
+            status: preview === "failed" ? "failed" : "pending",
+            next: "wait",
+            waitReason: preview === "bank" ? "bank" : null,
+            pack: { id: "spark", name: "Spark", ixis: 1000 },
+            destinationApp: "socixis",
+            destinationLabel: "Socixis",
+            returnHost: "socixis.vercel.app",
+            ledgerUnreachable: false,
+          },
+        });
+        return;
+      }
+    }
     if (!sessionId) return;
     let cancelled = false;
     let timer = 0;
@@ -58,8 +78,11 @@ export function CheckoutSuccess({ unitLabel = "Ixis" }: { unitLabel?: string }) 
           return;
         }
         setPhase({ kind: "ready", status: data });
-        if (data.status === "pending" && tries < 20) timer = window.setTimeout(() => void tick(), 2000);
-        else if (data.status === "pending") setStalled(true);
+        if (data.status !== "pending") return;
+        const bank = data.waitReason === "bank";
+        const limit = bank ? 40 : 12;
+        if (tries < limit) timer = window.setTimeout(() => void tick(), bank ? 3000 : 2000);
+        else setStalled(true);
       } catch {
         if (!cancelled) setPhase({ kind: "error", message: "Could not reach the wallet." });
       }
@@ -70,7 +93,7 @@ export function CheckoutSuccess({ unitLabel = "Ixis" }: { unitLabel?: string }) 
       cancelled = true;
       window.clearTimeout(timer);
     };
-  }, [sessionId, nonce]);
+  }, [sessionId, nonce, params]);
 
   useEffect(() => {
     if (phase.kind !== "ready" || phase.status.next !== "redirect" || !sessionId) return;
@@ -157,10 +180,33 @@ export function CheckoutSuccess({ unitLabel = "Ixis" }: { unitLabel?: string }) 
 
             {phase.status.status === "expired" ? <p>This checkout expired before payment.</p> : null}
 
+            {phase.status.status === "failed" ? (
+              <>
+                <p>This payment did not go through. No Ixis were added.</p>
+                <p>You can start again from Buy Ixis. If your bank later shows a successful charge, do not buy the pack again. The webhook still credits that payment.</p>
+                <div className="balance-actions">
+                  <Link className="go" href="/buy">Back to Buy</Link>
+                  <Link className="go secondary" href="/">Wallet</Link>
+                </div>
+              </>
+            ) : null}
+
             {phase.status.status === "pending" ? (
               <>
-                <p className="live">{stalled ? "Still waiting on the ledger." : "Waiting for the ledger…"}</p>
-                <p>Stripe is the cashier. This page waits until the webhook credits your paid balance. It does not add Ixis from the browser.</p>
+                <p className="live">
+                  {phase.status.waitReason === "bank"
+                    ? (stalled ? "Still processing with your bank." : "Your bank payment is still processing.")
+                    : phase.status.waitReason === "checkout"
+                      ? "This checkout is not paid yet."
+                      : (stalled ? "Still waiting on the ledger." : "Waiting for the ledger…")}
+                </p>
+                <p>
+                  {phase.status.waitReason === "bank"
+                    ? "Ixis are added when the payment clears. You can leave this page. Nothing is added from the browser."
+                    : phase.status.waitReason === "checkout"
+                      ? "Stripe has not confirmed a payment for this session. If you cancelled, start again from Buy Ixis."
+                      : "Stripe is the cashier. This page waits until the webhook credits your paid balance. It does not add Ixis from the browser."}
+                </p>
                 {phase.status.returnHost ? <p>After the credit you return to {phase.status.returnHost}.</p> : null}
                 {phase.status.ledgerUnreachable ? <p>The ledger check is unreachable. The webhook can still credit you. Check again in a moment.</p> : null}
                 {stalled ? (
