@@ -213,3 +213,7 @@ Entry format:
 ## 2026-10-16 — Cursor (Wallet Lead)
 - Changed: `lib/catalog.ts` (new one-time SKU `socixis.clips.export`, Socixis, "Cixy Clips export", 200 Ixis, no `days`, no aliases), `test/held-catalog.test.ts` (asserts the 200 Ixis price), `docs/INTEGRATION.md`, `docs/LAUNCH_NOTES.md`, `NOTES/GROK.md`.
 - Why: Awad approved this SKU in chat at 12:13 AM CT on 2026-10-16. Undo: `git revert` the squash-merge commit on main.
+
+## 2026-10-16 — Cursor: record the Cixy Clips export squash-merge SHA
+- Changed: `NOTES/GROK.md` undo line now names merge `18ae01e7e96f79bb5db7b748d6c46ecf3782c96e` (PR #71).
+- Why: the approved patch left a `<squash-merge sha>` placeholder to fill after the squash-merge.
