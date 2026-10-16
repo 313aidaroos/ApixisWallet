@@ -325,6 +325,7 @@ Current SKUs (as of 2026-09-21):
 | `socixis.avatar.render.90s`       | Socixis     | Avatar video: 90s render  | 3,000   | $30/video |
 | `socixis.avatar.render.120s`      | Socixis     | Avatar video: 120s render | 4,000   | $40/video |
 | `socixis.image.generate`          | Socixis     | Content Studio image      | 25      | $0.25/image |
+| `socixis.clips.export`            | Socixis     | Cixy Clips export         | 200     | $2/clip  |
 | `lyrixis.voice.setup`             | Lyrixis     | Voice setup               | 500     | $5       |
 | `lyrixis.voice.song`              | Lyrixis     | Voice song                | 600     | $6/song  |
 | `lyrixis.voice.take`              | Lyrixis     | Extra take                | 100     | $1       |
