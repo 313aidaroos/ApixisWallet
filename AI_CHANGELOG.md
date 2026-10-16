@@ -209,3 +209,7 @@ Entry format:
 ## 2026-10-14 — Cursor (Wallet Lead)
 - Changed: monthly renewal calls `subscriptionsReady` before `enroll_subscription`, the subscriptions table, card Checkout, or the renewal cron. Wallet redeem of a monthly SKU stays a one-shot spend until that table exists. `checkout_payment_failed` stays a best-effort audit write.
 - Why: migrations 015 and 016 are not applied on production. A redeem that spent Ixis and then called a missing function would have returned an error. Buy, `/buy/complete`, marketplace settle, and one-shot redeem do not use the new table.
+
+## 2026-10-16 — Cursor (Wallet Lead)
+- Changed: `lib/catalog.ts` (new one-time SKU `socixis.clips.export`, Socixis, "Cixy Clips export", 200 Ixis, no `days`, no aliases), `test/held-catalog.test.ts` (asserts the 200 Ixis price), `docs/INTEGRATION.md`, `docs/LAUNCH_NOTES.md`, `NOTES/GROK.md`.
+- Why: Awad approved this SKU in chat at 12:13 AM CT on 2026-10-16. Undo: `git revert` the squash-merge commit on main.

@@ -133,3 +133,11 @@ All 30-day monthly seats, no aliases. `renoxis.agent.monthly` (5,000 Ixis) is un
 | `socixis.small_business.monthly` | Socixis | Small Business | 30,000 | $300/mo |
 
 `lyrixis.all_access.monthly`, `socixis.creator.monthly`, and `socixis.small_business.monthly` are 30-day seats. The four Lyrixis voice rows are one-time (no `days`). All-Access includes "Voice model + 4 songs + 1 release/mo". No aliases. `lyrixis.track.unlock` (300 Ixis) and `socixis.autopilot.monthly` (45,000 Ixis) are unchanged.
+
+## 2026-10-16 — Cixy Clips export (Wallet Lead, Awad approved 12:13 AM CT)
+
+| Product Key | App | Name | Ixis | USD |
+|---|---|---|---|---|
+| `socixis.clips.export` | Socixis | Cixy Clips export | 200 | $2/clip |
+
+One-time consumable, no `days`, no aliases. Includes "One exported clip · $2 (per-use)".

@@ -59,6 +59,21 @@ describe("Socixis catalog", () => {
     assert.ok(socixis.includes("socixis.image.generate"));
   });
 
+  it("sells Cixy Clips export (socixis.clips.export) at 200 Ixis per clip", () => {
+    const socixis: string[] = productsForDestination("socixis").map((p) => p.key);
+    const product = findCatalogProduct("socixis.clips.export");
+    assert.ok(product, "socixis.clips.export");
+    assert.equal(product.key, "socixis.clips.export");
+    assert.equal(product.name, "Cixy Clips export");
+    assert.equal(product.xp, 200);
+    assert.equal(product.app, "Socixis");
+    assert.equal("includes" in product ? product.includes : "", "One exported clip · $2 (per-use)");
+    assert.equal((product as { days?: number }).days, undefined, "one-time export, not a period");
+    assert.equal(findCatalogProduct("socixis-clips-export"), undefined);
+    assert.equal(findCatalogProduct("socixis.clips.export.monthly"), undefined);
+    assert.ok(socixis.includes("socixis.clips.export"));
+  });
+
   it("still sells the Socixis products Socixis delivers: Autopilot, skins and the all-skins pack", () => {
     const socixis: string[] = productsForDestination("socixis").map((p) => p.key);
     for (const key of [
