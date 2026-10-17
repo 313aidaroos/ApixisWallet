@@ -53,7 +53,7 @@ export function CixyHelp() {
     <section className="auth-cixy" aria-labelledby="cixy-help-title">
       <div className="auth-cixy-head">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/cixy/cixy-combo-a-avatar.webp" alt="Cixy, the Apixis AI guide" width={64} height={64} />
+        <img src="/cixy/cixy-apixis-wallet-avatar.webp" alt="Cixy, the Apixis AI guide" width={64} height={64} />
         <div>
           <p className="auth-eyebrow">CIXY · HELP</p>
           <h2 id="cixy-help-title">Need help signing in?</h2>
