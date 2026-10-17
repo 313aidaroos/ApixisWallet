@@ -13,7 +13,7 @@ const companies = [
   },
   {
     name: "Apixis Wallet",
-    url: "https://apixis-wallet.vercel.app",
+    url: "https://wallet.apixis.dev",
     description: "Your Ixis wallet. Buy, hold, spend across every company.",
     kind: "wallet",
     color: "#e0b35c",
@@ -30,7 +30,7 @@ const companies = [
   },
   {
     name: "Lyrixis",
-    url: "https://lyrixis.vercel.app",
+    url: "https://lyrixis.apixis.dev",
     description: "Voice and media/music metadata.",
     kind: "music",
     color: "#a998ff",
@@ -38,7 +38,7 @@ const companies = [
   },
   {
     name: "Pinixis",
-    url: "https://pinixis.vercel.app",
+    url: "https://pinixis.dev",
     description: "Collectible marketplace and arcade.",
     kind: "arcade",
     color: "#ffbd55",
@@ -55,7 +55,7 @@ const companies = [
   },
   {
     name: "Contraxis",
-    url: "https://contraxis-dev.vercel.app",
+    url: "https://contraxis.dev",
     description: "The everything-marketplace. Find pros for any job.",
     kind: "tools",
     color: "#eea46c",
@@ -63,7 +63,7 @@ const companies = [
   },
   {
     name: "Deduxis",
-    url: "https://deduxis.vercel.app",
+    url: "https://deduxis.apixis.dev",
     description:
       "Snap a receipt. AI extracts, categorizes, exports your taxes.",
     kind: "receipt",
@@ -72,7 +72,7 @@ const companies = [
   },
   {
     name: "Rawixis",
-    url: "https://rawixis.vercel.app",
+    url: "https://rawixis.dev",
     description: "B2B market for critical raw materials.",
     kind: "crystal",
     color: "#d6b476",
@@ -80,7 +80,7 @@ const companies = [
   },
   {
     name: "Halaxis",
-    url: "https://halaxis.vercel.app",
+    url: "https://halaxis.apixis.dev",
     description: "Sharia-compliant hedge fund.",
     kind: "arch",
     color: "#c78d9e",
@@ -88,7 +88,7 @@ const companies = [
   },
   {
     name: "Launchixis",
-    url: "https://launchixis.vercel.app",
+    url: "https://launchixis.apixis.dev",
     description: "Launch operations for new Ixis companies.",
     kind: "launch",
     color: "#ffc879",
@@ -104,15 +104,15 @@ const companies = [
   },
   {
     name: "Geoxis",
-    url: "https://spatial-dashboard-xi.vercel.app",
+    url: "https://geoxis.apixis.dev",
     description: "Watch the world move in live 3D.",
     kind: "map",
     color: "#75d9bd",
     path: "M24 6a18 18 0 1 0 0 36 18 18 0 0 0 0-36Zm-18 18h36M24 6c-6 6-8 12-8 18s2 12 8 18m0-36c6 6 8 12 8 18s-2 12-8 18m-4-18 4-4 4 4-4 6z",
   },
   {
-    name: "Ominix",
-    url: "https://nexxis-tau.vercel.app",
+    name: "Ominixis",
+    url: "https://ominixis.apixis.dev",
     description: "Marketplace with Ixis-only checkout.",
     kind: "network",
     color: "#77b7f7",
@@ -120,11 +120,19 @@ const companies = [
   },
   {
     name: "Wattixis",
-    url: "https://wattixis.vercel.app",
+    url: "https://wattixis.apixis.dev",
     description: "Marketplace for spare energy, excess energy.",
     kind: "energy",
     color: "#f4c65b",
     path: "M27 5 12 27h12l-3 16 17-24H26z",
+  },
+  {
+    name: "Newsxis",
+    url: "https://newsxis.apixis.dev",
+    description: "Real-time news for every place on Earth.",
+    kind: "energy",
+    color: "#7fb3ff",
+    path: "M8 10h26v28H12a4 4 0 0 1-4-4V10Zm26 8h6v16a4 4 0 0 1-4 4M14 17h14M14 24h14M14 31h9",
   },
 ];
 
