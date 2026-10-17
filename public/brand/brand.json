@@ -1,0 +1,24 @@
+{
+  "name": "Apixis Wallet",
+  "domain": "wallet.apixis.dev",
+  "tagline": "One balance. Every Apixis possibility.",
+  "colors": {
+    "primary": "#63f6f0",
+    "accent": "#ffd783",
+    "background": "#080914",
+    "text": "#edf4ff"
+  },
+  "fonts": [],
+  "files": {
+    "logo-full.png": "/brand/logo-full.png",
+    "logo-full-white.png": "/brand/logo-full-white.png",
+    "mark.png": "/brand/mark.png",
+    "mark-white.png": "/brand/mark-white.png",
+    "favicon.ico": "/brand/favicon.ico",
+    "favicon-32.png": "/brand/favicon-32.png",
+    "apple-touch-icon.png": "/brand/apple-touch-icon.png",
+    "icon-192.png": "/brand/icon-192.png",
+    "icon-512.png": "/brand/icon-512.png",
+    "og-image.png": "/brand/og-image.png"
+  }
+}

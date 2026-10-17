@@ -261,3 +261,6 @@ Recorded by Grok (Developer Bot, notes and status sync at 12:25 AM CT on Oct 5).
 
 ## 2026-10-16 (CT) — Socixis Cixy Clips export SKU (Wallet Lead)
 - 2026-10-16 12:13 AM CT — Wallet Lead (Awad approved in chat at 12:13 AM CT on 2026-10-16) — What: one SKU in `lib/catalog.ts` `redeemCatalog`: `socixis.clips.export`, app Socixis, name "Cixy Clips export", 200 Ixis, includes "One exported clip · $2 (per-use)". One-time, no `days`, no aliases. Same pattern as `socixis.image.generate`. Where: `lib/catalog.ts`, `test/held-catalog.test.ts` (price 200), `docs/INTEGRATION.md`, `docs/LAUNCH_NOTES.md`, `AI_CHANGELOG.md`. Who: Wallet Lead, approved by Awad. Undo: `git revert 18ae01e7e96f79bb5db7b748d6c46ecf3782c96e` on main and let Vercel redeploy.
+
+## 2026-10-17 (CT) — official logo kit
+- 2026-10-17 ~12:20 PM CT — Cursor — What: one kit at `public/brand/`, served at `/brand/`. Horizontal lockup (`logo-full.png`, mark left and name right), white copies, mark, favicon.ico, favicon-32, apple-touch-icon (180), icon-192, icon-512, og-image (1200×630), `brand.json`, `README.md`. Header, metadata icons, OG image, and manifest use those paths. Deleted `public/brand/apixis-family-logo.png`. No SVG and no second logo folder. Colors read from the cyber theme. Domain `wallet.apixis.dev`. No env change. Who: Cursor. Undo: `git revert` this PR’s squash commit.
