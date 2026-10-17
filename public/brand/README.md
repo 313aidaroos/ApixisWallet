@@ -10,8 +10,8 @@ Colors are the live Wallet theme: primary `#63f6f0` (`--ix-cyan`), accent `#ffd7
 | --- | --- |
 | `logo-full.png` | Horizontal lockup. Site header and anywhere the full name should show. Transparent. |
 | `logo-full-white.png` | Same lockup, white, for dark backgrounds. Transparent. |
-| `mark.png` | Icon only. Transparent. Source for the small icons. |
-| `mark-white.png` | Icon only, white. Transparent. |
+| `mark.png` | Icon only. Transparent 995×995 square; the artwork is centered and not stretched. Source for the small icons. |
+| `mark-white.png` | Same square, white. Transparent. |
 | `favicon.ico` | Browser tab fallback (16, 32, and 48). Mark on the theme background. |
 | `favicon-32.png` | 32px PNG tab icon. Mark on the theme background. |
 | `apple-touch-icon.png` | 180px Apple touch icon. Mark on the theme background. |

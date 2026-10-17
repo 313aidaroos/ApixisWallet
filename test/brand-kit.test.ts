@@ -46,8 +46,8 @@ test("brand kit is the only logo set and matches the file contract", () => {
   const full = pngSize(join(brandDir, "logo-full.png"));
   assert.ok(full.width >= 1024, "logo-full is at least 1024px wide");
   assert.ok(full.width > full.height, "logo-full is horizontal");
-  const mark = pngSize(join(brandDir, "mark.png"));
-  assert.ok(Math.min(mark.width, mark.height) >= 512, "mark is at least 512px");
+  assert.deepEqual(pngSize(join(brandDir, "mark.png")), { width: 995, height: 995 });
+  assert.deepEqual(pngSize(join(brandDir, "mark-white.png")), { width: 995, height: 995 });
   assert.deepEqual(pngSize(join(brandDir, "apple-touch-icon.png")), { width: 180, height: 180 });
   assert.deepEqual(pngSize(join(brandDir, "favicon-32.png")), { width: 32, height: 32 });
   assert.deepEqual(pngSize(join(brandDir, "icon-192.png")), { width: 192, height: 192 });
