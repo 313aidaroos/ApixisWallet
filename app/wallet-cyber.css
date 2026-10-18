@@ -1293,7 +1293,7 @@ body {
 #ix-universe .ixis-menu:hover .ixis-trigger,
 #ix-universe .ixis-menu.is-open .ixis-trigger { border-color: #ffd783; box-shadow: 0 0 12px #ffd78333; }
 #ix-universe .ixis-panel {
-  position: absolute; left: 0; bottom: calc(100% + 12px); width: min(360px, calc(100vw - 32px));
+  position: absolute; right: 0; bottom: calc(100% + 12px); width: min(360px, calc(100vw - 32px));
   max-height: min(440px, 70vh); overflow-y: auto; z-index: 60;
   background: linear-gradient(160deg, #132936f2, #24162ff2); backdrop-filter: blur(10px);
   border: 1px solid #a475e957; border-radius: 14px; box-shadow: 0 20px 50px #000a, 0 0 30px #ad51db22;
