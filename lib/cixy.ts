@@ -3,7 +3,7 @@ export const CIXY = {
   name: "Cixy",
   role: "Apixis Family native AI",
   portrait:
-    "https://raw.githubusercontent.com/313aidaroos/awad-command/master/public/headquarters/cixy.png",
+    "/cixy/cixy-apixis-wallet-avatar.webp",
   idle:
     "https://raw.githubusercontent.com/313aidaroos/awad-command/master/public/headquarters/cixy-idle.mp4",
   speaking:
