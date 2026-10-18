@@ -74,6 +74,21 @@ describe("Socixis catalog", () => {
     assert.ok(socixis.includes("socixis.clips.export"));
   });
 
+  it("sells Make a video (socixis.short.video) at 150 Ixis per short", () => {
+    const socixis: string[] = productsForDestination("socixis").map((p) => p.key);
+    const product = findCatalogProduct("socixis.short.video");
+    assert.ok(product, "socixis.short.video");
+    assert.equal(product.key, "socixis.short.video");
+    assert.equal(product.name, "Make a video");
+    assert.equal(product.xp, 150);
+    assert.equal(product.app, "Socixis");
+    assert.equal("includes" in product ? product.includes : "", "One 45s vertical short · $1.50 (per-use)");
+    assert.equal((product as { days?: number }).days, undefined, "one-time short, not a period");
+    assert.equal(findCatalogProduct("socixis-short-video"), undefined);
+    assert.equal(findCatalogProduct("socixis.short.video.monthly"), undefined);
+    assert.ok(socixis.includes("socixis.short.video"));
+  });
+
   it("still sells the Socixis products Socixis delivers: Autopilot, skins and the all-skins pack", () => {
     const socixis: string[] = productsForDestination("socixis").map((p) => p.key);
     for (const key of [
