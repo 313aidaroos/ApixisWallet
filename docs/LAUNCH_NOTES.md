@@ -141,3 +141,11 @@ All 30-day monthly seats, no aliases. `renoxis.agent.monthly` (5,000 Ixis) is un
 | `socixis.clips.export` | Socixis | Cixy Clips export | 200 | $2/clip |
 
 One-time consumable, no `days`, no aliases. Includes "One exported clip · $2 (per-use)".
+
+## 2026-10-18 — Make a video (Wallet Lead, Awad approved 3:21 PM CT)
+
+| Product Key | App | Name | Ixis | USD |
+|---|---|---|---|---|
+| `socixis.short.video` | Socixis | Make a video | 150 | $1.50/short |
+
+One-time consumable, no `days`, no aliases. Includes "One 45s vertical short · $1.50 (per-use)".
