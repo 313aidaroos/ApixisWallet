@@ -229,3 +229,7 @@ Entry format:
 ## 2026-10-18 — Cursor (Wallet Lead)
 - Changed: `lib/catalog.ts` (`socixis.short.video` same key, 150 → 300 Ixis, includes now "One 45s vertical short · $3.00 (per-use)"), `test/held-catalog.test.ts` (asserts 300 Ixis), `docs/INTEGRATION.md`, `docs/LAUNCH_NOTES.md`, `NOTES/GROK.md`.
 - Why: Socixis Lead requested this reprice at 3:37 PM CT on 2026-10-18. Pending Awad's merge yes. Not merged in this change.
+
+## 2026-10-18 — Cursor: record the short-video reprice squash-merge SHA
+- Changed: `NOTES/GROK.md` undo line now names merge `bb7e7ecc7a108ec851f254424490488731e00447` (PR #78).
+- Why: Awad approved the merge in chat at 5:41 PM CT on 2026-10-18. The reprice note left the undo line to fill after the squash-merge, the same way as PR #77.
