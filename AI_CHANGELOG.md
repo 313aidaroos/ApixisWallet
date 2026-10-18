@@ -233,3 +233,7 @@ Entry format:
 ## 2026-10-18 — Cursor: record the short-video reprice squash-merge SHA
 - Changed: `NOTES/GROK.md` undo line now names merge `bb7e7ecc7a108ec851f254424490488731e00447` (PR #78).
 - Why: Awad approved the merge in chat at 5:41 PM CT on 2026-10-18. The reprice note left the undo line to fill after the squash-merge, the same way as PR #77.
+
+## 2026-10-18 — Grok: footer "Ixis companies" hover/tap card
+- Changed: `components/IxisCompanies.tsx` + `lib/ixis-companies.ts` (same card as Deduxis #10: 14 current Ixis companies, one-line brief, live .dev / apixis.dev links only, never *.vercel.app; Wallet itself swapped for Deduxis), added to the WalletScreen footer; styles appended to `app/wallet-cyber.css`. Supersedes PR #21.
+- Why: Awad asked for the Deduxis-style card on the Wallet. No env, Stripe, or migration changes.

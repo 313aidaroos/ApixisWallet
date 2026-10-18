@@ -54,6 +54,7 @@ import {
   type HistoryItem,
 } from "@/lib/wallet-client";
 import { isMonthlySku } from "@/lib/subscriptions";
+import { IxisCompanies } from "@/components/IxisCompanies";
 
 type Tab =
   | "companies"
@@ -1271,6 +1272,7 @@ export function WalletScreen({
                 <a href="/privacy">Privacy (draft)</a>
                 <a href="/refund">Refunds (draft)</a>
               </nav>
+              <IxisCompanies />
             </footer>
           </div>
         </main>
