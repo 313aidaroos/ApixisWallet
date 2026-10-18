@@ -146,6 +146,6 @@ One-time consumable, no `days`, no aliases. Includes "One exported clip · $2 (p
 
 | Product Key | App | Name | Ixis | USD |
 |---|---|---|---|---|
-| `socixis.short.video` | Socixis | Make a video | 150 | $1.50/short |
+| `socixis.short.video` | Socixis | Make a video | 300 | $3.00/short |
 
-One-time consumable, no `days`, no aliases. Includes "One 45s vertical short · $1.50 (per-use)".
+One-time consumable, no `days`, no aliases. Includes "One 45s vertical short · $3.00 (per-use)". Repriced from 150 Ixis ($1.50) at Socixis Lead's request on 2026-10-18 3:37 PM CT. Pending Awad's merge yes.

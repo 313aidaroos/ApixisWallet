@@ -41,8 +41,8 @@ export const redeemCatalog = [
   { key: "socixis.image.generate", app: "Socixis", name: "Content Studio image", xp: 25, color: "#ff6bce", includes: "One generated brand image · $0.25 (per-use, floor-exempt)" },
   // Cixy Clips export (Awad approved 2026-10-16 12:13 AM CT). One-time consumable, no `days`, no aliases.
   { key: "socixis.clips.export", app: "Socixis", name: "Cixy Clips export", xp: 200, color: "#ff6bce", includes: "One exported clip · $2 (per-use)" },
-  // Make a video (Awad approved 2026-10-18 3:21 PM CT). One-time consumable, no `days`, no aliases.
-  { key: "socixis.short.video", app: "Socixis", name: "Make a video", xp: 150, color: "#ff6bce", includes: "One 45s vertical short · $1.50 (per-use)" },
+  // Make a video. SKU approved by Awad 2026-10-18 3:21 PM CT. Repriced to 300 Ixis ($3.00) at Socixis Lead's request 2026-10-18 3:37 PM CT, pending Awad's merge yes. One-time consumable, no `days`, no aliases.
+  { key: "socixis.short.video", app: "Socixis", name: "Make a video", xp: 300, color: "#ff6bce", includes: "One 45s vertical short · $3.00 (per-use)" },
   { key: "recovix.intel.monthly", app: "Recovix", name: "Recovery Intelligence · Starter", xp: 22000, color: "#58c8ff", includes: "Seat + 120 extracts · $220/mo", days: 30 },
   { key: "recovix.intel.growth", app: "Recovix", name: "Recovery Intelligence · Growth", xp: 44000, color: "#58c8ff", includes: "Multi-module · workflows · reporting · $440/mo", days: 30 },
   { key: "deduxis.receipts.monthly", app: "Deduxis", name: "Receipt Intelligence", xp: 15000, color: "#ffbd59", includes: "Seat + 200 receipts", days: 30 },

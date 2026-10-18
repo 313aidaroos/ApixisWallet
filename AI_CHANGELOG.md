@@ -225,3 +225,7 @@ Entry format:
 ## 2026-10-18 — Cursor: record the Make a video squash-merge SHA
 - Changed: `NOTES/GROK.md` undo line now names merge `848fe182349ae895547df2c134dc0659865635c1` (PR #76).
 - Why: the approved patch left a `<squash-merge sha>` placeholder to fill after the squash-merge.
+
+## 2026-10-18 — Cursor (Wallet Lead)
+- Changed: `lib/catalog.ts` (`socixis.short.video` same key, 150 → 300 Ixis, includes now "One 45s vertical short · $3.00 (per-use)"), `test/held-catalog.test.ts` (asserts 300 Ixis), `docs/INTEGRATION.md`, `docs/LAUNCH_NOTES.md`, `NOTES/GROK.md`.
+- Why: Socixis Lead requested this reprice at 3:37 PM CT on 2026-10-18. Pending Awad's merge yes. Not merged in this change.
