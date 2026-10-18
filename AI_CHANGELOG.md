@@ -221,3 +221,7 @@ Entry format:
 ## 2026-10-18 — Cursor (Wallet Lead)
 - Changed: `lib/catalog.ts` (new one-time SKU `socixis.short.video`, Socixis, "Make a video", 150 Ixis, no `days`, no aliases), `test/held-catalog.test.ts` (asserts the 150 Ixis price), `docs/INTEGRATION.md`, `docs/LAUNCH_NOTES.md`, `NOTES/GROK.md`.
 - Why: Awad approved this SKU in chat at 3:21 PM CT on 2026-10-18. Undo: `git revert` the squash-merge commit on main.
+
+## 2026-10-18 — Cursor: record the Make a video squash-merge SHA
+- Changed: `NOTES/GROK.md` undo line now names merge `848fe182349ae895547df2c134dc0659865635c1` (PR #76).
+- Why: the approved patch left a `<squash-merge sha>` placeholder to fill after the squash-merge.
