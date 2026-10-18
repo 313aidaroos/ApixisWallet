@@ -217,3 +217,11 @@ Entry format:
 ## 2026-10-16 — Cursor: record the Cixy Clips export squash-merge SHA
 - Changed: `NOTES/GROK.md` undo line now names merge `18ae01e7e96f79bb5db7b748d6c46ecf3782c96e` (PR #71).
 - Why: the approved patch left a `<squash-merge sha>` placeholder to fill after the squash-merge.
+
+## 2026-10-17 — Cursor: Wallet logo kit
+- Changed: one logo kit in `public/brand/` (horizontal `logo-full.png`, white lockup, mark, favicon, Apple touch icon, 192/512 icons, 1200×630 OG image, `brand.json`, `README.md`). Header, metadata icons, Open Graph image, and the web manifest point at `/brand/`. Removed `public/brand/apixis-family-logo.png`. No SVG. Domain in the kit is `wallet.apixis.dev`.
+- Why: the Wallet header used the stacked official logo, and production had no favicon, Apple touch icon, or OG image. The kit is built from that official PNG (mark on the left, name on the right) without redrawing it.
+
+## 2026-10-17 — Cursor: square brand mark
+- Changed: `public/brand/mark.png` and `mark-white.png` are 995×995 transparent squares. The 995×562 artwork is centered and not scaled. Favicon, Apple touch icon, and 192/512 icons were regenerated from that square. `brand.json` does not list sizes, so it was left as-is. Login image size and `test/brand-kit.test.ts` match 995×995.
+- Why: the mark files were wide rectangles. The icon set should come from a square canvas.

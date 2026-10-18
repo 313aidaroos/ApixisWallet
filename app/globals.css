@@ -37,11 +37,11 @@ aside {
   padding: 22px 16px; background: #061008;
 }
 .brand { display: flex; gap: 10px; align-items: center; }
-.brand .mark {
-  width: 34px; height: 34px; border: 2px solid var(--lime);
-  display: grid; place-items: center; color: var(--lime);
-   font-size: 10px;
-  animation: pulse 2.4s ease-in-out infinite;
+.brand .brand-mark {
+  width: 42px;
+  height: auto;
+  display: block;
+  flex: none;
 }
 .brand strong, .brand span { display: block; letter-spacing: 2px; }
 .brand strong {  font-size: 9px; }

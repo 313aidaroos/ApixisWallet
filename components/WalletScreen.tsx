@@ -701,10 +701,10 @@ export function WalletScreen({
           >
             <Image
               className="ix-apixis-logo"
-              src="/brand/apixis-family-logo.png"
+              src="/brand/logo-full.png"
               alt="Apixis Family Company"
-              width={1774}
-              height={887}
+              width={2231}
+              height={562}
               sizes="180px"
               priority
             />

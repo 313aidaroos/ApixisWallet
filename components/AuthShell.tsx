@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
@@ -10,7 +11,7 @@ export function AuthShell({ children, help }: { children: ReactNode; help?: Reac
     <main className="auth-page">
       <div className="auth-top">
         <Link className="brand" href="/" aria-label="Apixis Wallet HQ">
-          <div className="mark">A</div>
+          <Image className="brand-mark" src="/brand/mark.png" alt="" width={995} height={995} />
           <div>
             <strong>APIXIS</strong>
             <span>FAMILY // WALLET</span>
