@@ -149,3 +149,12 @@ One-time consumable, no `days`, no aliases. Includes "One exported clip · $2 (p
 | `socixis.short.video` | Socixis | Make a video | 300 | $3.00/short |
 
 One-time consumable, no `days`, no aliases. Includes "One 45s vertical short · $3.00 (per-use)". Repriced from 150 Ixis ($1.50) at Socixis Lead's request on 2026-10-18 3:37 PM CT. Pending Awad's merge yes.
+
+## 2026-10-19 — Newsxis activate and Reporter (Developer Bot relayed Awad's approval)
+
+| Product Key | App | Name | Ixis | USD |
+|---|---|---|---|---|
+| `newsxis.activate` | Newsxis | Newsxis Activate | 1,000 | $10.00 |
+| `newsxis.reporter.monthly` | Newsxis | Newsxis Reporter | 1,000 | $10.00/mo |
+
+`newsxis.activate` is one-time, no `days`, includes "One-time activation · $10.00". `newsxis.reporter.monthly` has `days: 30` and monthly gating, includes "Month seat · $10.00/mo". No aliases. Pending Awad's merge yes in Wallet Lead chat.

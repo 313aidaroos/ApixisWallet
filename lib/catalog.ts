@@ -20,6 +20,9 @@ export const redeemCatalog = [
   { key: "renoxis.activate", app: "Renoxis", name: "Renoxis Activate", xp: 5000, color: "#c8ff63", includes: "One-time activation · $50" },
   { key: "renoxis.agent.monthly", app: "Renoxis", name: "Renoxis Monthly", xp: 5000, color: "#c8ff63", includes: "Month seat · $50/mo", days: 30 },
   { key: "renoxis.agent.monthly.10000", app: "Renoxis", name: "Renoxis Monthly (post-intro)", xp: 10000, color: "#c8ff63", includes: "Month seat · $100/mo (post-intro price)", days: 30 },
+  // Newsxis (Developer Bot relayed Awad's approval 2026-10-19 1:00 AM CT). Same shape as renoxis.activate / renoxis.agent.monthly: one-time has no `days`; the reporter key is monthly-gated and lasts 30 days. No aliases. Pending Awad's merge yes in Wallet Lead chat.
+  { key: "newsxis.activate", app: "Newsxis", name: "Newsxis Activate", xp: 1000, color: "#7fb3ff", includes: "One-time activation · $10.00" },
+  { key: "newsxis.reporter.monthly", app: "Newsxis", name: "Newsxis Reporter", xp: 1000, color: "#7fb3ff", includes: "Month seat · $10.00/mo", days: 30 },
   { key: "socixis.autopilot.monthly", app: "Socixis", name: "Social Autopilot", xp: 45000, color: "#ff6bce", includes: "20 posts + 20 images", days: 30 },
   // Socixis Creator and Small Business (Awad approved 2026-10-13 1:41 PM CT). No aliases. socixis.autopilot.monthly stays 45,000.
   { key: "socixis.creator.monthly", app: "Socixis", name: "Creator", xp: 5000, color: "#ff6bce", includes: "Monthly Creator plan · $50/mo", days: 30 },
