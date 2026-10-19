@@ -241,3 +241,7 @@ Entry format:
 ## 2026-10-19 — Cursor (Wallet Lead)
 - Changed: `lib/catalog.ts` (new SKUs `newsxis.activate` 1,000 Ixis one-time, no `days`; `newsxis.reporter.monthly` 1,000 Ixis, `days: 30`, monthly gating; no aliases), `test/newsxis-catalog.test.ts`, `docs/INTEGRATION.md`, `docs/LAUNCH_NOTES.md`, `NOTES/GROK.md`.
 - Why: Developer Bot relayed Awad's approval at 1:00 AM CT on 2026-10-19. Pending Awad's merge yes in Wallet Lead chat. Not merged in this change.
+
+## 2026-10-19 — Cursor: record the Newsxis SKU squash-merge SHA
+- Changed: `NOTES/GROK.md` undo line now names merge `67a582c293668a89b3381e01d54f3524fa7a6525` (PR #81).
+- Why: Awad approved the merge in chat at 1:00 AM CT on 2026-10-19. The Newsxis note left the undo line to fill after the squash-merge, the same way as PR #77.
