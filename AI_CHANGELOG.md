@@ -237,3 +237,7 @@ Entry format:
 ## 2026-10-18 — Grok: footer "Ixis companies" hover/tap card
 - Changed: `components/IxisCompanies.tsx` + `lib/ixis-companies.ts` (same card as Deduxis #10: 14 current Ixis companies, one-line brief, live .dev / apixis.dev links only, never *.vercel.app; Wallet itself swapped for Deduxis), added to the WalletScreen footer; styles appended to `app/wallet-cyber.css`. Supersedes PR #21.
 - Why: Awad asked for the Deduxis-style card on the Wallet. No env, Stripe, or migration changes.
+
+## 2026-10-19 — Cursor (Wallet Lead)
+- Changed: `lib/catalog.ts` (new SKUs `newsxis.activate` 1,000 Ixis one-time, no `days`; `newsxis.reporter.monthly` 1,000 Ixis, `days: 30`, monthly gating; no aliases), `test/newsxis-catalog.test.ts`, `docs/INTEGRATION.md`, `docs/LAUNCH_NOTES.md`, `NOTES/GROK.md`.
+- Why: Developer Bot relayed Awad's approval at 1:00 AM CT on 2026-10-19. Pending Awad's merge yes in Wallet Lead chat. Not merged in this change.

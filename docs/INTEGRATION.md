@@ -308,6 +308,8 @@ Current SKUs (as of 2026-09-21):
 | `renoxis.activate`                | Renoxis     | Renoxis Activate          | 5,000   | $50      |
 | `renoxis.agent.monthly`           | Renoxis     | Renoxis Monthly           | 5,000   | $50/mo   |
 | `renoxis.agent.monthly.10000`     | Renoxis     | Renoxis Monthly (post-intro) | 10,000 | $100/mo |
+| `newsxis.activate`                | Newsxis     | Newsxis Activate          | 1,000   | $10.00   |
+| `newsxis.reporter.monthly`        | Newsxis     | Newsxis Reporter          | 1,000   | $10.00/mo |
 | `socixis.autopilot.monthly`       | Socixis     | Social Autopilot          | 45,000  | $450/mo  |
 | `socixis.creator.monthly`         | Socixis     | Creator                   | 5,000   | $50/mo   |
 | `socixis.small_business.monthly`  | Socixis     | Small Business            | 30,000  | $300/mo  |
