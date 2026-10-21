@@ -245,3 +245,8 @@ Entry format:
 ## 2026-10-19 — Cursor: record the Newsxis SKU squash-merge SHA
 - Changed: `NOTES/GROK.md` undo line now names merge `67a582c293668a89b3381e01d54f3524fa7a6525` (PR #81).
 - Why: Awad approved the merge in chat at 1:00 AM CT on 2026-10-19. The Newsxis note left the undo line to fill after the squash-merge, the same way as PR #77.
+
+
+## 2026-10-21 — Ethixis onboarding registration (Codex)
+
+Added Ethixis to `scripts/family-sites.ts` so the existing controlled `family-keys --only ethixis` process can register its own Apixis ID client and scoped Wallet key. This does not mint a key or change production. Owner reiterated one identity/avatar/World presence and one Wallet across every Ixis company; reuse the existing shared `sub`, never create a local points balance. Ethixis beta has no paid SKU or redemption. Live activation needs a checked existing-client lookup, registered callback, credentials, and end-to-end tests. Email SSO is prepared; phone-only signup cannot be advertised while the exchange contract requires verified email. No existing client, price, grant or ledger changed.

@@ -244,3 +244,13 @@ Advisors run on all 15 projects: no ERROR-level findings. Fixed live on Contraxi
 
 ## Change log pointers
 Every repo: `AI_CHANGELOG.md`. Overnight pass: 33 PRs merged 2026-09-30 (Claude). Codex tester-readiness handoff (2026-09-30 ~01:27 CT) preceded it and is not repeated.
+
+
+## Ethixis onboarding preparation — 2026-10-21
+
+- Owner: Addis Ababa and nearby areas, all marketplace categories, seller recruitment/onboarding only, two reviewers; no delivery or shopping yet.
+- Every Ixis account must reuse shared Apixis ID, World avatar/agent and Wallet. Ethixis adds an owned community.
+- Ethixis `codex/onboarding-beta`: staged SSO, private applications and drafts, reviewer audit, communities, real balance lookup and pending World sync. Local tests pass; production activation not claimed.
+- This Wallet branch adds only a registration-helper entry. No new API key minted, no SQL applied, no bonus or price changed.
+- World `codex/ethixis-world-registration` adds allowlist entry. Configure Ethixis-specific World key/hash and Wallet client/callback before deployment.
+- Remaining: reviewer IDs, staging/production credentials and migrations, shared phone OTP integration, complete new-screen translations, native review, support/area/eligibility decisions, real end-to-end validation. Ethixis is not yet ready for public launch.
