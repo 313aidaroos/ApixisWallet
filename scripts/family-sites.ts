@@ -1,5 +1,6 @@
 /** Every family site that is (or will be) an Apixis Wallet + Apixis ID client. Used by family-keys and the launch kit. */
 export const FAMILY_SITES = [
+  { name: "ethixis", apps: ["ethixis"], domain: "ethixis.vercel.app" },
   { name: "renoxis", apps: ["renoxis"], domain: "renoxis.dev" },
   { name: "socixis", apps: ["socixis", "family"], domain: "socixis.dev" },
   { name: "recovix", apps: ["recovix"], domain: "recovix-dev.vercel.app" },
