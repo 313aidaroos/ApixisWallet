@@ -250,3 +250,7 @@ Entry format:
 ## 2026-10-21 — Ethixis onboarding registration (Codex)
 
 Added Ethixis to `scripts/family-sites.ts` so the existing controlled `family-keys --only ethixis` process can register its own Apixis ID client and scoped Wallet key. This does not mint a key or change production. Owner reiterated one identity/avatar/World presence and one Wallet across every Ixis company; reuse the existing shared `sub`, never create a local points balance. Ethixis beta has no paid SKU or redemption. Live activation needs a checked existing-client lookup, registered callback, credentials, and end-to-end tests. Email SSO is prepared; phone-only signup cannot be advertised while the exchange contract requires verified email. No existing client, price, grant or ledger changed.
+
+## 2026-10-25 — Cursor (Wallet Lead)
+- Changed: two lines appended to `CIXY_CORE` in `sdk/apixis-cixy.ts` and the byte-identical twin `sdk/apixis-cixy.js`. No other persona text. No SVG.
+- Why: Cixy knowledge brief 2026-10-19 via Developer Bot. Nexxis is now Ominixis, and the Wallet line says every Ixis site takes card and Ixis, with on-site top-up through Apixis Wallet. Draft only; not merged.
