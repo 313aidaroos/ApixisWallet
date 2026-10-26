@@ -250,3 +250,7 @@ Entry format:
 ## 2026-10-21 — Ethixis onboarding registration (Codex)
 
 Added Ethixis to `scripts/family-sites.ts` so the existing controlled `family-keys --only ethixis` process can register its own Apixis ID client and scoped Wallet key. This does not mint a key or change production. Owner reiterated one identity/avatar/World presence and one Wallet across every Ixis company; reuse the existing shared `sub`, never create a local points balance. Ethixis beta has no paid SKU or redemption. Live activation needs a checked existing-client lookup, registered callback, credentials, and end-to-end tests. Email SSO is prepared; phone-only signup cannot be advertised while the exchange contract requires verified email. No existing client, price, grant or ledger changed.
+
+## 2026-10-25 — Cursor (Wallet Lead)
+- Changed: `lib/catalog.ts` (new one-time SKUs `socixis.posts.extra` 100 Ixis, "Socixis extra post"; `socixis.notfollowing.scan` 500 Ixis, "Socixis Not Following Back scan", includes $4.99; no `days`, no aliases), `test/held-catalog.test.ts`, `NOTES/GROK.md`.
+- Why: Awad approved merging these two Socixis per-use SKUs at 7:27 PM CT on 2026-10-25. No equivalent keys were already in the catalog. Undo: `git revert` the squash-merge commit on main.
