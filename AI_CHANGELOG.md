@@ -254,3 +254,7 @@ Added Ethixis to `scripts/family-sites.ts` so the existing controlled `family-ke
 ## 2026-10-25 — Cursor (Wallet Lead)
 - Changed: `lib/catalog.ts` (new one-time SKUs `socixis.posts.extra` 100 Ixis, "Socixis extra post"; `socixis.notfollowing.scan` 500 Ixis, "Socixis Not Following Back scan", includes $4.99; no `days`, no aliases), `test/held-catalog.test.ts`, `NOTES/GROK.md`.
 - Why: Awad approved merging these two Socixis per-use SKUs at 7:27 PM CT on 2026-10-25. No equivalent keys were already in the catalog. Undo: `git revert` the squash-merge commit on main.
+
+## 2026-10-25 — Cursor: record the Socixis posts and scan squash-merge SHA
+- Changed: `NOTES/GROK.md` undo line now names merge `d45b87821f779e108d3b4fbfe7478eded1eeca7c` (PR #85).
+- Why: Awad approved the merge. The SKU note left a `<squash-merge sha>` placeholder to fill after the squash-merge, the same way as PR #77.
