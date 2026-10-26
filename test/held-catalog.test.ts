@@ -89,6 +89,36 @@ describe("Socixis catalog", () => {
     assert.ok(socixis.includes("socixis.short.video"));
   });
 
+  it("sells an extra post (socixis.posts.extra) at 100 Ixis", () => {
+    const socixis: string[] = productsForDestination("socixis").map((p) => p.key);
+    const product = findCatalogProduct("socixis.posts.extra");
+    assert.ok(product, "socixis.posts.extra");
+    assert.equal(product.key, "socixis.posts.extra");
+    assert.equal(product.name, "Socixis extra post");
+    assert.equal(product.xp, 100);
+    assert.equal(product.app, "Socixis");
+    assert.equal("includes" in product ? product.includes : "", "One extra post · $1 (per-use)");
+    assert.equal((product as { days?: number }).days, undefined, "one-time post, not a period");
+    assert.equal(findCatalogProduct("socixis-posts-extra"), undefined);
+    assert.equal(findCatalogProduct("socixis.posts.extra.monthly"), undefined);
+    assert.ok(socixis.includes("socixis.posts.extra"));
+  });
+
+  it("sells a Not Following Back scan (socixis.notfollowing.scan) at 500 Ixis", () => {
+    const socixis: string[] = productsForDestination("socixis").map((p) => p.key);
+    const product = findCatalogProduct("socixis.notfollowing.scan");
+    assert.ok(product, "socixis.notfollowing.scan");
+    assert.equal(product.key, "socixis.notfollowing.scan");
+    assert.equal(product.name, "Socixis Not Following Back scan");
+    assert.equal(product.xp, 500);
+    assert.equal(product.app, "Socixis");
+    assert.equal("includes" in product ? product.includes : "", "One Not Following Back scan · $4.99 (per-use)");
+    assert.equal((product as { days?: number }).days, undefined, "one-time scan, not a period");
+    assert.equal(findCatalogProduct("socixis-notfollowing-scan"), undefined);
+    assert.equal(findCatalogProduct("socixis.notfollowing.scan.monthly"), undefined);
+    assert.ok(socixis.includes("socixis.notfollowing.scan"));
+  });
+
   it("still sells the Socixis products Socixis delivers: Autopilot, skins and the all-skins pack", () => {
     const socixis: string[] = productsForDestination("socixis").map((p) => p.key);
     for (const key of [
